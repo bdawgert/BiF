@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/Content/css/style.css"/>
+</head>
+<body>
+<div class="header-bar">
+    BeerItForward
+</div>
+
+<div class="navigation-bar">
+    <div class="navigation-menu">
+            <div>@Html.ActionLink("Home", "Index", "Home")</div>
+            <div>@Html.ActionLink("About", "About", "Home")</div>
+            <div>@Html.ActionLink("Contact", "Contact", "Home")</div>
+    </div>
+    <div class="account-menu">
+        @Html.Partial("_LoginPartial")
+    </div>
+</div>
+<div class="body-content">
+    @RenderBody()
+    <hr/>
+    <footer>
+        <p>&copy; @DateTime.Now.Year - BeerItForward</p>
+    </footer>
+</div>
+
+@RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,51 @@
+﻿@using BiF.Web.ViewModels
+@model ProfileVM
+
+@{
+    ViewBag.Title = "Index";
+    string[] flavors = { "Piney", "Juicey", "Tart", "Funky", "Malty", "Roasty", "Sweet", "Smokey", "Spicy", "Crisp" };
+}
+
+<h2>Index</h2>
+
+@Html.TextBoxFor(x => x.Email)
+
+@Html.TextBoxFor(x => x.RedditUsername)
+
+@Html.TextBoxFor(x => x.UntappdUsername)
+
+@Html.TextBoxFor(x => x.Address)
+@Html.TextBoxFor(x => x.City)
+@Html.TextBoxFor(x => x.State)
+@Html.TextBoxFor(x => x.Zip)
+
+@Html.TextBoxFor(x => x.Phone)
+
+<table>
+    <thead>
+        <tr>
+            <td></td>
+            <td>YES!</td>
+            <td>Maybe, if it's objectively good</td>
+            <td>NO!</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (string flavor in flavors)
+        {
+            <tr>
+                <td>@flavor</td>
+                @Html.Raw(Enumerable.Range(1, 3).Select(x => $"<td>{Html.RadioButton(flavor, x)}</td>")))
+            </tr>
+        }
+    </tbody>
+    <tfoot></tfoot>
+</table>
+
+
+@Html.TextAreaFor(x => x.References)
+
+@Html.TextAreaFor(x => x.Wishlist)
+
+
+

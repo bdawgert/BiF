@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiF.Web", "BiF.Web\BiF.Web.csproj", "{206FF964-BD6F-44E2-8049-65A72FB2F5B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiF.DAL", "BiF.DAL\BiF.DAL.csproj", "{8912D988-13F4-4E69-B7AC-9069174A1376}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{206FF964-BD6F-44E2-8049-65A72FB2F5B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206FF964-BD6F-44E2-8049-65A72FB2F5B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206FF964-BD6F-44E2-8049-65A72FB2F5B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206FF964-BD6F-44E2-8049-65A72FB2F5B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8912D988-13F4-4E69-B7AC-9069174A1376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8912D988-13F4-4E69-B7AC-9069174A1376}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8912D988-13F4-4E69-B7AC-9069174A1376}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8912D988-13F4-4E69-B7AC-9069174A1376}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B705C688-CFF5-41C3-9B10-9C031B365786}
+	EndGlobalSection
+EndGlobal
