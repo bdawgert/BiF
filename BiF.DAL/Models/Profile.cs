@@ -22,7 +22,7 @@ namespace BiF.DAL.Models
         public string Comments { get; set; }
 
         public int? Piney { get; set; }
-        public int? Juicey { get; set; }
+        public int? Juicy { get; set; }
         public int? Tart { get; set; }
         public int? Funky { get; set; }
         public int? Malty { get; set; }

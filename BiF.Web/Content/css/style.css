@@ -1,7 +1,7 @@
 ﻿body {
     background: #1c4d71;
     color: #fff;
-    font-family: tahoma;
+    font-family: 'Open Sans', sans-serif;
     margin: 0;
     padding: 0;
 }
@@ -48,7 +48,8 @@
 } 
 /* Set padding to keep content from hitting the edges */
 .body-content {
-    background: #b0b4b6;
+    /*background: #b0b4b6;*/
+    background: #012f50;
     border: 1px solid #00243e;
     box-shadow: 0 2px 5px 0 #00243e;
     margin: 15px auto;

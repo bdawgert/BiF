@@ -30,7 +30,7 @@ namespace BiF.Web.Controllers
                 Comments = user.Profile.Comments,
 
                 Piney = user.Profile.Piney,
-                Juicey = user.Profile.Juicey,
+                Juicy = user.Profile.Juicy,
                 Tart = user.Profile.Tart,
                 Funky = user.Profile.Funky,
                 Malty = user.Profile.Malty,

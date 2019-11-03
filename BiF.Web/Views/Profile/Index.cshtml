@@ -3,15 +3,17 @@
 
 @{
     ViewBag.Title = "Index";
-    string[] flavors = { "Piney", "Juicey", "Tart", "Funky", "Malty", "Roasty", "Sweet", "Smokey", "Spicy", "Crisp" };
+    string[] flavors = { "Piney", "Juicy", "Tart", "Funky", "Malty", "Roasty", "Sweet", "Smokey", "Spicy", "Crisp" };
 }
 
 <h2>Index</h2>
-
-@Html.TextBoxFor(x => x.Email)
-
-@Html.TextBoxFor(x => x.RedditUsername)
-
+<div>
+    @Html.TextBoxFor(x => x.Name)
+    @Html.ValidationMessage("Name is Required")
+</div>
+<div>
+    @Html.TextBoxFor(x => x.RedditUsername)
+</div>
 @Html.TextBoxFor(x => x.UntappdUsername)
 
 @Html.TextBoxFor(x => x.Address)
@@ -42,10 +44,10 @@
     <tfoot></tfoot>
 </table>
 
-
 @Html.TextAreaFor(x => x.References)
 
 @Html.TextAreaFor(x => x.Wishlist)
 
-
-
+@if (Model.UpdateDate != null) {
+    @:Last Updated: @Model.UpdateDate
+}
