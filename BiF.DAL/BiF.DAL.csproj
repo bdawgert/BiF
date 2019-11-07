@@ -59,12 +59,16 @@
   <ItemGroup>
     <Compile Include="Concrete\BifDbContext.cs" />
     <Compile Include="Concrete\EFUnitOfWork.cs" />
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\BifIdentityUser.cs" />
+    <Compile Include="Extensions\CryptoTools.cs" />
+    <Compile Include="Extensions\DataTools.cs" />
+    <Compile Include="Models\IdentityClaim.cs" />
+    <Compile Include="Models\IdentityRole.cs" />
+    <Compile Include="Models\IdentityUser.cs" />
     <Compile Include="Models\Exchange.cs" />
-    <Compile Include="Models\Manifest.cs" />
+    <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Match.cs" />
     <Compile Include="Models\Profile.cs" />
+    <Compile Include="Models\SignUp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

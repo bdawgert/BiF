@@ -1,7 +1,60 @@
-﻿
+﻿@using BiF.Web.ViewModels.Exchanges
+@model IndexVM
+
 @{
     ViewBag.Title = "Index";
+
+    IEnumerable<ExchangeVM> currentExchanges = Model.Exchanges.Where(x => x.CloseDate >= DateTime.Now.AddDays(-30) && x.CloseDate <= DateTime.Now.AddDays(30)).ToList();
+    IEnumerable<ExchangeVM> upcomingExchanges = Model.Exchanges.Where(x => x.CloseDate > DateTime.Now.AddDays(30)).ToList();
+    IEnumerable<ExchangeVM> pastExchanges = Model.Exchanges.Where(x => x.CloseDate < DateTime.Now.AddDays(-30)).ToList();
 }
 
-<h2>Index</h2>
+<h3>Current Exchanges</h3>
 
+@if (!currentExchanges.Any())
+{
+    <div>None</div>
+}
+
+<h3>Upcoming Exchanges</h3>
+@if (!upcomingExchanges.Any())
+{
+    <div>None</div>
+}
+@foreach (var exchange in upcomingExchanges)
+{
+    <div style="display: flex">
+        <div>@exchange.Name</div>
+        <div>@exchange.OpenDate?.ToShortDateString()</div>
+        <div>@exchange.CloseDate?.ToShortDateString()</div>
+        <div>@exchange.MatchDate?.ToShortDateString()</div>
+        <div>
+            @{
+                if (exchange.OpenDate >= DateTime.Now && exchange.CloseDate <= DateTime.Now) {
+                    @:Sign Up
+                }
+            }
+        </div>
+    </div>
+}
+
+<h3>Past Exchanges</h3>
+
+@if (!pastExchanges.Any())
+{
+    <div>None</div>
+}
+@foreach (var exchange in pastExchanges)
+{
+    <div style="display: flex">
+        <div>@exchange.Name</div>
+        <div>@exchange.OpenDate?.ToShortDateString()</div>
+        <div>@exchange.CloseDate?.ToShortDateString()</div>
+        <div>@exchange.MatchDate?.ToShortDateString()</div>
+        <div>
+            @{
+
+            }
+        </div>
+    </div>
+}

@@ -59,6 +59,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -134,39 +135,14 @@
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin">
-      <HintPath>..\packages\Microsoft.Owin.4.0.0\lib\net451\Microsoft.Owin.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Host.SystemWeb">
-      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.0.0\lib\net451\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security">
-      <HintPath>..\packages\Microsoft.Owin.Security.4.0.0\lib\net451\Microsoft.Owin.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.Cookies">
-      <HintPath>..\packages\Microsoft.Owin.Security.Facebook.4.0.0\lib\net451\Microsoft.Owin.Security.Facebook.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Owin.Security.Cookies">
       <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.0.0\lib\net451\Microsoft.Owin.Security.Cookies.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.Google">
-      <HintPath>..\packages\Microsoft.Owin.Security.Google.4.0.0\lib\net451\Microsoft.Owin.Security.Google.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.Twitter">
-      <HintPath>..\packages\Microsoft.Owin.Security.Twitter.4.0.0\lib\net451\Microsoft.Owin.Security.Twitter.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.MicrosoftAccount">
-      <HintPath>..\packages\Microsoft.Owin.Security.MicrosoftAccount.4.0.0\lib\net451\Microsoft.Owin.Security.MicrosoftAccount.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security.OAuth">
-      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.4.0.0\lib\net451\Microsoft.Owin.Security.OAuth.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\ExchangesController.cs" />
@@ -176,8 +152,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Owin\BifSignInManager.cs" />
-    <Compile Include="Owin\BifUserManager.cs" />
+    <Compile Include="Identity\BifSignInManager.cs" />
+    <Compile Include="Identity\BifUserManager.cs" />
+    <Compile Include="Identity\BifUserStore.cs" />
+    <Compile Include="Identity\IBifResult.cs" />
+    <Compile Include="Identity\SignInResult.cs" />
+    <Compile Include="Identity\UserManageResult.cs" />
+    <Compile Include="Identity\BifSessionData.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginConfirmationVM.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginListVM.cs" />
     <Compile Include="ViewModels\Account\ForgotPasswordVM.cs" />
@@ -189,6 +170,9 @@
     <Compile Include="ViewModels\Account\VerifyCodeVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\Exchanges\EditVM.cs" />
+    <Compile Include="ViewModels\Exchanges\ExchangeVM.cs" />
+    <Compile Include="ViewModels\Exchanges\IndexVM.cs" />
     <Compile Include="ViewModels\Exchanges\SignUpVM.cs" />
     <Compile Include="ViewModels\Manage\AddPhoneNumberVM.cs" />
     <Compile Include="ViewModels\Manage\ChangePasswordVM.cs" />
@@ -241,7 +225,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -249,6 +232,9 @@
     <Content Include="Views\Exchanges\SignUp.cshtml" />
     <Content Include="Views\Exchanges\Index.cshtml" />
     <Content Include="Views\Profile\Index.cshtml" />
+    <Content Include="Views\Exchanges\Edit.cshtml" />
+    <Content Include="Views\Shared\Message.cshtml" />
+    <Content Include="Views\Home\__HomeContent.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">

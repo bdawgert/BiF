@@ -8,18 +8,35 @@ namespace BiF.DAL.Models
     {
         [Key]
         [ForeignKey("User")]
+        [MaxLength(36)]
         public string Id { get; set; }
 
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string Zip { get; set; }
+        [MaxLength(32)]
+        public string FullName { get; set; }
 
+        [MaxLength(64)]
+        public string Address { get; set; }
+        [MaxLength(64)]
+        public string City { get; set; }
+        [MaxLength(2), MinLength(2)]
+        public string State { get; set; }
+        [MaxLength(10), MinLength(5)]
+        public string Zip { get; set; }
+        [MaxLength(10)]
+        public string PhoneNumber { get; set; }
+
+        [MaxLength(32)]
         public string RedditUsername { get; set; }
+        [MaxLength(32)]
         public string UntappdUsername { get; set; }
+        [MaxLength(4000)]
         public string References { get; set; }
+        [MaxLength(4000)]
         public string Wishlist { get; set; }
+        [MaxLength(4000)]
         public string Comments { get; set; }
+        [MaxLength(4000)]
+        public string DeliveryNotes { get; set; }
 
         public int? Piney { get; set; }
         public int? Juicy { get; set; }
@@ -36,7 +53,7 @@ namespace BiF.DAL.Models
         public DateTime? UpdateDate { get; set; }
 
         
-        public virtual BifIdentityUser User { get; set; }
+        public virtual IdentityUser User { get; set; }
 
     }
 }

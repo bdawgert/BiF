@@ -1,52 +1,68 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BiF.Web.ViewModels
 {
     public class ProfileVM {
-        [Required]
+        [Required(ErrorMessage = "Full Name is Required")]
         public string Name { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Street Address is Required")]
         public string Address { get; set; }
-        [Required]
+        [Required(ErrorMessage = "City is Required")]
         public string City { get; set; }
-        [Required]
+        [Required(ErrorMessage = "State is Required")]
         public string State { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Zip Code is Required")]
         public string Zip { get; set; }
 
-        [Required]
         public string Phone { get; set; }
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Reddit Username is Required")]
         public string RedditUsername { get; set; }
         public string UntappdUsername { get; set; }
-        public string References { get; set; }
-        [Required]
-        public string Wishlist { get; set; }
-        public string Comments { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Provide a brief list of prior beer exchange experience or references")]
+        public string References { get; set; }
+        //public string Wishlist { get; set; }
+        public string Comments { get; set; }
+        public string DeliveryNotes { get; set; }
+
+        public Dictionary<string, int?> Flavors =>
+            new Dictionary<string, int?> {
+                {"Piney", Piney},
+                {"Juicy", Juicy},
+                {"Tart", Tart},
+                {"Funky", Funky},
+                {"Malty", Malty},
+                {"Roasty", Roasty},
+                {"Sweet", Sweet},
+                {"Smokey", Smokey},
+                {"Spicy", Spicy},
+                {"Crisp", Crisp}
+            };
+
+        [Required(ErrorMessage = "Select a Preference for Piney Flavors")]
         public int? Piney { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Juicy Flavors")]
         public int? Juicy { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Tart Flavors")]
         public int? Tart { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Funky Flavors")]
         public int? Funky { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Malty Flavors")]
         public int? Malty { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Roasty Flavors")]
         public int? Roasty { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Sweet Flavors")]
         public int? Sweet { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Smokey Flavors")]
         public int? Smokey { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Spicy Flavors")]
         public int? Spicy { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Select a Preference for Crisp Flavors")]
         public int? Crisp { get; set; }
 
         public DateTime? CreateDate { get; set; }

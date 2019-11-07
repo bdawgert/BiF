@@ -2,52 +2,203 @@
 @model ProfileVM
 
 @{
-    ViewBag.Title = "Index";
-    string[] flavors = { "Piney", "Juicy", "Tart", "Funky", "Malty", "Roasty", "Sweet", "Smokey", "Spicy", "Crisp" };
+    ViewBag.Title = "BeerItForward | Edit Profile";
 }
 
-<h2>Index</h2>
-<div>
-    @Html.TextBoxFor(x => x.Name)
-    @Html.ValidationMessage("Name is Required")
-</div>
-<div>
-    @Html.TextBoxFor(x => x.RedditUsername)
-</div>
-@Html.TextBoxFor(x => x.UntappdUsername)
 
-@Html.TextBoxFor(x => x.Address)
-@Html.TextBoxFor(x => x.City)
-@Html.TextBoxFor(x => x.State)
-@Html.TextBoxFor(x => x.Zip)
 
-@Html.TextBoxFor(x => x.Phone)
+<div class="body-content" style="width: 800px; position: relative;">
 
-<table>
-    <thead>
-        <tr>
-            <td></td>
-            <td>YES!</td>
-            <td>Maybe, if it's objectively good</td>
-            <td>NO!</td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (string flavor in flavors)
+    @Html.ValidationSummary()
+
+    <div style="margin: 0 auto;">
+        @using (Html.BeginForm())
         {
-            <tr>
-                <td>@flavor</td>
-                @Html.Raw(Enumerable.Range(1, 3).Select(x => $"<td>{Html.RadioButton(flavor, x)}</td>")))
-            </tr>
+            @Html.AntiForgeryToken()
+            <div style="display: flex; justify-content: space-between">
+
+                <div>
+                    <h3>Account Information</h3>
+
+                    <div class="form-row">
+                        <div class="form-label">
+                            Email
+                        </div>
+                        <div>
+                            @Model.Email
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label required">
+                            Full Name
+                        </div>
+                        <div>
+                            @Html.TextBoxFor(x => x.Name)
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label required">
+                            Reddit Username
+                        </div>
+                        <div>
+                            @Html.TextBoxFor(x => x.RedditUsername)
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label">
+                            Untappd Username
+                        </div>
+                        <div>
+                            @Html.TextBoxFor(x => x.UntappdUsername)
+                        </div>
+                    </div>
+
+                    <h3>Shipping Information</h3>
+
+                    <div class="form-row">
+                        <div class="form-label required">Street</div>
+                        <div>
+                            @Html.TextBoxFor(x => x.Address)
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label required">City</div>
+                        <div>
+                            @Html.TextBoxFor(x => x.City)
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label required">State</div>
+                        <div>
+                            @Html.TextBoxFor(x => x.State, new { style = "width: 2.0em", maxlength = "2" })
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label required">Zip</div>
+                        <div>
+                            @Html.TextBoxFor(x => x.Zip, new { style = "width: 5.0em", maxlength = "5" })
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label">Phone</div>
+                        <div>@Html.TextBoxFor(x => x.Phone, new { style = "width: 10.0em", maxlength = "14" })</div>
+                    </div>
+
+                    <div class="form-row" style="flex-direction: column;">
+                        <div class="form-label" style="width: 100%">Delivery Instructions</div>
+                        <div style="width: 100%">@Html.TextAreaFor(x => x.DeliveryNotes, new { style = "width: 100%", maxlength = "4000" })</div>
+                    </div>
+
+
+                </div>
+
+                <div>
+                    <h3 class="required">Flavor Preferences</h3>
+
+                    <table id="flavorTable">
+                        <colgroup>
+                            <col style="width:100px" />
+                            <col style="width:90px" />
+                            <col style="width:90px" />
+                            <col style="width:90px" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td>YES!</td>
+                                <td>Maybe</td>
+                                <td>NO!</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (string flavor in Model.Flavors.Keys)
+                            {
+                                <tr>
+                                    <td>@flavor</td>
+                                    @Html.Raw(string.Join(Environment.NewLine, Enumerable.Range(1, 3).Select(x => $"<td><input type=\"radio\" name=\"{flavor}\" value=\"{x}\" {(Model.Flavors[flavor] == x ? "checked" : "")} /></td>")))
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot></tfoot>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+            <div class="form-row" style="flex-direction: column; margin-top: 15px">
+                <div class="form-label required" style="width: 100%">Previous Experience/References</div>
+                <div>
+                    Have you participated in BiF Secret Santa before? Have you participated in the monthly exchanges? Have you done beer trades in the past? Where? Are you a dead beat just looking for some free beer? Previous experience with exchanges is required to participate.
+                </div>
+                <div style="width: 100%">@Html.TextAreaFor(x => x.References, 3, 0, new { style = "width: 100%", maxlength = "4000" })</div>
+            </div>
+
+            <div class="form-row" style="flex-direction: column; margin-top: 15px">
+
+                <div class="form-label" style="width: 100%">What else should Santa know?</div>
+                <div>Deadly nut allergy - need an epi pen taped to that PB stout? Gluten reduced only - because you hate Santa and want him to hate you back? Completely rational fear of beers with an SRM between 9 and 18?  Please deposit your issues below.</div>
+                <div style="width: 100%">@Html.TextAreaFor(x => x.Comments, 3, 0, new { style = "width: 100%", maxlength = "4000" })</div>
+            </div>
+
+            <input type="submit" value="Save" />
+
         }
-    </tbody>
-    <tfoot></tfoot>
-</table>
+        @if (Model.UpdateDate != null)
+        {
+            @:Last Updated: <span id="updateDate"> </span>
+            <script>
+            $(function () {
+                $('#updateDate').text(new Date('@Model.UpdateDate UTC').toLocaleString())
+            })
+            </script>
+        }
 
-@Html.TextAreaFor(x => x.References)
+    </div>
+</div>
 
-@Html.TextAreaFor(x => x.Wishlist)
 
-@if (Model.UpdateDate != null) {
-    @:Last Updated: @Model.UpdateDate
-}
+    <style>
+        #flavorTable {
+            text-align: center;
+            background-color: #1c4d71;
+            border: 1px solid #000;
+            border-collapse: collapse;
+            color: #fff;
+        }
+
+            #flavorTable thead td {
+                background-color: #d0ae57;
+                color: #000;
+            }
+
+            #flavorTable td {
+                border: 1px solid #012f50;
+                padding: 8px;
+            }
+
+                #flavorTable td:first-child {
+                    text-align: left;
+                }
+
+            #flavorTable input[type=radio] {
+                height: 20px;
+                width: 20px
+            }
+
+            #flavorTable tbody tr:hover {
+                background-color: rgba(234, 179, 38, .2);
+                color: #000;
+            }
+
+            #flavorTable tbody td:hover {
+                background-color: rgba(234, 179, 38, .4);
+            }
+
+            #flavorTable tbody td:first-child:hover {
+                background-color: transparent
+            }
+    </style>
