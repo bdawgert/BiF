@@ -10,25 +10,26 @@
 </head>
 <body>
 <div class="header-bar">
-    BeerItForward
+    <img src="~/Content/img/logo.png" style="margin: 10px;" />
 </div>
 
 <div class="navigation-bar">
     <div class="navigation-menu">
-            <div>@Html.ActionLink("Home", "Index", "Home")</div>
-            <div>@Html.ActionLink("About", "About", "Home")</div>
-            <div>@Html.ActionLink("Contact", "Contact", "Home")</div>
+        <div class="bar-item">@Html.ActionLink("Home", "Index", "Home")</div>
+        @if (Request.IsAuthenticated) {
+            <div class="bar-item">@Html.ActionLink("My Profile", "Index", "Profile")</div>
+        }
+        @if (Request.IsAuthenticated && false) {
+            <div class="bar-item">@Html.ActionLink("Exchanges", "Index", "Exchanges")</div>
+        }
+        <div class="bar-item">@Html.ActionLink("Contact", "Contact", "Home")</div>
     </div>
-    <div class="account-menu">
+    <div>
         @Html.Partial("_LoginPartial")
     </div>
 </div>
-<div class="body-content">
+<div class="main-content">
     @RenderBody()
-    <hr/>
-    <footer>
-        <p>&copy; @DateTime.Now.Year - BeerItForward</p>
-    </footer>
 </div>
 
 @RenderSection("scripts", required: false)

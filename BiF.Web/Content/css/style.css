@@ -6,6 +6,15 @@
     padding: 0;
 }
 
+a {
+    color: #eab326;
+}
+
+a:visited {
+    color: #d4a11e;
+}
+
+
 .header-bar {
     background: #00243e;
     background: linear-gradient(0, #012f50 0, #033b63 100% );
@@ -33,34 +42,108 @@
 }
 
 .navigation-menu {
-    float: left;
+    align-items: center;
     display: flex;
+    height: 40px;
+    left: 0;
+    position: absolute;
 }
 
 .account-menu {
-    float: right;
+    align-items: center;
     display: flex;
+    height: 40px;
+    justify-content: space-between;
+    position: absolute;
+    right: 0;
 }
 
-.navigation-bar:after {
-    content: '';
-    clear: both;
-} 
+.bar-item { margin: 0 10px }
+
 /* Set padding to keep content from hitting the edges */
+.main-content {
+    margin: 15px auto;
+}
+
 .body-content {
     /*background: #b0b4b6;*/
     background: #012f50;
     border: 1px solid #00243e;
     box-shadow: 0 2px 5px 0 #00243e;
-    margin: 15px auto;
-    max-width: 800px;
+    margin: auto;
     padding: 15px;
+    padding-top: 0;
+}
+
+.notification-content {
+    background: #edb977;
+    background: rgba(212, 157, 87, .6);
+    border: 1px solid #ea8026;
+    box-shadow: 0 2px 5px 0 #00243e;
+    margin: 15px auto;
+    padding: 15px;
+}
+
+.validation-summary-errors {
+    background: #edb977;
+    background: rgba(212, 157, 87, .6);
+    border: 1px solid #ea8026;
+    color: #fff;
+    margin: 15px 0;
+    padding: 8px;
+}
+
+.validation-summary-errors ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+.input-validation-error {
+    border-color: #ea8026
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
 textarea {
-    max-width: 280px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1em;
     box-sizing: border-box;
+    margin: 3px 0;
+}
+
+    input[type=button],
+    input[type=submit],
+    button {
+        background-color: #eab326;
+        border: 2px solid #694c00;
+        font-size: 1.1em;
+        font-weight: bold;
+        padding: 4px 2px;
+        width: 140px;
+    }
+
+.form-row {
+    align-items: center;
+    display: flex;
+    margin: 5px auto;
+}
+
+.form-label {
+    width: 120px;
+    font-weight: bold;
+}
+
+.link-button {
+    width: 120px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.required:after {
+    content: '*';
+    color: #eab326;
+    font-size: 1.1em;
+    font-weight: bold;
 }

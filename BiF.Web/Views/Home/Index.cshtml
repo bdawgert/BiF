@@ -1,35 +1,42 @@
-﻿@{
+﻿@using BiF.Web.Identity
+@{
     ViewBag.Title = "BeerItForward | Home";
 }
 
+<div style=" width: 800px; margin: auto; ">
 
-<div>
-    <div>
-        <h2>BiF Secret Santa 2019</h2>
-        <p>
-            Alright boys and girls, it's that magical time of year again, BiF Secret Santa.  Use the Register link above to create an account, complete a Profile, and join the Exchange.
-        </p>
-        <p>
-            <h3>The Dates</h3>
-        <p>
-            Sign Ups: November 10 - December 6
-            Matching: December 8 (tentative)
-            Shipping deadline: December 15 (report shipping by 12/17)
-        </p>
-        <h3>The Rules</h3>
-        <p>
-            You need to have completed at least 10 trades (on any platform), 2 BiF exchanges, or some combination to participate.
-        </p>
-        <p>
-            All participants will need to send a minimum of 128oz of really fucking good beer, rated 4.1 or above on BA/Untappd.  There is no such thing as too much.
-        </p>
-        <div style="font-style: italic; margin: auto; max-width: 400px; text-align:center">
-            "Do you know where I can find that guy that dropped 200oz of awesome on my porch last year?" <br />
-            <img src="https://i.imgur.com/Tep4DbK.gif" />
+    @if (!Request.IsAuthenticated)
+    {
+        <div class="body-content" style="position: relative;">
+            <div style="max-height: 460px; overflow: hidden">
+                @Html.Partial("__HomeContent")
+
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: #012f50; background: linear-gradient(0, #012f50 40%, transparent 100%); text-align: center; height: 150px;">
+                <div style="margin-top: 95px">@Html.ActionLink("Login", "Login", "Account") or @Html.ActionLink("Register", "Register", "Account") to View More</div>
+            </div>
         </div>
-        <p>
-            As always, this is a Christmas exchange - don't be a Grinch, or a Krampus, or an errant BB. Grabbing a mixed six of barrel-aged Founders and a few good IPAs technically fulfills the requirement, but that's the BiF equivalent of a stocking full of underwear.
-            <div style="font-style: italic; margin: auto; max-width: 400px; text-align:center"><img src="https://media.giphy.com/media/Yd2qjjVXOiX4I/giphy.gif" /><br/>Shipping out that 4.1 rated shelfie</div>
-        </p>
-    </div>
+    }
+
+    @if (Request.IsAuthenticated)
+    {
+        if (!((BifSessionData)ViewBag.Session).HasProfile)
+        {
+            <div class="notification-content">
+                Your Profile is currently incomplete.  In order to participate in this year's Exchange, you must complete a Profile.  @Html.ActionLink("Click here to go to the Profile form", "", "Profile").
+            </div>
+        }
+        else if (((BifSessionData)ViewBag.Session).Approved)
+        {
+            <div class="notification-content">
+                Your participation in this year's Secret Santa Exchange has been approved.  Start pulling together some awesome beers.  We'll let you know when matching is complete.
+            </div>
+
+        }
+
+        <div class="body-content" style="position: relative;">
+            @Html.Partial("__HomeContent")
+        </div>
+    }
+
 </div>
