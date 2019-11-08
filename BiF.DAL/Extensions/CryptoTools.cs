@@ -10,7 +10,7 @@ namespace BiF.DAL.Extensions
     {
 
         public static string HashValue(this SecureString secureValue) {
-            return HashValue(secureValue.Unsceure());
+            return HashValue(secureValue.Unsecure());
         }
 
         public static string HashValue(this string value)
@@ -21,7 +21,7 @@ namespace BiF.DAL.Extensions
         }
 
         public static string HashValue(this SecureString secureValue, byte[] salt) {
-            return HashValue(secureValue.Unsceure(), salt);
+            return HashValue(secureValue.Unsecure(), salt);
         }
 
         public static string HashValue(this string value, byte[] salt) {

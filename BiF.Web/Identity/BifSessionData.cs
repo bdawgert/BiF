@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using BiF.DAL.Concrete;
@@ -9,8 +10,11 @@ namespace BiF.Web.Identity
     public class BifSessionData
     {
 
+        
+
         public BifSessionData(string id = null) {
-            EFUnitOfWork dal = EFUnitOfWork.Create();
+
+            EFUnitOfWork dal = EFUnitOfWork.Create(HttpContext.Current.Application["connectionString"].ToString());
 
             if (id == null)
                 id = HttpContext.Current.User.Identity.Name ?? "";

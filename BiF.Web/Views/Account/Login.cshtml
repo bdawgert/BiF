@@ -1,5 +1,4 @@
-﻿
-@using BiF.Web.ViewModels.Account
+﻿@using BiF.Web.ViewModels.Account
 
 @model LoginVM
 @{
@@ -28,6 +27,15 @@
                     @Html.PasswordFor(m => m.Password, new { style = "width: 200px" })
                 </div>
             </div>
+
+            <div class="form-row">
+                <div class="form-label">
+                </div>
+                <div style="text-align: right">
+                    @Html.CheckBoxFor(x => x.RememberMe, new { style = "width: 20px; height: 20px"  }) Remember Me
+                </div>
+            </div>
+
             <div style="text-align: center">
                 <input type="submit" value="Log In"  style="margin: 15px;" />
             </div>

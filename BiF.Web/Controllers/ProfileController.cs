@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using BiF.DAL.Models;
+using BiF.Web.Utilities;
 using BiF.Web.ViewModels;
 
 namespace BiF.Web.Controllers
@@ -11,9 +13,13 @@ namespace BiF.Web.Controllers
     public class ProfileController : BaseController
     {
         [HttpGet]
-        public ActionResult Index() {
+        public ActionResult Index(string id = null) {
 
-            string id = BifSessionData.Id;
+            if (BifSessionData.IsInRole("ADMIN"))
+                id = id ?? BifSessionData.Id;
+            else
+                id = BifSessionData.Id;
+
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile}).FirstOrDefault();
 
             if (user == null)
@@ -22,7 +28,10 @@ namespace BiF.Web.Controllers
             if (user.Profile == null) 
                 return View(new ProfileVM { Email = user.Email });
 
+            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+
             ProfileVM vm = new ProfileVM {
+                Id = id,
                 Name = user.Profile.FullName,
                 Address = user.Profile?.Address,
                 City = user.Profile?.City,
@@ -47,7 +56,8 @@ namespace BiF.Web.Controllers
                 Spicy = user.Profile?.Spicy,
                 Crisp = user.Profile?.Crisp,
 
-                Phone = user.Profile?.PhoneNumber,
+                
+                Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6,4)}",
                 Email = user.Email,
 
                 UpdateDate = user.Profile?.UpdateDate
@@ -74,7 +84,8 @@ namespace BiF.Web.Controllers
                 return View(vm);
             }
 
-            string id = User.Identity.Name;
+            string id = BifSessionData.IsInRole("ADMIN") ? vm.Id ?? BifSessionData.Id : BifSessionData.Id;
+
 
             Profile profile = DAL.Context.Profiles.FirstOrDefault(x => x.Id == id) ?? new Profile {Id = id};
 
@@ -99,6 +110,7 @@ namespace BiF.Web.Controllers
             profile.Spicy = vm.Spicy;
             profile.Crisp = vm.Crisp;
 
+            profile.References = vm.References;
             profile.Comments = vm.Comments;
             //profile.Wishlist = vm.Wishlist;
             profile.UpdateDate = DateTime.UtcNow;
@@ -110,9 +122,110 @@ namespace BiF.Web.Controllers
 
             DAL.Context.SaveChanges();
 
-            return RedirectToAction("Index", "Manage");
+            if (id == BifSessionData.Id)// Only send if edited by self
+                createConfirmationEmail(id);
+
+            return RedirectToAction("Index", "Home");
         }
 
+        public ActionResult ViewProfile(string id) {
+            var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
+
+            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+
+            ProfileVM vm = new ProfileVM
+            {
+                Id = id,
+                Name = user.Profile.FullName,
+                Address = user.Profile?.Address,
+                City = user.Profile?.City,
+                State = user.Profile?.State,
+                Zip = user.Profile?.Zip,
+
+                RedditUsername = user.Profile?.RedditUsername,
+                UntappdUsername = user.Profile?.UntappdUsername,
+
+                References = user.Profile?.References,
+                //Wishlist = user.Profile?.Wishlist,
+                Comments = user.Profile?.Comments,
+
+                Piney = user.Profile?.Piney,
+                Juicy = user.Profile?.Juicy,
+                Tart = user.Profile?.Tart,
+                Funky = user.Profile?.Funky,
+                Malty = user.Profile?.Malty,
+                Roasty = user.Profile?.Roasty,
+                Sweet = user.Profile?.Sweet,
+                Smokey = user.Profile?.Smokey,
+                Spicy = user.Profile?.Spicy,
+                Crisp = user.Profile?.Crisp,
+
+                Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}",
+                Email = user.Email,
+
+                UpdateDate = user.Profile?.UpdateDate
+
+            };
+
+            return View("View", vm);
+        }
+
+        private void createConfirmationEmail(string id) {
+
+            EmailClient email = EmailClient.Create();
+
+            var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
+
+            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+
+            ProfileVM vm = new ProfileVM {
+                Id = id,
+                Name = user.Profile.FullName,
+                Address = user.Profile?.Address,
+                City = user.Profile?.City,
+                State = user.Profile?.State,
+                Zip = user.Profile?.Zip,
+
+                RedditUsername = user.Profile?.RedditUsername,
+                UntappdUsername = user.Profile?.UntappdUsername,
+
+                References = user.Profile?.References,
+                //Wishlist = user.Profile?.Wishlist,
+                Comments = user.Profile?.Comments,
+
+                Piney = user.Profile?.Piney,
+                Juicy = user.Profile?.Juicy,
+                Tart = user.Profile?.Tart,
+                Funky = user.Profile?.Funky,
+                Malty = user.Profile?.Malty,
+                Roasty = user.Profile?.Roasty,
+                Sweet = user.Profile?.Sweet,
+                Smokey = user.Profile?.Smokey,
+                Spicy = user.Profile?.Spicy,
+                Crisp = user.Profile?.Crisp,
+
+
+                Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}",
+                Email = user.Email,
+
+                UpdateDate = user.Profile?.UpdateDate
+
+            };
+
+            string body = "<p>Thanks for updating your profile. Here's what we have on record for you:</p>" + RenderPartialToString(this, "__ViewProfile", vm);
+
+            MailMessage message = new MailMessage {
+                To = { new MailAddress(user.Email, user.Profile.FullName) },
+                From = new MailAddress("redditbeeritforward@gmail.com", "BeerItForward"),
+                Subject = "BeerItForward Profile Complete",
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            email.SMTP.Send(message);
+
+
+        }
 
     }
 }

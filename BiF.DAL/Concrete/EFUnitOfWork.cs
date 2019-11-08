@@ -6,24 +6,21 @@ namespace BiF.DAL.Concrete
     {
         private static EFUnitOfWork _eow;
 
-        private EFUnitOfWork() {
-            Context = new BifDbContext();
-        }
 
         private EFUnitOfWork(string connectionString) {
-            Context = new BifDbContext();
-            if (connectionString != null) {
-                Context.Database.Connection.ConnectionString = connectionString;
-                Context.Database.Connection.Open();
-            }
+            Context = new BifDbContext(connectionString);
+            //if (connectionString != null) {
+            //    Context.Database.Connection.ConnectionString = connectionString;
+            //    Context.Database.Connection.Open();
+            //}
         }
 
         public BifDbContext Context { get; private set; }
 
 
-        public static EFUnitOfWork Create(string connectionString = null) {
+        public static EFUnitOfWork Create(string connectionString) {
             if (_eow == null)
-                _eow = new EFUnitOfWork();
+                _eow = new EFUnitOfWork(connectionString);
             return _eow;
         }
 

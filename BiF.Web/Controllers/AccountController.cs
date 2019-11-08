@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -8,6 +9,7 @@ using System.Web.Security;
 using BiF.DAL.Models;
 using BiF.DAL.Extensions;
 using BiF.Web.Identity;
+using BiF.Web.Utilities;
 using BiF.Web.ViewModels.Account;
 
 namespace BiF.Web.Controllers
@@ -139,7 +141,7 @@ namespace BiF.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult ForgotPassword(ForgotPasswordVM model)
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordVM model)
         {
             if (ModelState.IsValid)
             {
@@ -157,6 +159,20 @@ namespace BiF.Web.Controllers
                 // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
                 // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
                 // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+
+                string smtpPassword = await KeyVault.GetSecret("foredditbeeritrward-gmail-com");
+
+            SmtpClient smtp = new SmtpClient {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                Credentials = new System.Net.NetworkCredential("redditbeeritforward@gmail.com", smtpPassword)
+
+            };
+                MailMessage message = new MailMessage("BeerItForward <redditbeeritforward@gmail.com>", null);
+
+
+            smtp.Send(message);
+
             }
 
             // If we got this far, something failed, redisplay form

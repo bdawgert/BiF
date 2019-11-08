@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Configuration;
+using System.Linq;
+using System.Web;
 using BiF.DAL.Concrete;
 using BiF.DAL.Models;
 
@@ -10,7 +12,7 @@ namespace BiF.Web.Identity
         private static BifUserStore _bifUserStore;
 
         private BifUserStore() {
-            _dal = EFUnitOfWork.Create();
+            _dal = EFUnitOfWork.Create(HttpContext.Current.Application["connectionString"].ToString());
         }
 
         public IdentityUser User { get; set; }

@@ -26,7 +26,7 @@ namespace BiF.Web.Identity
                     Errors = new List<string> { "User already exists." }
                 };
 
-            bool passwordIsValid = validatePassword(password.Unsceure());
+            bool passwordIsValid = validatePassword(password.Unsecure());
             if (!passwordIsValid)
                 return new UserManageResult {
                     Success = false,

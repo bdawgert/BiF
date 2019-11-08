@@ -15,6 +15,7 @@
         @using (Html.BeginForm())
         {
             @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.Id)
             <div style="display: flex; justify-content: space-between">
 
                 <div>
@@ -97,7 +98,7 @@
                 <div>
                     <h3 class="required">Flavor Preferences</h3>
 
-                    <table id="flavorTable">
+                    <table class="bif-table">
                         <colgroup>
                             <col style="width:100px" />
                             <col style="width:90px" />
@@ -145,6 +146,7 @@
             </div>
 
             <input type="submit" value="Save" />
+            <input type="button" value="Cancel" onclick="history.go(-1)" />
 
         }
         @if (Model.UpdateDate != null)
@@ -161,44 +163,13 @@
 </div>
 
 
-    <style>
-        #flavorTable {
-            text-align: center;
-            background-color: #1c4d71;
-            border: 1px solid #000;
-            border-collapse: collapse;
-            color: #fff;
+<style>
+
+    .bif-table tbody td:hover {
+            background-color: rgba(234, 179, 38, .4);
         }
 
-            #flavorTable thead td {
-                background-color: #d0ae57;
-                color: #000;
-            }
-
-            #flavorTable td {
-                border: 1px solid #012f50;
-                padding: 8px;
-            }
-
-                #flavorTable td:first-child {
-                    text-align: left;
-                }
-
-            #flavorTable input[type=radio] {
-                height: 20px;
-                width: 20px
-            }
-
-            #flavorTable tbody tr:hover {
-                background-color: rgba(234, 179, 38, .2);
-                color: #000;
-            }
-
-            #flavorTable tbody td:hover {
-                background-color: rgba(234, 179, 38, .4);
-            }
-
-            #flavorTable tbody td:first-child:hover {
-                background-color: transparent
-            }
-    </style>
+    .bif-table tbody td:first-child:hover {
+            background-color: transparent
+        }
+</style>

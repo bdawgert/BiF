@@ -106,7 +106,14 @@ namespace BiF.Web.Controllers
             return RedirectToAction("", "Home");
         }
 
+        public ActionResult Assign(int id) {
+            return null;
+        }
 
+        public ActionResult ViewStatus(int id)
+        {
+            return null;
+        }
 
     }
 

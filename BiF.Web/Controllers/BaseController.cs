@@ -1,6 +1,9 @@
-﻿using System.Web.Mvc;
+﻿using System.IO;
+using System.Web;
+using System.Web.Mvc;
 using BiF.DAL.Concrete;
 using BiF.Web.Identity;
+using Microsoft.Ajax.Utilities;
 
 namespace BiF.Web.Controllers
 {
@@ -10,7 +13,7 @@ namespace BiF.Web.Controllers
         private EFUnitOfWork _dal;
 
         public EFUnitOfWork DAL {
-            get => _dal ?? EFUnitOfWork.Create();
+            get => _dal ?? EFUnitOfWork.Create(HttpContext.Application["connectionString"].ToString());
             private set => _dal = value;
         }
 
@@ -27,5 +30,18 @@ namespace BiF.Web.Controllers
             return View("Error");
         }
 
+        public static string RenderPartialToString(Controller controller, string viewName, object model) {
+
+            controller.ViewData.Model = model;
+
+            using (StringWriter sw = new StringWriter())
+            {
+                ViewEngineResult viewResult = ViewEngines.Engines.FindPartialView(controller.ControllerContext, viewName);
+                ViewContext viewContext = new ViewContext(controller.ControllerContext, viewResult.View, controller.ViewData, controller.TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+
+                return sw.GetStringBuilder().ToString();
+            }
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace BiF.DAL.Extensions
             return securePassword;
         }
 
-        public static string Unsceure(this SecureString secureValue) {
+        public static string Unsecure(this SecureString secureValue) {
             IntPtr valuePtr = IntPtr.Zero;
             try {
                 valuePtr = Marshal.SecureStringToGlobalAllocUnicode(secureValue);

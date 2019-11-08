@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using BiF.Web.Identity
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -12,12 +13,22 @@
 <div class="header-bar">
     <img src="~/Content/img/logo.png" style="margin: 10px;" />
 </div>
+    
+@{
+    BifSessionData sessionData = (BifSessionData) ViewBag.Session;
+    string[] roles = sessionData?.Roles?.Select(x => x.Name).ToArray() ?? new string[] { };
+}
+    
+<!-- @string.Join(",", roles) -->
 
 <div class="navigation-bar">
     <div class="navigation-menu">
         <div class="bar-item">@Html.ActionLink("Home", "Index", "Home")</div>
         @if (Request.IsAuthenticated) {
             <div class="bar-item">@Html.ActionLink("My Profile", "Index", "Profile")</div>
+        }
+        @if (Request.IsAuthenticated && roles.Any(x => x == "ADMIN")) {
+            <div class="bar-item">@Html.ActionLink("Administration", "Index", "Administration")</div>
         }
         @if (Request.IsAuthenticated && false) {
             <div class="bar-item">@Html.ActionLink("Exchanges", "Index", "Exchanges")</div>

@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 namespace BiF.Web.ViewModels
 {
     public class ProfileVM {
+        public string Id { get; set; }
+
         [Required(ErrorMessage = "Full Name is Required")]
         public string Name { get; set; }
         [Required(ErrorMessage = "Street Address is Required")]

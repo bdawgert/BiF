@@ -1,0 +1,81 @@
+﻿@using BiF.Web.ViewModels.Administration
+@model IndexVM
+
+<div class="body-content" style="width: 800px">
+    
+    <h2>Administration</h2>
+    
+    <h3>Users</h3>
+    <table class="bif-table" style="width: 100%">
+        <colgroup>
+            <col style="width: 15px;"/>
+        </colgroup>
+        <thead>
+            <tr>
+                <td>Email</td>
+                <td>Profile</td>
+                <td>Admin</td>
+                <td>Approved</td>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model.Users) {
+            <tr data-id="@user.Id">
+                <td>@user.Email</td>
+                <td>
+                    @if (user.HasProfile) {
+                        <div class="icon icon-hover icon-profile" onclick="document.location='@Url.Action("", "Profile")/?id=@user.Id'"></div>
+                    }
+                </td>
+            <td>@Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new { @class="role-checkbox" })</td>
+                
+            <td>@Html.CheckBox("approved", user.Approved)</td>
+            </tr>
+
+        }
+        </tbody>
+    </table>
+    
+    
+    <h3>Secret Santa 2019</h3>
+  
+
+    <div>
+        @Html.ActionLink("Assign Matches", "Assign", "Exchanges")
+        @Html.ActionLink("View Status", "ViewStatus", "Exchanges")
+    </div>
+    
+
+</div>
+
+<script>
+    $(function() {
+        $('.role-checkbox').on('change', function() {
+            updateRoles($(this).parents('tr').data('id'), $(this).prop('name'), $(this).prop('checked'));
+        });
+
+        $('[name=approved]').on('change', function() {
+            updateApproval($(this).parents('tr').data('id'), $(this).prop('checked'));
+        });
+
+    });
+
+
+    function updateRoles(id, role, add) {
+        var data = {
+            id: id,
+            role: role,
+            action: add ? 'Add' : 'Remove'
+             }
+        $.post('@Url.Action("UpdateRoles")', data);
+    }
+
+    function updateApproval(id, approve) {
+        var data = {
+            id: id,
+            approve: approve
+        }
+        $.post('@Url.Action("UpdateApproval")', data);
+    }
+
+</script>

@@ -6,7 +6,8 @@ namespace BiF.DAL.Concrete
 {
     public class BifDbContext : DbContext //IdentityDbContext<BifIdentityUser>
     {
-        public BifDbContext() : base("BifDbContext") { }
+     
+        public BifDbContext(string connectionString) : base(connectionString) { }
 
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<Match> Matches { get; set; }

@@ -17,16 +17,33 @@
             </div>
         </div>
     }
+    
+    @{
+        BifSessionData session = (BifSessionData) ViewBag.Session;
+        var exchanges = new string[] {};
+    }
 
     @if (Request.IsAuthenticated)
     {
-        if (!((BifSessionData)ViewBag.Session).HasProfile)
+        if (!session.HasProfile)
         {
             <div class="notification-content">
                 Your Profile is currently incomplete.  In order to participate in this year's Exchange, you must complete a Profile.  @Html.ActionLink("Click here to go to the Profile form", "", "Profile").
             </div>
         }
-        else if (((BifSessionData)ViewBag.Session).Approved)
+        else if (!exchanges.Contains("1"))
+        {
+            <div class="notification-content">
+                Thanks for registering!  Review the information below, and if you want to participate in this year's Secret Santa Exchange, check the box below to officially sign up.
+                
+                Totally Binding Commitment
+                By signing up for this exchange you agree to ship at least 128 oz of objectively delicious beer to your match by December 24 (weather permitting). You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction). Failure to fulfill your obligation to meet shipping requirements will result in a possible ban.
+                
+                @Html.CheckBox("signup") Let's Do This!
+
+            </div>
+        }
+        else if (session.Approved)
         {
             <div class="notification-content">
                 Your participation in this year's Secret Santa Exchange has been approved.  Start pulling together some awesome beers.  We'll let you know when matching is complete.
