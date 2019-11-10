@@ -75,6 +75,10 @@ a:visited {
     padding-top: 0;
 }
 
+.sidebar > div {
+    margin: 6px 0;
+}
+
 .notification-content {
     background: #edb977;
     background: rgba(212, 157, 87, .6);
@@ -205,4 +209,19 @@ textarea {
 .icon-userstatus-notapproved {
     background-position-x: -28px;
     background-position-y: -52px;
+}
+
+.icon-user, .icon-user-approved {
+    background-position-x: -28px;
+    background-position-y: -4px;
+}
+
+.icon-user-admin {
+    background-position-x: -100px;
+    background-position-y: -4px;
+}
+
+.icon-user-incomplete {
+    background-position-x: -52px;
+    background-position-y: -4px;
 }

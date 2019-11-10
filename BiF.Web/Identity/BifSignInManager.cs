@@ -35,7 +35,7 @@ namespace BiF.Web.Identity
             SignInResult signInResult = new SignInResult();
 
             IdentityUser user = _bifUserManager.FindByEmail(email);
-            if (user == null) {
+            if (user == null || user.UserStatus < 0) {
                 signInResult.Status = (SignInResult.SignInStatus) 0;
                 return signInResult;
             }

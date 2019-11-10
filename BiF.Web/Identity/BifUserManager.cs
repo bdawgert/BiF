@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security;
 using BiF.DAL.Extensions;
 using BiF.DAL.Models;
+using BiF.Web.ViewModels.Manage;
 
 namespace BiF.Web.Identity
 {
@@ -48,6 +49,28 @@ namespace BiF.Web.Identity
             };
 
         }
+
+        public UserManageResult SetPassword(string id, SecureString password) {
+            bool passwordIsValid = validatePassword(password.Unsecure());
+            if (!passwordIsValid)
+                return new UserManageResult {
+                    Success = false,
+                    Errors = new List<string> { "Password does not meet minimum complexity requirements." }
+                };
+
+            byte[] salt = CryptoTools.CreateSalt();
+            IdentityUser user = _bifUserStore.LoadUserById(id);
+            user.Entropy = salt;
+            user.PasswordHash = password.HashValue(salt);
+
+            _bifUserStore.Update();
+
+            return new UserManageResult {
+                Success = true
+            };
+
+        }
+
 
         public IdentityUser FindById(string id) {
             return _bifUserStore.LoadUserById(id);

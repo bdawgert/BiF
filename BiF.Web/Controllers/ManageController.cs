@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using BiF.DAL.Extensions;
 using BiF.DAL.Models;
 using BiF.Web.Identity;
 using BiF.Web.ViewModels.Manage;
@@ -41,33 +42,56 @@ namespace BiF.Web.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Manage/ChangePassword
-        public ActionResult ChangePassword()
-        {
+        public ActionResult ChangePassword() {
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordVM vm) {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            BifUserManager userManager = BifUserManager.Create();
+            UserManageResult userManageResult = userManager.SetPassword(BifSessionData.Id, vm.NewPassword.Secure());
+
+            addErrors(userManageResult);
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            return RedirectToAction("", "Home");
+        }
+
+        public ActionResult ChangeEmail() {
+            ChangeEmailVM vm = new ChangeEmailVM {
+                Email = BifSessionData.Email
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangeEmail(ChangeEmailVM vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            BifUserManager userManager = BifUserManager.Create();
+            IdentityUser user = userManager.FindById(BifSessionData.Id);
+
+            user.Email = vm.Email;
+
+            DAL.Context.SaveChanges();
+
+            return RedirectToAction("", "Profile");
+        }
+
+
         //
-        // POST: /Manage/ChangePassword
-    //    [HttpPost]
-    //    [ValidateAntiForgeryToken]
-    //    public async Task<ActionResult> ChangePassword(ChangePasswordVM model)
-    //    {
-    //        if (!ModelState.IsValid)
-    //            return View(model);
-
-    //        UserManageResult userManageResult = UserManager.ChangePassword(model.OldPassword, model.NewPassword);
-    //        if (userManageResult.Success)
-    //            return RedirectToAction("Index", new { Message = "Password successfully updated."});
-
-    //        addErrors(userManageResult);
-    //        return View(model);
-    //}
-
-//
-// GET: /Manage/SetPassword
-public ActionResult SetPassword()
+        // GET: /Manage/SetPassword
+        public ActionResult SetPassword()
         {
             return View();
         }
@@ -85,11 +109,11 @@ public ActionResult SetPassword()
 
 #region Helpers
         
-        //private void addErrors(IBifResult result) {
-        //    foreach (string error in result.Errors) {
-        //        ModelState.AddModelError("", error);
-        //    }
-        //}
+        private void addErrors(IBifResult result) {
+            foreach (string error in result.Errors) {
+                ModelState.AddModelError("", error);
+            }
+        }
 
         private bool hasPassword() {
             IdentityUser user = UserManager.FindById(User.Identity.Name);

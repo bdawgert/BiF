@@ -38,6 +38,8 @@ namespace BiF.DAL.Models
         [ForeignKey("RecipientId")]
         public virtual ICollection<Match> ReceivingMatches { get; set; }
 
+        public virtual ICollection<SignUp> SignUps { get; set; }
+
         public enum UserStatuses
         {
             NotApproved = -1,

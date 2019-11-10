@@ -24,7 +24,7 @@ namespace BiF.Web.Identity
                 .FirstOrDefault();
 
             Id = id;
-            Username = user?.Identity.UserName;
+            Username = user?.Profile.RedditUsername;
             Email = user?.Identity.Email;
             HasProfile = user?.Profile != null;
             Claims = user?.Identity.Claims.ToList();

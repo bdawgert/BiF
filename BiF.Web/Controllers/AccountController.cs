@@ -160,7 +160,7 @@ namespace BiF.Web.Controllers
                 // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
                 // return RedirectToAction("ForgotPasswordConfirmation", "Account");
 
-                string smtpPassword = await KeyVault.GetSecret("foredditbeeritrward-gmail-com");
+                string smtpPassword = await KeyVault.GetSecret("redditbeeritforward-gmail-com");
 
             SmtpClient smtp = new SmtpClient {
                 Host = "smtp.gmail.com",

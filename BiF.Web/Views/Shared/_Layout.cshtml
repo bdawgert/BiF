@@ -24,9 +24,6 @@
 <div class="navigation-bar">
     <div class="navigation-menu">
         <div class="bar-item">@Html.ActionLink("Home", "Index", "Home")</div>
-        @if (Request.IsAuthenticated) {
-            <div class="bar-item">@Html.ActionLink("My Profile", "Index", "Profile")</div>
-        }
         @if (Request.IsAuthenticated && roles.Any(x => x == "ADMIN")) {
             <div class="bar-item">@Html.ActionLink("Administration", "Index", "Administration")</div>
         }

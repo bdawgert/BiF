@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
+﻿using System.Net.Mail;
 
 namespace BiF.Web.Utilities
 {
@@ -13,13 +10,13 @@ namespace BiF.Web.Utilities
 
         private EmailClient() {
 
-            string smtpPassword = KeyVault.GetSecret("redditbeeritforward-gmail-com").Result;
+            string smtpPassword = KeyVault.GetSecret("sendgrid-apikey").Result;
 
             SMTP = new SmtpClient {
-                Host = "smtp.gmail.com",
+                Host = "smtp.sendgrid.net",
                 Port = 587,
-                EnableSsl = true,
-                Credentials = new System.Net.NetworkCredential("redditbeeritforward@gmail.com", smtpPassword)
+                //EnableSsl = true,
+                Credentials = new System.Net.NetworkCredential("apikey", smtpPassword)
             };
 
         }

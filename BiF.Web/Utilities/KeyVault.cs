@@ -8,6 +8,7 @@ using BiF.DAL.Extensions;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Rest;
 
 namespace BiF.Web.Utilities
 {
@@ -35,9 +36,13 @@ namespace BiF.Web.Utilities
             {
                 /* The next four lines of code show you how to use AppAuthentication library to fetch secrets from your key vault */
                 AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-                KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://vault.azure.net");
+
                 string secretIdentifier = "https://beeritforward-kv.vault.azure.net/secrets/" + name;
+                //KeyVaultClient keyVaultClient = new KeyVaultClient(new TokenCredentials(accessToken));
+                KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                 SecretBundle secret = await keyVaultClient.GetSecretAsync(secretIdentifier).ConfigureAwait(false);
+                
 
                 _keys.Add(name, secret.Value.Secure());
                 LastException = null;

@@ -1,5 +1,4 @@
-﻿@using BiF.DAL.Models
-@using BiF.Web.Identity
+﻿@using BiF.Web.Identity
 @{
     ViewBag.Title = "BeerItForward | Home";
 }
@@ -54,14 +53,46 @@
 
         }
 
-        <div class="body-content" style="position: relative;">
-            @Html.Partial("__HomeContent")
+        <div style="display: flex; align-items: flex-start; justify-content: space-between">
+            
+            <div>
+                <div class="body-content sidebar" style="width: 180px; padding: 10px">
+                    <div>
+                        @Html.ActionLink("Profile", "", "Profile")
+                    </div>
+                    <div>
+                        @Html.ActionLink("View Match", "Match", "Profile")
+                    </div>
+                    <div>
+                        @Html.ActionLink("Build My Box", "Box", "Profile")
+                    </div>
+                </div>
+            
+                <div id="participantList" class="body-content sidebar" style="width: 180px; padding: 10px; margin-top: 15px">
+                </div>
+
+            </div>
+
+                <div class="body-content" style="position: relative; width: 540px" >
+                @Html.Partial("__HomeContent")
+            </div>
+
         </div>
+
     }
 
 </div>
 
 <script>
+
+    $(function() {
+        @if (Request.IsAuthenticated) {
+        <text>
+            $('#participantList').load('@Url.Action("ParticipantList")?id=2');
+        </text>
+        }
+
+    });
 
     function signUp() {
         if (!$('#signup').prop('checked'))

@@ -1,0 +1,27 @@
+﻿@using BiF.Web.ViewModels.Home
+@model List<ParticipantVM>
+
+@functions {
+
+    string userIconClass(ParticipantVM vm) {
+        if (vm.IsAdmin)
+            return "icon-user-admin";
+
+        if (!vm.IsSignedUp || !vm.HasProfile)
+            return "icon-user-incomplete";
+
+        if (vm.UserStatus == 1)
+            return "icon-user-approved";
+
+        return "icon-user";
+    }
+}
+
+<div style="font-weight: bold">Participants</div>
+
+@foreach (ParticipantVM vm in Model) {
+<div>
+    <div class="icon @userIconClass(vm)"></div>
+    @vm.UserName
+</div>
+    }

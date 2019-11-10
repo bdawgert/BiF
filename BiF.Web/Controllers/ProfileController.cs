@@ -28,7 +28,7 @@ namespace BiF.Web.Controllers
             if (user.Profile == null) 
                 return View(new ProfileVM { Email = user.Email });
 
-            string phoneNumber = user.Profile.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+            string phoneNumber = user.Profile.PhoneNumber?.PadLeft(10, ' ') ?? "";
 
             ProfileVM vm = new ProfileVM {
                 Id = id,
@@ -133,7 +133,7 @@ namespace BiF.Web.Controllers
         public ActionResult ViewProfile(string id) {
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
 
-            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "";
 
             ProfileVM vm = new ProfileVM
             {
@@ -229,6 +229,20 @@ namespace BiF.Web.Controllers
             };
 
             email.SMTP.Send(message);
+        }
+
+
+        public ActionResult Match() {
+            ViewBag.MessageTitle = "No Matches Yet";
+            ViewBag.Message = "Matches should be ready on December 4. Don't worry, we'll let you know when they're posted. ";
+            return View("Message");
+        }
+
+        public ActionResult Box()
+        {
+            ViewBag.MessageTitle = "Build My Box";
+            ViewBag.Message = "If all goes according to plan, we'll be putting together an Untappd-linked page to save the contents of your box.  You aren't required to participate, but if you do, you'll help generate some fun data.";
+            return View("Message");
         }
 
         private enum FlavorPrefernece

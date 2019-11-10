@@ -1,0 +1,31 @@
+﻿@model BiF.Web.ViewModels.Manage.ChangeEmailVM
+@{
+    ViewBag.Title = "BeerItForward | Change Email";
+}
+
+<div class="body-content" style="width: 400px">
+    <h2>Change Email</h2>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary()
+        <div>
+            <b>Current Email Address</b>
+            <div>
+                @Model.Email
+            </div>
+        </div>
+        <div style="margin-top: 15px">
+            <b>New Email Address</b>
+            <div>
+                @Html.TextBoxFor(m => m.Email, new {style="width: 300px"})
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px">
+            <input type="submit" value="Update" />
+            <input type="button" value="Cancel" onclick="window.locaation = '@Url.Action("", "Home")'" />
+        </div>
+    }
+</div>

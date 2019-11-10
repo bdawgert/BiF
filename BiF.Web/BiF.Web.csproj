@@ -202,7 +202,9 @@
     <Compile Include="ViewModels\Exchanges\ExchangeVM.cs" />
     <Compile Include="ViewModels\Exchanges\IndexVM.cs" />
     <Compile Include="ViewModels\Exchanges\SignUpVM.cs" />
+    <Compile Include="ViewModels\Home\ParticipantVM.cs" />
     <Compile Include="ViewModels\Manage\AddPhoneNumberVM.cs" />
+    <Compile Include="ViewModels\Manage\ChangeEmailVM.cs" />
     <Compile Include="ViewModels\Manage\ChangePasswordVM.cs" />
     <Compile Include="ViewModels\Manage\ConfigureTwoFactorVM.cs" />
     <Compile Include="ViewModels\Manage\FactorVM.cs" />
@@ -270,6 +272,8 @@
     <Content Include="Views\Administration\Index.cshtml" />
     <Content Include="Views\Profile\View.cshtml" />
     <Content Include="Views\Profile\__ViewProfile.cshtml" />
+    <Content Include="Views\Home\__ParticipantList.cshtml" />
+    <Content Include="Views\Manage\ChangeEmail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">

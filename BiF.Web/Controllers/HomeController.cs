@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using BiF.Web.ViewModels.Home;
 
 namespace BiF.Web.Controllers
 {
@@ -17,6 +19,23 @@ namespace BiF.Web.Controllers
 
         public ActionResult Contact() {
             return View();
+        }
+
+        [Authorize]
+        public PartialViewResult ParticipantList(int id) {
+
+            List<ParticipantVM> vm = DAL.Context.Users.Where(x => x.UserStatus >= 0)
+                .Select(x => new ParticipantVM {
+                    Id = x.Id,
+                    UserName = x.Profile.RedditUsername ?? x.Email.Substring(0, x.Email.IndexOf("@")),
+                    HasProfile = x.Profile != null,
+                    UserStatus = (int) x.UserStatus,
+                    IsAdmin = x.Roles.Any(r => r.Name == "ADMIN"),
+                    IsSignedUp = x.SignUps.Any(s => s.ExchangeId == id)
+            }).OrderByDescending(x => x.IsAdmin).ThenByDescending(x => x.UserStatus).ToList();
+
+            return PartialView("__ParticipantList", vm);
+
         }
 
     }
