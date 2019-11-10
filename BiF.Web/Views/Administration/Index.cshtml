@@ -26,14 +26,18 @@
     <h3>Users</h3>
     <table class="bif-table" style="width: 100%">
         <colgroup>
-            <col style="width: 15px;"/>
+            <col />
+            <col style="width: 100px;" />
+            <col style="width: 100px;" />
+            <col style="width: 100px;" />
         </colgroup>
         <thead>
             <tr>
                 <td>Email</td>
                 <td>Profile</td>
                 <td>Admin</td>
-                <td>Approved</td>
+                <td>Status</td>
+                <td>Delete</td>
             </tr>
         </thead>
         <tbody>
@@ -47,10 +51,12 @@
                 </td>
             <td>@Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new { @class="role-checkbox" })</td>
                 
-            <td>
-                <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
-                
-            </td>
+                <td>
+                    <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
+                </td>
+                <td>
+                    <div class="icon icon-hover icon-delete" onclick="deleteUser(@user.Id)"></div>
+                </td>
             </tr>
 
         }
@@ -123,9 +129,11 @@
 
     }
 
-    function setStatus(el, n) {
-
-
+    function deleteUser(id) {
+        var data = {
+            id: id
+        }
+        $.post('@Url.Action("DeleteUser")', data);
     }
 
     function updateApproval(id) {

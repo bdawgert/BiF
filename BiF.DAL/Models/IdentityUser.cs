@@ -45,7 +45,7 @@ namespace BiF.DAL.Models
             NotApproved = -1,
             None = 0,
             Approved = 1,
-
+            Deleted = -99
 
         }
 

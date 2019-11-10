@@ -21,8 +21,7 @@ namespace BiF.Web.Controllers
                 HasProfile = x.Profile != null,
                 Roles = x.Roles.ToArray(),
                 UserStatus = (int?)x.User.UserStatus ?? 0
-
-            }).ToList();
+            }).Where(x => x.UserStatus > -10).ToList();
 
             IndexVM vm = new IndexVM {
                 Users = list
@@ -58,6 +57,20 @@ namespace BiF.Web.Controllers
             DAL.Context.SaveChanges();
 
             //createMatchRecord(id, status);
+
+            return Json(new { Success = true });
+        }
+
+        public JsonResult DeleteUser(string id)
+        {
+            IdentityUser user = DAL.Context.Users.Find(id);
+            if (user == null)
+                return Json(new { Success = false });
+
+            user.UserStatus = IdentityUser.UserStatuses.Deleted;
+            user.Email = $"!{user.Email}";
+
+            DAL.Context.SaveChanges();
 
             return Json(new { Success = true });
         }
