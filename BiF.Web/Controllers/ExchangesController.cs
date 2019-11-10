@@ -2,6 +2,8 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using System.Windows.Forms;
+using BiF.DAL.Concrete;
 using BiF.DAL.Models;
 using BiF.Web.ViewModels.Exchanges;
 
@@ -66,36 +68,54 @@ namespace BiF.Web.Controllers
         [HttpGet]
         public ActionResult SignUp(int id = 0) {
 
-            var exchange = DAL.Context.Exchanges.Where(x => x.Id == id)
-                .Select(x => new { Exchange = x, SignUp = x.SignUps.Where(s => s.UserId == BifSessionData.Id) }).FirstOrDefault();
+            bool success = signUp(id, BifSessionData.Id, out string message);
             
+            if (success)
+                return RedirectToAction("", "Home");
+
+
+            ViewBag.MessageTitle = "Sign Up";
+            ViewBag.Message = message;
+            return View("Message");
+            
+        }
+
+        [HttpPost]
+        public JsonResult SignUpAsync(string userId, int exchangeId = 0) {
+            bool success = signUp(exchangeId, userId, out string message);
+            return Json(new {Success = success, Message = message});
+
+        }
+
+        private bool signUp(int exchangeId, string userId, out string message) {
+
+            var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
+                .Select(x => new {Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId)}).FirstOrDefault();
+
+            message = null;
             if (exchange?.Exchange == null) {
-                ViewBag.MessageTitle = "Sign Up";
-                ViewBag.Message = "The requested Exchange cannot be found.";
-                return View("Message");
+                message = "The requested Exchange cannot be found.";
+                return false;
             }
 
-            if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now) {
-                ViewBag.PageMessageTitleTitle = "Sign Up";
-                ViewBag.Message = "The requested Exchange is not currently open for signups.";
-                return View("Message");
+            if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) { 
+                message = "The requested Exchange is not currently open for signups.";
+                return false;
             }
 
-            if (exchange.SignUp != null) {
-                ViewBag.MessageTitle = "Sign Up";
-                ViewBag.Message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
-                return View("Message");
+            if (exchange.SignUp) {
+                message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
+                return false;
             }
-            
+
             if (!BifSessionData.HasProfile) {
-                ViewBag.MessageTitle = "Sign Up";
-                ViewBag.Message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
-                return View("Message");
+                message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
+                return false;
             }
 
             SignUp signup = new SignUp {
-                ExchangeId = id,
-                UserId = BifSessionData.Id,
+                ExchangeId = exchangeId,
+                UserId = userId,
                 SignUpDate = DateTime.Now,
                 Approved = false
             };
@@ -103,7 +123,8 @@ namespace BiF.Web.Controllers
             DAL.Context.SignUps.Add(signup);
             DAL.Context.SaveChanges();
 
-            return RedirectToAction("", "Home");
+            return true;
+
         }
 
         public ActionResult Assign(int id) {

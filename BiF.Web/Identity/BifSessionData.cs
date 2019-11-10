@@ -29,7 +29,7 @@ namespace BiF.Web.Identity
             HasProfile = user?.Profile != null;
             Claims = user?.Identity.Claims.ToList();
             Roles = user?.Identity.Roles.ToList();
-            Approved = user?.Identity.Approved ?? false;
+            UserStatus = (int?)user?.Identity.UserStatus ?? 0;
         }
 
         public bool IsValid { get; set; }
@@ -38,7 +38,7 @@ namespace BiF.Web.Identity
         public string Username { get; set; }
         public string Email { get; set; }
         public bool HasProfile { get; set; }
-        public bool Approved { get; set; }
+        public int UserStatus { get; set; }
         public List<IdentityClaim> Claims { get; set; }
         public List<IdentityRole> Roles { get; set; }
 

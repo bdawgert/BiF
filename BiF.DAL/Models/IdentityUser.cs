@@ -27,6 +27,7 @@ namespace BiF.DAL.Models
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
         public bool Approved { get; set; }
+        public UserStatuses UserStatus { get; set; }
 
         public virtual ICollection<IdentityClaim> Claims { get; set; }
         public virtual ICollection<IdentityRole> Roles { get; set; }
@@ -37,6 +38,14 @@ namespace BiF.DAL.Models
         [ForeignKey("RecipientId")]
         public virtual ICollection<Match> ReceivingMatches { get; set; }
 
+        public enum UserStatuses
+        {
+            NotApproved = -1,
+            None = 0,
+            Approved = 1,
+
+
+        }
 
     }
 }

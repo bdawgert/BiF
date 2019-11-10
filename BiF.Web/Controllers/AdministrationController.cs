@@ -20,7 +20,7 @@ namespace BiF.Web.Controllers
                 Email = x.User.Email,
                 HasProfile = x.Profile != null,
                 Roles = x.Roles.ToArray(),
-                Approved = x.User.Approved
+                UserStatus = (int?)x.User.UserStatus ?? 0
 
             }).ToList();
 
@@ -48,17 +48,20 @@ namespace BiF.Web.Controllers
         }
 
 
-        public JsonResult UpdateApproval(string id, bool approve) {
+        public JsonResult UpdateApproval(string id, int status) {
             IdentityUser user = DAL.Context.Users.Find(id);
             if (user == null)
                 return Json(new { Success = false });
 
-            user.Approved = approve;
+            user.UserStatus = (IdentityUser.UserStatuses) status;
 
             DAL.Context.SaveChanges();
-           
+
+            //createMatchRecord(id, status);
+
             return Json(new { Success = true });
         }
+
 
     }
 

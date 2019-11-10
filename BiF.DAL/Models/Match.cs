@@ -19,8 +19,11 @@ namespace BiF.DAL.Models
         public string RecipientId { get; set; }
         public DateTime? MatchDate { get; set; }
         public DateTime? ShipDate { get; set; }
+        [MaxLength(32)]
+        public string Carrier { get; set; }
+        [MaxLength(128)]
+        public string TrackingNo { get; set; }
 
-        
         public virtual Exchange Exchange { get; set; }
 
         public virtual IdentityUser Sender { get; set; }

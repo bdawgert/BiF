@@ -28,10 +28,6 @@ namespace BiF.DAL.Models
         public DateTime? CloseDate { get; set; }
         public DateTime? MatchDate { get; set; }
         public DateTime? ShipDate { get; set; }
-        [MaxLength(32)]
-        public string Carrier { get; set; }
-        [MaxLength(128)]
-        public string TrackingNo { get; set; }
         public bool PrivateMatches { get; set; }
         public bool Deleted { get; set; }
 

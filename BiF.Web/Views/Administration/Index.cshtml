@@ -1,6 +1,24 @@
 ﻿@using BiF.Web.ViewModels.Administration
 @model IndexVM
 
+
+@functions {
+
+    string displayUserStatus(int userStatus) {
+        string imgClass = null;
+        switch (userStatus) {
+            case 1:
+                return "icon-userstatus-approved";
+            case -1:
+                return "icon-userstatus-notapproved";
+            default:
+                return "icon-userstatus-none";
+        }
+    }
+
+
+}
+
 <div class="body-content" style="width: 800px">
     
     <h2>Administration</h2>
@@ -29,7 +47,10 @@
                 </td>
             <td>@Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new { @class="role-checkbox" })</td>
                 
-            <td>@Html.CheckBox("approved", user.Approved)</td>
+            <td>
+                <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
+                
+            </td>
             </tr>
 
         }
@@ -49,7 +70,10 @@
 </div>
 
 <script>
-    $(function() {
+    var approvalTimeout;
+
+    $(function () {
+        
         $('.role-checkbox').on('change', function() {
             updateRoles($(this).parents('tr').data('id'), $(this).prop('name'), $(this).prop('checked'));
         });
@@ -66,14 +90,51 @@
             id: id,
             role: role,
             action: add ? 'Add' : 'Remove'
-             }
+        }
         $.post('@Url.Action("UpdateRoles")', data);
     }
 
-    function updateApproval(id, approve) {
+    function setApproval(id) {
+        var el = $('#status_' + id);
+        el.removeClass(function(i, v) {
+            return (v.match(/(^|\s)icon-userstatus-\S+/g) || []).join(' ');
+        });
+
+        clearTimeout(approvalTimeout);
+        approvalTimeout = setTimeout(() => updateApproval(id), 500);
+
+        console.log(el);
+        console.log(el.data('status'));
+
+        switch (parseInt(el.data('status'))) {
+            case 0:
+                el.addClass('icon-userstatus-approved');
+                el.data('status', 1);
+                return;
+            case 1:
+                el.addClass('icon-userstatus-notapproved');
+                el.data('status', -1);
+                return;
+            default:
+                el.addClass('icon-userstatus-none');
+                el.data('status', 0);
+                return;
+        }
+
+    }
+
+    function setStatus(el, n) {
+
+
+    }
+
+    function updateApproval(id) {
+
+        var status = $('#status_' + id).data('status');
+
         var data = {
             id: id,
-            approve: approve
+            status: status
         }
         $.post('@Url.Action("UpdateApproval")', data);
     }

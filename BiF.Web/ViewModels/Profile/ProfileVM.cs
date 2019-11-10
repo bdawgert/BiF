@@ -16,7 +16,7 @@ namespace BiF.Web.ViewModels
         public string City { get; set; }
         [Required(ErrorMessage = "State is Required")]
         public string State { get; set; }
-        [Required(ErrorMessage = "Zip Code is Required")]
+        [Required(ErrorMessage = "Zip Code is Required"), MaxLength(5, ErrorMessage = "Zip Code Must Be Five Digits"), MinLength(5, ErrorMessage = "Zip Code Must Be Five Digits"), RegularExpression(@"\d{5}", ErrorMessage = "Zip Code Must Be Digits")]
         public string Zip { get; set; }
 
         public string Phone { get; set; }

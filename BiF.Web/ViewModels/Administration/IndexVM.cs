@@ -17,7 +17,8 @@ namespace BiF.Web.ViewModels.Administration
         public string Email { get; set; }
         public string Username { get; set; }
         public string[] Roles { get; set; }
-        public bool Approved { get; set; }
+        public bool Approved => UserStatus > 0;
+        public int UserStatus { get; set; }
         public bool HasProfile { get; set; }
 
     }

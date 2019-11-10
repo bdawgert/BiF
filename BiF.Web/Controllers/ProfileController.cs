@@ -28,39 +28,39 @@ namespace BiF.Web.Controllers
             if (user.Profile == null) 
                 return View(new ProfileVM { Email = user.Email });
 
-            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+            string phoneNumber = user.Profile.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
 
             ProfileVM vm = new ProfileVM {
                 Id = id,
                 Name = user.Profile.FullName,
-                Address = user.Profile?.Address,
-                City = user.Profile?.City,
-                State = user.Profile?.State,
-                Zip = user.Profile?.Zip,
+                Address = user.Profile.Address,
+                City = user.Profile.City,
+                State = user.Profile.State,
+                Zip = user.Profile.Zip,
 
-                RedditUsername = user.Profile?.RedditUsername,
-                UntappdUsername = user.Profile?.UntappdUsername,
+                RedditUsername = user.Profile.RedditUsername,
+                UntappdUsername = user.Profile.UntappdUsername,
 
-                References = user.Profile?.References,
-                //Wishlist = user.Profile?.Wishlist,
-                Comments = user.Profile?.Comments,
+                References = user.Profile.References,
+                //Wishlist = user.Profile.Wishlist,
+                Comments = user.Profile.Comments,
 
-                Piney = user.Profile?.Piney,
-                Juicy = user.Profile?.Juicy,
-                Tart = user.Profile?.Tart,
-                Funky = user.Profile?.Funky,
-                Malty = user.Profile?.Malty,
-                Roasty = user.Profile?.Roasty,
-                Sweet = user.Profile?.Sweet,
-                Smokey = user.Profile?.Smokey,
-                Spicy = user.Profile?.Spicy,
-                Crisp = user.Profile?.Crisp,
+                Piney = user.Profile.Piney,
+                Juicy = user.Profile.Juicy,
+                Tart = user.Profile.Tart,
+                Funky = user.Profile.Funky,
+                Malty = user.Profile.Malty,
+                Roasty = user.Profile.Roasty,
+                Sweet = user.Profile.Sweet,
+                Smokey = user.Profile.Smokey,
+                Spicy = user.Profile.Spicy,
+                Crisp = user.Profile.Crisp,
 
                 
-                Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6,4)}",
+                Phone = $"{phoneNumber}",
                 Email = user.Email,
 
-                UpdateDate = user.Profile?.UpdateDate
+                UpdateDate = user.Profile.UpdateDate
 
             };
             
@@ -122,12 +122,14 @@ namespace BiF.Web.Controllers
 
             DAL.Context.SaveChanges();
 
-            if (id == BifSessionData.Id)// Only send if edited by self
-                createConfirmationEmail(id);
+            if (id == BifSessionData.Id) { // Only send if edited by self
+                createUserConfirmationEmail(id);
+            }
 
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet]
         public ActionResult ViewProfile(string id) {
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
 
@@ -137,78 +139,81 @@ namespace BiF.Web.Controllers
             {
                 Id = id,
                 Name = user.Profile.FullName,
-                Address = user.Profile?.Address,
-                City = user.Profile?.City,
-                State = user.Profile?.State,
-                Zip = user.Profile?.Zip,
+                Address = user.Profile.Address,
+                City = user.Profile.City,
+                State = user.Profile.State,
+                Zip = user.Profile.Zip,
 
-                RedditUsername = user.Profile?.RedditUsername,
-                UntappdUsername = user.Profile?.UntappdUsername,
+                RedditUsername = user.Profile.RedditUsername,
+                UntappdUsername = user.Profile.UntappdUsername,
 
-                References = user.Profile?.References,
-                //Wishlist = user.Profile?.Wishlist,
-                Comments = user.Profile?.Comments,
+                References = user.Profile.References,
+                //Wishlist = user.Profile.Wishlist,
+                Comments = user.Profile.Comments,
 
-                Piney = user.Profile?.Piney,
-                Juicy = user.Profile?.Juicy,
-                Tart = user.Profile?.Tart,
-                Funky = user.Profile?.Funky,
-                Malty = user.Profile?.Malty,
-                Roasty = user.Profile?.Roasty,
-                Sweet = user.Profile?.Sweet,
-                Smokey = user.Profile?.Smokey,
-                Spicy = user.Profile?.Spicy,
-                Crisp = user.Profile?.Crisp,
+                Piney = user.Profile.Piney,
+                Juicy = user.Profile.Juicy,
+                Tart = user.Profile.Tart,
+                Funky = user.Profile.Funky,
+                Malty = user.Profile.Malty,
+                Roasty = user.Profile.Roasty,
+                Sweet = user.Profile.Sweet,
+                Smokey = user.Profile.Smokey,
+                Spicy = user.Profile.Spicy,
+                Crisp = user.Profile.Crisp,
 
-                Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}",
+                Phone = $"{phoneNumber}",
                 Email = user.Email,
 
-                UpdateDate = user.Profile?.UpdateDate
+                UpdateDate = user.Profile.UpdateDate
 
             };
 
             return View("View", vm);
         }
-
-        private void createConfirmationEmail(string id) {
+        
+        private void createUserConfirmationEmail(string id) {
 
             EmailClient email = EmailClient.Create();
 
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
 
-            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
+            if (user?.Profile == null)
+                return;
+
+            string phoneNumber = user.Profile.PhoneNumber?.PadLeft(10, ' ') ?? "          ";
 
             ProfileVM vm = new ProfileVM {
                 Id = id,
                 Name = user.Profile.FullName,
-                Address = user.Profile?.Address,
-                City = user.Profile?.City,
-                State = user.Profile?.State,
-                Zip = user.Profile?.Zip,
+                Address = user.Profile.Address,
+                City = user.Profile.City,
+                State = user.Profile.State,
+                Zip = user.Profile.Zip,
 
-                RedditUsername = user.Profile?.RedditUsername,
-                UntappdUsername = user.Profile?.UntappdUsername,
+                RedditUsername = user.Profile.RedditUsername,
+                UntappdUsername = user.Profile.UntappdUsername,
 
-                References = user.Profile?.References,
-                //Wishlist = user.Profile?.Wishlist,
-                Comments = user.Profile?.Comments,
+                References = user.Profile.References,
+                //Wishlist = user.Profile.Wishlist,
+                Comments = user.Profile.Comments,
 
-                Piney = user.Profile?.Piney,
-                Juicy = user.Profile?.Juicy,
-                Tart = user.Profile?.Tart,
-                Funky = user.Profile?.Funky,
-                Malty = user.Profile?.Malty,
-                Roasty = user.Profile?.Roasty,
-                Sweet = user.Profile?.Sweet,
-                Smokey = user.Profile?.Smokey,
-                Spicy = user.Profile?.Spicy,
-                Crisp = user.Profile?.Crisp,
+                Piney = user.Profile.Piney,
+                Juicy = user.Profile.Juicy,
+                Tart = user.Profile.Tart,
+                Funky = user.Profile.Funky,
+                Malty = user.Profile.Malty,
+                Roasty = user.Profile.Roasty,
+                Sweet = user.Profile.Sweet,
+                Smokey = user.Profile.Smokey,
+                Spicy = user.Profile.Spicy,
+                Crisp = user.Profile.Crisp,
 
 
                 Phone = $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}",
                 Email = user.Email,
 
-                UpdateDate = user.Profile?.UpdateDate
+                UpdateDate = user.Profile.UpdateDate
 
             };
 
@@ -216,6 +221,7 @@ namespace BiF.Web.Controllers
 
             MailMessage message = new MailMessage {
                 To = { new MailAddress(user.Email, user.Profile.FullName) },
+                Bcc = { new MailAddress("redditbeeritforward@gmail.com"), new MailAddress("bdawgert@gmail.com") },
                 From = new MailAddress("redditbeeritforward@gmail.com", "BeerItForward"),
                 Subject = "BeerItForward Profile Complete",
                 Body = body,
@@ -223,9 +229,15 @@ namespace BiF.Web.Controllers
             };
 
             email.SMTP.Send(message);
-
-
         }
 
+        private enum FlavorPrefernece
+        {
+            None = 0,
+            LoveIt = 1,
+            LikeIt = 2,
+            Maybe = 3,
+            No = 5
+        }
     }
 }

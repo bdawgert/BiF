@@ -179,8 +179,30 @@ textarea {
         background-color: rgba(234, 179, 38, .2);
     }
 
-    .icon { display: inline-block; width: 20px; height: 20px; padding: 0; margin: 0;  }
+.icon {
+    background-image: url(/Content/img/mono-icons.png);
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+}
 .icon-hover:hover {
     box-shadow: 0 0 2px 1px #d4a11e, inset 0 0 3px 1px #d4a11e;
 }
-.icon-profile { background-image: url(/Content/img/mono-icons.png); background-position-x: -4px; background-position-y: -4px;  }
+.icon-profile {
+     background-position-x: -4px; background-position-y: -4px;
+}
+
+.icon-userstatus-none {
+    background-position-x: -4px; background-position-y: -52px;
+
+}
+.icon-userstatus-approved {
+    background-position-x: -52px;
+    background-position-y: -52px;
+}
+.icon-userstatus-notapproved {
+    background-position-x: -28px;
+    background-position-y: -52px;
+}
