@@ -42,7 +42,7 @@
         </thead>
         <tbody>
         @foreach (var user in Model.Users) {
-            <tr data-id="@user.Id">
+            <tr id="user_@user.Id" data-id="@user.Id">
                 <td>@user.Email</td>
                 <td>
                     @if (user.HasProfile) {
@@ -55,7 +55,7 @@
                     <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
                 </td>
                 <td>
-                    <div class="icon icon-hover icon-delete" onclick="deleteUser(@user.Id)"></div>
+                    <div class="icon icon-hover icon-delete" onclick="deleteUser('@user.Id')"></div>
                 </td>
             </tr>
 
@@ -133,7 +133,9 @@
         var data = {
             id: id
         }
-        $.post('@Url.Action("DeleteUser")', data);
+        $.post('@Url.Action("DeleteUser")', data, function() {
+            $('#user_' + id).remove();
+        });
     }
 
     function updateApproval(id) {
