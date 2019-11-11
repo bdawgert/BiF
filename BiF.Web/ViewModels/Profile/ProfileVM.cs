@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Security.AccessControl;
 
 namespace BiF.Web.ViewModels
 {
@@ -70,6 +71,9 @@ namespace BiF.Web.ViewModels
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
+        [Required(ErrorMessage = "Please confirm your commitment to the rules of the Secret Santa Exchange")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Please confirm your commitment to the rules of the Secret Santa Exchange")]
+        public bool? IsSignedUp { get; set; }
 
     }
 }

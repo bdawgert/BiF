@@ -24,12 +24,12 @@ namespace BiF.Web.Identity
                 .FirstOrDefault();
 
             Id = id;
-            Username = user?.Profile.RedditUsername;
-            Email = user?.Identity.Email;
+            Username = user?.Profile?.RedditUsername;
+            Email = user?.Identity?.Email;
             HasProfile = user?.Profile != null;
-            Claims = user?.Identity.Claims.ToList();
-            Roles = user?.Identity.Roles.ToList();
-            UserStatus = (int?)user?.Identity.UserStatus ?? 0;
+            Claims = user?.Identity?.Claims.ToList();
+            Roles = user?.Identity?.Roles.ToList();
+            UserStatus = (int?)user?.Identity?.UserStatus ?? 0;
         }
 
         public bool IsValid { get; set; }

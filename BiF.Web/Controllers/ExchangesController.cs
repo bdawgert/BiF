@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
-using System.Windows.Forms;
-using BiF.DAL.Concrete;
 using BiF.DAL.Models;
 using BiF.Web.ViewModels.Exchanges;
 

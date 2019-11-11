@@ -20,7 +20,9 @@ namespace BiF.Web.Controllers
             else
                 id = BifSessionData.Id;
 
-            var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile}).FirstOrDefault();
+            var user = DAL.Context.Users.Where(x => x.Id == id)
+                .Select(x => new { Email = x.Email, Profile = x.Profile, IsSignedUp = x.SignUps.Any(s => s.ExchangeId == 2)})
+                .FirstOrDefault();
 
             if (user == null)
                 return View("Error"); //TODO: Message View
@@ -60,7 +62,8 @@ namespace BiF.Web.Controllers
                 Phone = $"{phoneNumber}",
                 Email = user.Email,
 
-                UpdateDate = user.Profile.UpdateDate
+                UpdateDate = user.Profile.UpdateDate,
+                IsSignedUp = user.IsSignedUp
 
             };
             
@@ -119,8 +122,11 @@ namespace BiF.Web.Controllers
                 profile.CreateDate = DateTime.UtcNow;
                 DAL.Context.Profiles.Add(profile);
             }
-
             DAL.Context.SaveChanges();
+
+
+            bool success = signUp(2, id, out string message);
+            
 
             if (id == BifSessionData.Id) { // Only send if edited by self
                 createUserConfirmationEmail(id);
@@ -133,7 +139,7 @@ namespace BiF.Web.Controllers
         public ActionResult ViewProfile(string id) {
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
 
-            string phoneNumber = user.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "";
+            string phoneNumber = user?.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "";
 
             ProfileVM vm = new ProfileVM
             {
@@ -252,6 +258,48 @@ namespace BiF.Web.Controllers
             LikeIt = 2,
             Maybe = 3,
             No = 5
+        }
+
+
+        private bool signUp(int exchangeId, string userId, out string message)
+        {
+
+            var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
+                .Select(x => new { Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId) }).FirstOrDefault();
+
+            message = null;
+            if (exchange?.Exchange == null) {
+                message = "The requested Exchange cannot be found.";
+                return false;
+            }
+
+            //if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) {
+            //    message = "The requested Exchange is not currently open for signups.";
+            //    return false;
+            //}
+
+            if (exchange.SignUp) {
+                message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
+                return false;
+            }
+
+            //if (!BifSessionData.HasProfile) {
+            //    message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
+            //    return false;
+            //}
+
+            SignUp signup = new SignUp {
+                ExchangeId = exchangeId,
+                UserId = userId,
+                SignUpDate = DateTime.Now,
+                Approved = false
+            };
+
+            DAL.Context.SignUps.Add(signup);
+            DAL.Context.SaveChanges();
+
+            return true;
+
         }
     }
 }

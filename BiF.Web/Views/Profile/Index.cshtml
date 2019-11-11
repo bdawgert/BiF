@@ -147,9 +147,20 @@
                 <div style="width: 100%">@Html.TextAreaFor(x => x.Comments, 3, 0, new { style = "width: 100%", maxlength = "4000" })</div>
             </div>
 
-            <input type="submit" value="Save" />
-            <input type="button" value="Cancel" onclick="history.go(-1)" />
+            <div style="margin-top: 15px">
+                <div>
+                    <b class="required">Totally Binding Commitment</b><br />
+                    By signing up for this exchange you agree to ship at least 125 oz of objectively delicious beer to your match by December 15 (weather permitting). You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction). Failure to fulfill your obligation to meet shipping requirements will result in a ban from future BiF exchanges.
+                </div>
+                <div style="margin-top: 10px; text-align: left">
+                    @Html.CheckBox("issignedup", new { onclick = "signUp()", style = "height: 20px; width: 20px;" }) Let's Do This!
+                </div>
+            </div>
 
+            <div style="margin-top: 15px">
+                <input type="submit" value="Save" />
+                <input type="button" value="Cancel" onclick="history.go(-1)" />
+            </div>
         }
         @if (Model.UpdateDate != null)
         {

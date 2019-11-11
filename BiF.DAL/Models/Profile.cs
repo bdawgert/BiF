@@ -51,7 +51,6 @@ namespace BiF.DAL.Models
 
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-
         
         public virtual IdentityUser User { get; set; }
 

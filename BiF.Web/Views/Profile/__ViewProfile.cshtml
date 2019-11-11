@@ -101,24 +101,26 @@
     <table style="text-align: center">
         <colgroup>
             <col style="width:100px" />
-            <col style="width:90px" />
-            <col style="width:90px" />
-            <col style="width:90px" />
+            <col style="width:80px" />
+            <col style="width:80px" />
+            <col style="width:80px" />
+            <col style="width:80px" />
         </colgroup>
         <thead>
-        <tr>
-            <th></th>
-            <th>YES!</th>
-            <th>Maybe</th>
-            <th>NO!</th>
-        </tr>
+            <tr>
+                <th></th>
+                <th>LOVE IT!</th>
+                <th>Like It</th>
+                <th>Maybe</th>
+                <th>NO!</th>
+            </tr>
         </thead>
         <tbody>
         @foreach (string flavor in Model.Flavors.Keys)
         {
             <tr>
                 <td style="text-align: left"><b>@flavor</b></td>
-                @Html.Raw(string.Join(Environment.NewLine, Enumerable.Range(1, 3).Select(x => $"<td>{(Model.Flavors[flavor] == x ? "X" : "")}</td>")))
+                @Html.Raw(string.Join(Environment.NewLine, Enumerable.Range(1, 4).Select(x => $"<td>{(Model.Flavors[flavor] == x ? "X" : "")}</td>")))
             </tr>
         }
         </tbody>

@@ -174,6 +174,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
+    <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -186,6 +187,7 @@
     <Compile Include="Identity\UserManageResult.cs" />
     <Compile Include="Identity\BifSessionData.cs" />
     <Compile Include="Utilities\EmailClient.cs" />
+    <Compile Include="Utilities\Helper.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginConfirmationVM.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginListVM.cs" />
     <Compile Include="ViewModels\Account\ForgotPasswordVM.cs" />
