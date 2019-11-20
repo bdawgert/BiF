@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
 
 namespace BiF.DAL.Concrete
 {
@@ -17,6 +21,16 @@ namespace BiF.DAL.Concrete
 
         public BifDbContext Context { get; private set; }
 
+        public void Reset() {
+            List<DbEntityEntry> changedEntriesCopy =  Context.ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added ||
+                            e.State == EntityState.Modified ||
+                            e.State == EntityState.Deleted)
+                .ToList();
+
+            foreach (var entry in changedEntriesCopy)
+                entry.State = EntityState.Detached;
+        }
 
         public static EFUnitOfWork Create(string connectionString) {
             if (_eow == null)

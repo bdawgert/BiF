@@ -8,8 +8,10 @@ namespace BiF.DAL.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("Match")]
-        public int MatchId { get; set; }
+        [ForeignKey("User")]
+        public string UserId { get; set; }
+        [ForeignKey("Exchange")]
+        public int? ExchangeId { get; set; }
         [MaxLength(32)]
         public string Type { get; set; }
         public int? UntappdId { get; set; }
@@ -17,10 +19,12 @@ namespace BiF.DAL.Models
         public string Name { get; set; }
         [MaxLength(16)]
         public string Format { get; set; }
-        public double USOunces { get; set; }
-        public double UntappdRating { get; set; }
+        public double? USOunces { get; set; }
+        public double? UntappdRating { get; set; }
+        public double? Cost { get; set; }
 
-        public virtual Match Match { get; set; }
+        public virtual Exchange Exchange { get; set; }
+        public virtual IdentityUser User { get; set; }
 
     }
 

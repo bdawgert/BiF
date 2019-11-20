@@ -1,0 +1,82 @@
+﻿@using BiF.DAL.Models
+@using BiF.Web.ViewModels.Profile
+@model MatchPreferencesVM
+@{
+    ViewBag.Title = "MatchPreferences";
+
+    var userPreferences = Model.MatchPreferences.Where(x => x.Key == MatchPreferenceType.NotUser).Select(x => x.Value).ToList();
+
+}
+
+<div class="body-content" style="width: 800px">
+    <h2>Match Preferences</h2>
+    <p>
+        For the benefit of the frequent BiF'ers, we will allow you to select up to <b>@Model.AllowedExclusions</b> people that you DO NOT want to be your Santa.
+    </p>
+    <p>
+        The minimum radius for matches will be at least 500 miles. You do not need to exclude anyone living within 500 miles of your shipping address.
+    </p>
+    <p>
+        Click the user icon next to the user below to denote your preference NOT to receive a box from that user.
+    </p>
+    
+    
+    <table class="bif-table" style="width: 500px; margin: auto">
+        
+        <colgroup>
+            <col />
+            <col />
+            <col style="width: 100px;" />
+        </colgroup>
+        <thead>
+            <tr>
+                <td>Username</td>
+                <td>Location</td>
+                <td></td>
+            </tr>
+        </thead>
+
+        @foreach (var user in Model.AllUsers) {
+
+            <tr>
+                <td>
+                    @user.Username
+                </td>
+                <td>
+                    @user.Location
+                </td>
+                <td>
+                    @{ string iconClass = (userPreferences.Contains(user.Id) ? "icon-preference-no" : "icon-preference-default"); }
+                    <div class="icon icon-hover @iconClass" id="excl_@user.Id" onclick="updateExclusions('@user.Id')"></div>
+                </td>
+            </tr>
+
+
+        }
+    </table>
+
+</div>
+
+<style>
+    .bif-table td:nth-child(2) { text-align: left }
+</style>
+
+@section Scripts {
+
+    <script>
+        function updateExclusions(id) {
+            var data = {
+                id: id
+            }
+            $.post('@Url.Action("UpdateExclusion")', data, function (d) {
+                if (d.Success) {
+                    console.log('#excl_' + id);
+                    $('#excl_' + id).removeClass('icon-preference-default').removeClass('icon-preference-no');
+                    var addClass = d.Action === 'Set' ? 'icon-preference-no' : 'icon-preference-default';
+                    $('#excl_' + id).addClass(addClass);
+                }
+            });
+        }
+    </script>
+
+}

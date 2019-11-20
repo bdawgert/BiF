@@ -1,0 +1,192 @@
+﻿@using BiF.Web.ViewModels.Profile
+@model BoxVM
+
+@{
+    ViewBag.Title = "Box";
+}
+
+<div class="body-content" style="width: 800px; position: relative;">
+
+    <h2>Box Builder</h2>
+
+    <select id="exchangeId">
+        <option value="0">-- No Exchange --</option>
+        <option value="2" selected>Secret Santa 2019</option>
+    </select>
+
+    <div class="item-search">
+        <div class="box-item">
+            <input type="hidden" id="addBeerId" />
+            <div>
+                <select id="addBeerType">
+                    <option>Beer</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div><input type="text" id="addBeerName" style="width: 220px" /></div>
+
+            <div><input type="text" id="addBeerOunces" style="width: 3em" /> oz</div>
+            <div>$<input type="text" id="addBeerCost" style="width: 4em" /></div>
+            <div id="addBeerRating"></div>
+        </div>
+    </div>
+    <div id="searchResults"></div>
+    <input type="button" value="Add" onclick="add()" />
+
+
+    <table id="boxItems" class="bif-table">
+        <colgroup>
+            <col style="width: 50px" />
+            <col style="width: 400px" />
+        </colgroup>
+        <thead>
+            <tr>
+                <td>Type</td>
+                <td>Name</td>
+                <td>Quantity</td>
+                <td>Cost</td>
+                <td>Rating</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BoxItem item in Model.Items)
+            {
+
+                <tr>
+                    <td>@item.Type</td>
+                    <td>@item.Name</td>
+                    <td>@item.USOunces oz</td>
+                    <td>$@item.Cost</td>
+                    <td>@item.UntappdRating</td>
+                    <td>
+                        <div class="icon icon-hover icon-userstatus-notapproved" onclick="deleteItem(@item.Id)"></div>
+                    </td>
+                </tr>
+
+            }
+        </tbody>
+        <tfoot></tfoot>
+
+    </table>
+
+    <div>
+        U.S. oz cheat sheet:
+        750ml = 25.4 oz
+        375ml = 12.7 oz
+        330ml = 11.2 oz
+    </div>
+    
+</div>
+
+<style>
+        .box-item {
+            display: flex
+        }
+
+        .item-search {
+            position: relative
+        }
+
+        #searchResults {
+            position: absolute;
+            display: none;
+            left: 15px;
+            color: #333;
+            background-color: #fff
+        }
+
+            #searchResults > div:hover {
+                background-color: #000080;
+                color: #fff;
+                cursor: default
+            }
+    </style>
+
+    @section Scripts {
+
+        <script>
+
+        $(function() {
+
+            $('#addBeerName').on('keyup', function(e) {
+                search(e);
+            });
+
+            $(document).on('click', '#searchResults > div', function() {
+                $('#addBeerName').val($(this).data('name'));
+                $('#addBeerId').val($(this).data('id'));
+                $('#searchResults').hide();
+            });
+
+        });
+
+        var searchTimeout;
+
+        function search(e) {
+            if (e.key === "Escape") {
+                $('#searchResults').hide();
+                return;
+            }
+
+            if ($('#addBeerType').val() !== 'Beer')
+                return;
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(doSearch, 500);
+        }
+
+        function doSearch() {
+            var name = $('#addBeerName').val();
+
+            if ((name || '') === '')
+                return;
+
+            var data = { q: name }
+            $.get('@Url.Action("SearchAsync", "Untappd")', data, function(d) {
+                $('#searchResults').empty();
+                $.each(d, function(i, v) {
+                    $('#searchResults').append('<div data-id="' + v.Id + '" data-name="' + v.Name + '">' + v.Name + ' - ' + v.Brewery + '</div>');
+                });
+                $('#searchResults').show();
+
+            });
+
+        }
+
+
+        function add() {
+            var data = {
+                UntappdId: $("#addBeerId").val(),
+                Type: $("#addBeerType").val(),
+                Name: $("#addBeerName").val(),
+                Format: $("#addBeerFormat").val(),
+                USOunces: $("#addBeerOunces").val(),
+                Cost: $("#addBeerCost").val(),
+                ExchangeId: parseInt($('#exchangeId').val())
+            }
+            $.ajax({
+                url: '@Url.Action("AddItem")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                success: function(d) {
+                    $('#boxItems').append(
+                        '<tr>' +
+                        '<td>' + d.Type + '</td>' +
+                        '<td>' + d.Name + '</td>' +
+                        '<td>' + d.USOunces + ' oz</td>' +
+                        '<td>$' + d.Cost + '</td>' +
+                        '<td>' + d.UntappdRating + '</td>' +
+                        '<td>' + '</td>' +
+                        '</tr>'
+                    );
+                }
+            });
+
+        }
+
+        </script>
+
+    }

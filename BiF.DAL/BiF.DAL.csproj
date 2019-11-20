@@ -67,6 +67,7 @@
     <Compile Include="Models\Exchange.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Match.cs" />
+    <Compile Include="Models\MatchPreference.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\SignUp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

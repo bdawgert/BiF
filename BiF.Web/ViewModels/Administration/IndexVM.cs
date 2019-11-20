@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 
 namespace BiF.Web.ViewModels.Administration
 {
     public class IndexVM
     {
         public List<UserInformation> Users { get; set; }
-
     }
 
     public class UserInformation
@@ -20,6 +16,7 @@ namespace BiF.Web.ViewModels.Administration
         public bool Approved => UserStatus > 0;
         public int UserStatus { get; set; }
         public bool HasProfile { get; set; }
+        public string AllowedExclusions { get; set; }
 
     }
 

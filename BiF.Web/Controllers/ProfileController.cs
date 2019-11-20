@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using BiF.DAL.Models;
+using BiF.Untappd;
+using BiF.Untappd.Models.Search;
 using BiF.Web.Utilities;
 using BiF.Web.ViewModels;
+using BiF.Web.ViewModels.Profile;
 
 namespace BiF.Web.Controllers
 {
@@ -39,6 +44,7 @@ namespace BiF.Web.Controllers
                 City = user.Profile.City,
                 State = user.Profile.State,
                 Zip = user.Profile.Zip,
+                DeliveryNotes = user.Profile.DeliveryNotes,
 
                 RedditUsername = user.Profile.RedditUsername,
                 UntappdUsername = user.Profile.UntappdUsername,
@@ -101,6 +107,7 @@ namespace BiF.Web.Controllers
             profile.State = vm.State;
             profile.Zip = vm.Zip;
             profile.PhoneNumber = phoneNumber;
+            profile.DeliveryNotes = vm.DeliveryNotes;
 
             profile.Piney = vm.Piney;
             profile.Juicy = vm.Juicy;
@@ -244,12 +251,138 @@ namespace BiF.Web.Controllers
             return View("Message");
         }
 
-        public ActionResult Box()
+
+        public ActionResult MatchPreferences() {
+
+            var allUsers = DAL.Context.Users.Where(x => x.UserStatus >= IdentityUser.UserStatuses.None && x.Id != BifSessionData.Id)
+                .Select(x => new {
+                    Id = x.Id,
+                    UserName = x.UserName ?? x.Profile.RedditUsername,
+                    City = x.Profile.City,
+                    State = x.Profile.State
+                }).AsEnumerable();
+            List<KeyValuePair<MatchPreferenceType, string>> preferences =  DAL.Context.MatchPreferences.Where(x => x.UserId == BifSessionData.Id)
+                .AsEnumerable().Select(x => new KeyValuePair<MatchPreferenceType, string>(x.PreferenceType, x.Value)).ToList();
+
+            MatchPreferencesVM vm = new MatchPreferencesVM {
+                AllUsers = allUsers.Select(x => new UserPublicProfile { Id = x.Id, Username = x.UserName, Location = $"{x.City}, {x.State}"}).ToList(),
+                MatchPreferences = preferences,
+                AllowedExclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2")
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult Box(string id)
         {
             ViewBag.MessageTitle = "Build My Box";
             ViewBag.Message = "If all goes according to plan, we'll be putting together an Untappd-linked page to save the contents of your box.  You aren't required to participate, but if you do, you'll help generate some fun data.";
+
             return View("Message");
+
+            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+
+            BoxVM vm = new BoxVM {
+                Items = boxItems(id, 2)
+
+            };
+
+            return View(vm);
         }
+
+        private List<BoxItem> boxItems(string userId, int exchangeId) {
+            return DAL.Context.Items.Where(x => x.UserId == userId && x.ExchangeId == exchangeId).Select(x => new BoxItem {
+                Id = x.Id,
+                Name = x.Name,
+                Type = x.Type,
+                Format = x.Format,
+                Cost = x.Cost,
+                UntappdRating = x.UntappdRating,
+                USOunces = x.USOunces
+            }).ToList();
+        }
+
+        public JsonResult AddItem(BoxItem item, string exchangeId, string userId) {
+
+            string id = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
+
+            if (item.UntappdId != null) {
+                UntappdClient untappdClient = UntappdClient.Create();
+                Beer beer = untappdClient.Lookup(item.UntappdId.Value);
+                item.Name = beer.Name;
+                item.UntappdRating = beer.Rating;
+            }
+
+            Item entity = new Item {
+                UserId = id,
+                ExchangeId = Convert.ToInt32(exchangeId),
+                Format = item.Format,
+                Name = item.Name,
+                Type = item.Type,
+                UntappdId = item.UntappdId,
+                USOunces = item.USOunces,
+                Cost = item.Cost,
+                UntappdRating = item.UntappdRating
+            };
+
+            DAL.Context.Items.Add(entity);
+            DAL.Context.SaveChanges();
+
+            return Json(new {
+                UserId = id,
+                ExchangeId = Convert.ToInt32(exchangeId),
+                Format = item.Format,
+                Name = item.Name,
+                Type = item.Type,
+                UntappdId = item.UntappdId,
+                USOunces = item.USOunces,
+                Cost = item.Cost,
+                UntappdRating = item.UntappdRating
+            });
+
+        }
+
+        [HttpPost]
+        public JsonResult UpdateExclusion(string id) {
+            List<MatchPreference> preferences = DAL.Context.MatchPreferences.Where(x => x.UserId == BifSessionData.Id && x.PreferenceType == MatchPreferenceType.NotUser).ToList();
+
+            List<MatchPreference> existing = preferences.Where(x => x.Value == id).ToList();
+            if (existing.Any()) {
+                DAL.Context.MatchPreferences.RemoveRange(existing);
+                DAL.Context.SaveChanges();
+                return Json(new { Success = true, Action = "Unset", UserId = BifSessionData.Id });
+            }
+
+            int allowedExclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            if (preferences.Count >= allowedExclusions)
+                return Json(new { Success = false, Action = "", UserId = BifSessionData.Id });
+
+            DAL.Context.MatchPreferences.Add( new MatchPreference {
+                UserId = BifSessionData.Id,
+                PreferenceType = MatchPreferenceType.NotUser,
+                Value = id
+            });
+            DAL.Context.SaveChanges();
+
+            return Json(new { Success = true, Action = "Set", UserId = BifSessionData.Id });
+
+        }
+
+        //[HttpGet]
+        //private JsonResult Search(string q) {
+        //    UntappdClient untappdClient = UntappdClient.Create();
+        //    var search = untappdClient.Search(q);
+
+        //    var results = search.Beers.Items.Select(x => new {
+        //        x.Beer.Id,
+        //        Name = x.Beer.Name,
+        //        x.Beer.Rating,
+        //        Brewery = x.Brewery.Name
+        //    });
+
+        //    return Json(results, JsonRequestBehavior.AllowGet);
+
+        //}
 
         private enum FlavorPrefernece
         {

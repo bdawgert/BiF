@@ -28,7 +28,5 @@ namespace BiF.DAL.Models
 
         public virtual IdentityUser Sender { get; set; }
         public virtual IdentityUser Recipient { get; set; }
-
-        public virtual ICollection<Item> Items { get; set; }
     }
 }

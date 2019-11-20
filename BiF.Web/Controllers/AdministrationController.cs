@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using BiF.DAL.Models;
+using BiF.Web.Identity;
 using BiF.Web.ViewModels.Administration;
 
 namespace BiF.Web.Controllers
@@ -12,20 +13,24 @@ namespace BiF.Web.Controllers
         // GET: Administration
         public ActionResult Index() {
 
-            var users = DAL.Context.Users.Select(x => new {User = x, Profile = x.Profile, Roles = x.Roles.Select(s => s.Name)}).ToList();
-
+            var users = DAL.Context.Users.Select(x => new {User = x, Profile = x.Profile, Claims = x.Claims, Roles = x.Roles.Select(s => s.Name)}).ToList();
 
             List<UserInformation> list = users.Select(x => new UserInformation {
                 Id = x.User.Id,
                 Email = x.User.Email,
+                Username = x.User.UserName ?? x.Profile?.RedditUsername ?? x.User.Email,
                 HasProfile = x.Profile != null,
                 Roles = x.Roles.ToArray(),
-                UserStatus = (int?)x.User.UserStatus ?? 0
-            }).Where(x => x.UserStatus > -10).ToList();
+                UserStatus = (int?)x.User.UserStatus ?? 0,
+                AllowedExclusions = x.Claims.FirstOrDefault(c => c.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value
+            }).Where(x => x.UserStatus > -10)
+            .OrderByDescending(x => x.Roles.Any(r => r == "ADMIN"))
+            .ThenBy(x => x.UserStatus < (int)IdentityUser.UserStatuses.None )
+            .ThenBy(x => x.UserStatus == (int)IdentityUser.UserStatuses.Approved)
+            .ToList();
 
             IndexVM vm = new IndexVM {
                 Users = list
-
             };
 
             return View(vm);
@@ -73,6 +78,22 @@ namespace BiF.Web.Controllers
             DAL.Context.SaveChanges();
 
             return Json(new { Success = true });
+        }
+
+        public JsonResult UpdateAllowedExclusionCount(string id, int count) {
+            string claimType = "http://21brews.com/identity/claims/allowed-exclusions";
+
+            IdentityClaim claim = DAL.Context.Claims.FirstOrDefault(x => x.UserId == id && x.Type == claimType);
+            if (claim == null) {
+                claim = new IdentityClaim {UserId = id, Type = claimType, Value = "2"};
+                DAL.Context.Claims.Add(claim);
+            }
+
+            claim.Value = count.ToString();
+            DAL.Context.SaveChanges();
+
+             return Json(new { Success = true });
+
         }
 
 

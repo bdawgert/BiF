@@ -74,6 +74,9 @@
     <Reference Include="Microsoft.Rest.ClientRuntime.Azure, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Rest.ClientRuntime.Azure.3.3.18\lib\net452\Microsoft.Rest.ClientRuntime.Azure.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -133,9 +136,6 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -175,6 +175,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
+    <Compile Include="Controllers\UntappdController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -182,6 +183,7 @@
     <Compile Include="Identity\BifUserManager.cs" />
     <Compile Include="Identity\BifUserStore.cs" />
     <Compile Include="Identity\IBifResult.cs" />
+    <Compile Include="Utilities\BoxBuilder.cs" />
     <Compile Include="Utilities\KeyVault.cs" />
     <Compile Include="Identity\SignInResult.cs" />
     <Compile Include="Identity\UserManageResult.cs" />
@@ -214,6 +216,8 @@
     <Compile Include="ViewModels\Manage\ManageLoginsVM.cs" />
     <Compile Include="ViewModels\Manage\SetPasswordVM.cs" />
     <Compile Include="ViewModels\Manage\VerifyPhoneNumberVM.cs" />
+    <Compile Include="ViewModels\Profile\BoxVM.cs" />
+    <Compile Include="ViewModels\Profile\MatchPreferencesVM.cs" />
     <Compile Include="ViewModels\Profile\ProfileVM.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -276,11 +280,20 @@
     <Content Include="Views\Profile\__ViewProfile.cshtml" />
     <Content Include="Views\Home\__ParticipantList.cshtml" />
     <Content Include="Views\Manage\ChangeEmail.cshtml" />
+    <Content Include="Views\Untappd\Search.cshtml" />
+    <Content Include="Views\Untappd\Index.cshtml" />
+    <Content Include="Views\Profile\Box.cshtml" />
+    <Content Include="Views\Profile\MatchPreferences.cshtml" />
+    <Content Include="Views\Exchanges\Assign.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">
       <Project>{8912d988-13f4-4e69-b7ac-9069174a1376}</Project>
       <Name>BiF.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BiF.Untappd\BiF.Untappd.csproj">
+      <Project>{DF2DC966-D69D-4D5F-B181-49B05C12F66D}</Project>
+      <Name>BiF.Untappd</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

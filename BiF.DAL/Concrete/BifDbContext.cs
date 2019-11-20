@@ -11,6 +11,7 @@ namespace BiF.DAL.Concrete
 
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<Match> Matches { get; set; }
+        public DbSet<MatchPreference> MatchPreferences { get; set; }
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<IdentityUser> Users { get; set; }
         public DbSet<IdentityRole> Roles { get; set; }

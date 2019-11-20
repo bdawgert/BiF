@@ -1,6 +1,12 @@
 ﻿@using BiF.Web.ViewModels.Administration
 @model IndexVM
 
+@{
+    ViewBag.Title = "BeerItForward | Administration";
+
+    var exclusionsList = Enumerable.Range(2, 10).Select(x => new SelectListItem {Value = x.ToString(), Text = x.ToString()}).ToList();
+}
+
 
 @functions {
 
@@ -16,7 +22,6 @@
         }
     }
 
-
 }
 
 <div class="body-content" style="width: 800px">
@@ -30,12 +35,15 @@
             <col style="width: 100px;" />
             <col style="width: 100px;" />
             <col style="width: 100px;" />
+            <col style="width: 100px;" />
+            <col style="width: 100px;" />
         </colgroup>
         <thead>
             <tr>
-                <td>Email</td>
+                <td>Username</td>
                 <td>Profile</td>
                 <td>Admin</td>
+                <td># Excl.</td>
                 <td>Status</td>
                 <td>Delete</td>
             </tr>
@@ -43,14 +51,22 @@
         <tbody>
         @foreach (var user in Model.Users) {
             <tr id="user_@user.Id" data-id="@user.Id">
-                <td>@user.Email</td>
+                <td>@user.Username</td>
                 <td>
                     @if (user.HasProfile) {
                         <div class="icon icon-hover icon-profile" onclick="document.location='@Url.Action("", "Profile")/?id=@user.Id'"></div>
                     }
                 </td>
             <td>@Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new { @class="role-checkbox" })</td>
-                
+                <td>
+                    <select id = "excl_@user.Id" onchange="updateExclusions('@user.Id')">
+                        @foreach (var exclusion in exclusionsList) {
+                            string selected = exclusion.Value == user.AllowedExclusions ? "selected" : "";
+                            <option value="@exclusion.Value" @selected>@exclusion.Text</option>
+                        }
+                    </select>
+                </td>
+
                 <td>
                     <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
                 </td>
@@ -89,7 +105,6 @@
         });
 
     });
-
 
     function updateRoles(id, role, add) {
         var data = {
@@ -147,6 +162,17 @@
             status: status
         }
         $.post('@Url.Action("UpdateApproval")', data);
+    }
+
+    function updateExclusions(id) {
+
+        var count = $('#excl_' + id).val();
+
+        var data = {
+            id: id,
+            count: count
+        }
+        $.post('@Url.Action("UpdateAllowedExclusionCount")', data);
     }
 
 </script>

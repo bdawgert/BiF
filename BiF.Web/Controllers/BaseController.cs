@@ -19,6 +19,9 @@ namespace BiF.Web.Controllers
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext) {
             base.OnActionExecuting(filterContext);
+
+            DAL.Reset();
+
             string username = BifSessionData.Username;
             string email = BifSessionData.Email ?? "user_";
             string emailname = email.Contains("@") ? email.Substring(0, email.IndexOf("@")) : email;

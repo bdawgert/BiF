@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+
+
+<div id="addItem">
+    <input type="text" id="search" onkeyup="search()" />
+    <div id="searchResults">
+
+    </div>
+    
+    <div id="addABV"></div>
+
+
+    </div>
+
+
+
+<script>
+
+    var searchTimeout;
+
+    function search() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(populateSearch, 500);
+       
+    }
+
+    function populateSearch() {
+        console.log('Searching... ' + $('#search').val());
+
+        var data = {
+            q: $('#search').val()
+        };
+        $.post('@Url.Action("SearchAsync", "Untappd")', data, function (d) {
+            console.log(d);
+            $('#searchResults').empty();
+            $.each(d.Beers, function(i, v) {
+                $('#searchResults').append('<div>' + v.Beer.Name + '</div>');
+            }, 'json');
+            
+
+        });
+    }
+    
+
+</script>
+
+
