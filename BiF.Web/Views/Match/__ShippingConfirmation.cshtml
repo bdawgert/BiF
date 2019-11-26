@@ -1,0 +1,37 @@
+﻿@using BiF.Web.ViewModels.Match
+@model ShippingNoticeVM
+
+
+<p>Hey @Model.SenderUsername,</p>
+
+<p>
+    We've marked your box for @Model.ExchangeName as Shipped.  Below are the details you provided.  If this is not correct, go back to your match page (https://beeritforward.azurewebsites.net/Match) and make the necessary corrections.
+</p>
+
+<table style="width: 350px">
+    <tr>
+        <td>
+            <b>Carrier</b>
+        </td>
+        <td id="carrier">
+            @Model.Carrier
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <b>Tracking</b>
+        </td>
+        <td id="trackingNo">
+            @Model.TrackingNo
+        </td>
+    </tr>
+</table>
+
+<p>
+    Thank you for participating,
+</p>
+
+<p>
+    The Reddit BeerItForward Team
+</p>

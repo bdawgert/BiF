@@ -1,0 +1,20 @@
+﻿@using System.Web.Mvc.Html
+@using BiF.Web.ViewModels.Exchanges
+@model AssignListVM
+
+@Html.HiddenFor(x => x.SenderId)
+<div class="popup-body">
+    <p>
+        Assign a match for <b>@Model.SenderUsername</b>
+    </p>    
+
+    <div>
+        @Html.DropDownListFor(x => x.MatchId, Model.AvailableUsers, new { style="width: 300px" })
+
+    </div>
+</div>
+
+<div class="popup-controls">
+    <input type="button" value="Save" onclick="saveAssignment()" />
+    <input type="button" value="Close" onclick="popup.Hide()" />
+</div>

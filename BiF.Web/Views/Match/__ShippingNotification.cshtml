@@ -1,0 +1,37 @@
+﻿@using BiF.Web.ViewModels.Match
+@model ShippingNoticeVM
+
+
+<p>Hey @Model.RecipientUsername,</p>
+
+<p>
+    It looks like there is a box for the @Model.ExchangeName exchange headed your way!  
+</p>
+
+<table style="width: 350px">
+    <tr>
+        <td>
+            <b>Carrier</b>
+        </td>
+        <td id="carrier">
+            @Model.Carrier
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <b>Tracking</b>
+        </td>
+        <td id="trackingNo">
+            @Model.TrackingNo
+        </td>
+    </tr>
+</table>
+
+<p>
+    Prepare your porch!
+</p>
+
+<p>
+    The Reddit BeerItForward Team
+</p>

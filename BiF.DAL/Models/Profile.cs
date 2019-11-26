@@ -21,6 +21,7 @@ namespace BiF.DAL.Models
         [MaxLength(2), MinLength(2)]
         public string State { get; set; }
         [MaxLength(10), MinLength(5)]
+        [ForeignKey("ZipCode")]
         public string Zip { get; set; }
         [MaxLength(10)]
         public string PhoneNumber { get; set; }
@@ -53,6 +54,6 @@ namespace BiF.DAL.Models
         public DateTime? UpdateDate { get; set; }
         
         public virtual IdentityUser User { get; set; }
-
+        public virtual ZipCode ZipCode { get; set; }
     }
 }

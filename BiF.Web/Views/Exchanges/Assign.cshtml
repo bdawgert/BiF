@@ -1,0 +1,146 @@
+﻿@using BiF.Web.ViewModels.Exchanges
+@model AssignVM
+
+@{
+    ViewBag.Title = "Assign";
+
+    List<SelectListItem> users = Model.Assignments.Select(x => new SelectListItem {Text = x.SenderUsername, Value = x.SenderId}).ToList();
+
+}
+
+<div class="body-content" style="width: 800px">
+    <h2>Assign</h2>
+    
+    
+    <table class="bif-table" style="margin: auto">
+        <colgroup>
+            <col style="width: 250px" />
+            <col style="width: 250px" />
+            <col style="width: 100px" />
+        </colgroup>
+        
+        <thead>
+            <tr>
+                <td>
+                    Sender
+                </td>
+                <td>
+                    Recipient
+                </td>
+                <td>  </td>
+            </tr>
+        </thead>
+
+        @foreach (var signUp in Model.Assignments)
+        {
+            <tr id="row_@signUp.SenderId">
+                <td>
+                    @signUp.SenderUsername
+                </td>
+                
+                @{
+                    string text, className;
+                    if (signUp.RecipientUsername == null) {
+                        text = "ASSIGN";
+                        className = "assign-nomatch";
+                    } else {
+                        className = "assign-match";
+                        text = signUp.RecipientUsername;
+                    }
+                }
+
+                <td onclick="assign('@signUp.SenderId')" class="@className" id =" ">
+                    @text
+                </td>
+                <td>
+                    @if (signUp.RecipientUsername != null) {
+                        <div class="icon icon-hover icon-x-red" onclick="unassign('@signUp.SenderId')"></div>
+                    }
+                </td>
+            </tr>
+
+        }
+    </table>    
+
+</div>
+
+<style>
+    .bif-table td:nth-child(2) {
+        text-align: left;
+        cursor: default;
+    }
+
+    .bif-table td.assign-nomatch {
+        text-align: center;
+        color: #fdbc1a;
+        font-size: .9em
+    }
+
+</style>
+
+@section Scripts {
+
+    <script>
+
+
+        $(function() {
+
+            $('.recipient-select').on('change', function() {
+                var selected = $(this).val();
+                $('.recipient-select').each(function(i, v) {
+                    $(this).children('option[value=' + selected + ']').prop('disabled', true);
+                });
+            });
+
+
+        });
+
+        function assign(id) {
+            popup._popup.empty();
+            popup._popup.load('@Url.Action("AssignList")/' + id, function() {
+                popup.Show();
+            });
+
+        }
+
+        function saveAssignment() {
+            var data = {
+                senderId: $('.popup #SenderId').val(),
+                recipientId: $('.popup #MatchId').val()
+            }
+            var matchUsername = $('.popup #MatchId option:selected').text();
+
+            $.post('@Url.Action("AssignMatch")', data, function(d) {
+                if (d.Success) {
+                    if ((d.MatchId || '') === '')
+                        $('#row_' + d.UserId).children('td').eq(1).addClass('assign-nomatch').text('ASSIGN');
+                    else {
+                        $('#row_' + d.UserId).children('td').eq(1).removeClass('assign-nomatch').text(matchUsername);
+                        $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').html('<div class="icon icon-hover icon-x-red" onclick="unassign(\'' + d.UserId + '\')"></div>');
+                    }
+                }
+                popup.Hide();
+            });
+
+        }
+
+        function unassign(id) {
+            var data = {
+                senderId: id,
+                recipientId: null
+            }
+            var matchUsername = $('.popup #MatchId option:selected').text();
+
+            $.post('@Url.Action("AssignMatch")', data, function(d) {
+                if (d.Success) {
+                    $('#row_' + d.UserId).children('td').eq(1).addClass('assign-nomatch').text('ASSIGN');
+                    $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').empty();
+                }
+                popup.Hide();
+            });
+
+        }
+
+    </script>
+
+}

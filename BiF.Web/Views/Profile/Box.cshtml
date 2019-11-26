@@ -8,42 +8,63 @@
 <div class="body-content" style="width: 800px; position: relative;">
 
     <h2>Box Builder</h2>
+    
+    <p>
+        Search for a beer or add a non-beer item in the form below.  Click "Add" to save the item.  The Summary will auto-update to help you plan your box.
+    </p>
 
-    <select id="exchangeId">
+    @*<select id="exchangeId">
         <option value="0">-- No Exchange --</option>
         <option value="2" selected>Secret Santa 2019</option>
-    </select>
+    </select>*@
 
-    <div class="item-search">
+    <div class="item-search" style="margin: auto">
         <div class="box-item">
             <input type="hidden" id="addBeerId" />
             <div>
+                <span style="font-size: .6em; font-weight: bold">TYPE</span><br />
                 <select id="addBeerType">
                     <option>Beer</option>
                     <option>Other</option>
                 </select>
             </div>
-            <div><input type="text" id="addBeerName" style="width: 220px" /></div>
+            <div>
+                <span style="font-size: .6em; font-weight: bold">NAME (UNTAPPD SEARCH)</span><br />
+                <input type="text" id="addBeerName" style="width: 300px" />
+            </div>
 
-            <div><input type="text" id="addBeerOunces" style="width: 3em" /> oz</div>
-            <div>$<input type="text" id="addBeerCost" style="width: 4em" /></div>
+            <div>
+                <span style="font-size: .6em; font-weight: bold">SIZE</span><br />
+                <input type="text" id="addBeerOunces" style="width: 3em" /> oz
+            </div>
+            <div>
+                <span style="font-size: .6em; font-weight: bold">COST</span><br />
+                $<input type="text" id="addBeerCost" style="width: 4em" />
+            </div>
             <div id="addBeerRating"></div>
+            <div>
+                <input type="button" value="Add" style="margin-top: 23px; padding: 1px 2px; width: 100px" onclick="add()" />
+            </div>
         </div>
+        <div id="searchResults"></div>
     </div>
-    <div id="searchResults"></div>
-    <input type="button" value="Add" onclick="add()" />
-
-
-    <table id="boxItems" class="bif-table">
+    
+    
+    <div style="padding-top: 15px; margin-top: 15px; border-top: 1px solid #fff"></div>
+    <table id="boxItems" class="bif-table" style="margin: auto">
         <colgroup>
             <col style="width: 50px" />
-            <col style="width: 400px" />
+            <col style="width: 480px" />
+            <col style="width: 90px"/>
+            <col style="width: 50px"/>
+            <col style="width: 70px"/>
+            <col style="width: 36px"/>
         </colgroup>
         <thead>
             <tr>
                 <td>Type</td>
                 <td>Name</td>
-                <td>Quantity</td>
+                <td>Ounces</td>
                 <td>Cost</td>
                 <td>Rating</td>
                 <td></td>
@@ -53,47 +74,68 @@
             @foreach (BoxItem item in Model.Items)
             {
 
-                <tr>
+                <tr id="item_@item.Id" class="item-row">
                     <td>@item.Type</td>
                     <td>@item.Name</td>
-                    <td>@item.USOunces oz</td>
-                    <td>$@item.Cost</td>
-                    <td>@item.UntappdRating</td>
+                    <td>@(item.USOunces == null ? "" : $"{item.USOunces.Value} oz")</td>
+                    <td>$@(item.Cost ?? 0)</td>
+                    <td>@(item.UntappdRating == null ? "" : item.UntappdRating?.ToString("0.00"))</td>
                     <td>
-                        <div class="icon icon-hover icon-userstatus-notapproved" onclick="deleteItem(@item.Id)"></div>
+                        <div class="icon icon-hover icon-x-red" onclick="deleteItem(@item.Id)"></div>
                     </td>
                 </tr>
 
             }
+            <tr id="noItemsRow">
+                <td colspan="7" style="text-align: center">Enter an item above and click "Add"</td>
+            </tr>
+
         </tbody>
         <tfoot></tfoot>
 
     </table>
 
-    <div>
+    <div style="font-size: .9em; font-style: italic; text-align: center">
         U.S. oz cheat sheet:
-        750ml = 25.4 oz
-        375ml = 12.7 oz
+        750ml = 25.4 oz, 
+        500ml = 16.9 oz,
+        375ml = 12.7 oz, 
         330ml = 11.2 oz
     </div>
     
+    <h3>Summary</h3>
+    <div id="summary"></div>
+
 </div>
+
+
 
 <style>
         .box-item {
-            display: flex
+            display: flex;
+            justify-content: space-between;
         }
 
         .item-search {
-            position: relative
+            position: relative;
+            width: 700px;
         }
 
-        #searchResults {
-            position: absolute;
-            display: none;
-            left: 15px;
-            color: #333;
-            background-color: #fff
+    #searchResults {
+        position: absolute;
+        display: none;
+        left: 88px;
+        top: 54px;
+        color: #1c4d71;
+        background-color: #fff;
+        width: 600px;
+        border: 1px solid #1c4d71
+    }
+
+        #searchResults > div {
+            padding: 1px 4px;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
             #searchResults > div:hover {
@@ -101,6 +143,11 @@
                 color: #fff;
                 cursor: default
             }
+
+            #boxItems td:nth-child(2) {
+                text-align: left;
+            }
+
     </style>
 
     @section Scripts {
@@ -109,15 +156,23 @@
 
         $(function() {
 
+            updateMessageRow();
+
+            loadSummary();
+
             $('#addBeerName').on('keyup', function(e) {
                 search(e);
             });
 
+
+
             $(document).on('click', '#searchResults > div', function() {
-                $('#addBeerName').val($(this).data('name'));
+                $('#addBeerName').val($(this).data('name') + " (" + $(this).data('brewery') + ")");
                 $('#addBeerId').val($(this).data('id'));
                 $('#searchResults').hide();
             });
+
+
 
         });
 
@@ -146,7 +201,7 @@
             $.get('@Url.Action("SearchAsync", "Untappd")', data, function(d) {
                 $('#searchResults').empty();
                 $.each(d, function(i, v) {
-                    $('#searchResults').append('<div data-id="' + v.Id + '" data-name="' + v.Name + '">' + v.Name + ' - ' + v.Brewery + '</div>');
+                    $('#searchResults').append('<div data-id="' + v.Id + '" data-name="' + v.Name + '" data-brewery="' + v.Brewery + '">' + v.Name + ' (' + v.Brewery + ')</div>');
                 });
                 $('#searchResults').show();
 
@@ -154,16 +209,16 @@
 
         }
 
-
         function add() {
             var data = {
-                UntappdId: $("#addBeerId").val(),
-                Type: $("#addBeerType").val(),
-                Name: $("#addBeerName").val(),
-                Format: $("#addBeerFormat").val(),
-                USOunces: $("#addBeerOunces").val(),
-                Cost: $("#addBeerCost").val(),
-                ExchangeId: parseInt($('#exchangeId').val())
+                UntappdId: $('#addBeerId').val(),
+                Type: $('#addBeerType').val(),
+                Name: $('#addBeerName').val(),
+                Format: $('#addBeerFormat').val(),
+                USOunces: $('#addBeerOunces').val(),
+                Cost: $('#addBeerCost').val(),
+                ExchangeId: parseInt($('#exchangeId').val()),
+                UserId: '@Model.UserId'
             }
             $.ajax({
                 url: '@Url.Action("AddItem")',
@@ -171,21 +226,53 @@
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 dataType: 'json',
-                success: function(d) {
+                success: function (d) {
+
+                    $('#addBeerId, #addBeerName, #addBeerOunces, #addBeerCost').val('');
+
                     $('#boxItems').append(
-                        '<tr>' +
+                        '<tr id="item_' + d.Id + '" class="item-row">' +
                         '<td>' + d.Type + '</td>' +
                         '<td>' + d.Name + '</td>' +
-                        '<td>' + d.USOunces + ' oz</td>' +
-                        '<td>$' + d.Cost + '</td>' +
-                        '<td>' + d.UntappdRating + '</td>' +
-                        '<td>' + '</td>' +
+                        '<td>' + (d.USOunces === null ? '' : d.USOunces + ' oz' ) + '</td>' +
+                        '<td>$' + (d.Cost || 0) + '</td>' +
+                        '<td>' + (d.UntappdRating === null ? '' : d.UntappdRating) + '</td>' +
+                        '<td><div class="icon icon-hover icon-x-red" onclick="deleteItem(' + d.Id + ')"></div></td>' +
                         '</tr>'
                     );
+                    updateMessageRow();
+                    loadSummary();
                 }
             });
 
-        }
+            }
+
+            function deleteItem(id) {
+                var data = {
+                    id: id
+                }
+                $.ajax({
+                    url: '@Url.Action("DeleteItem")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    success: function(d) {
+                        $('#item_' + id).remove();
+                        updateMessageRow();
+                        loadSummary();
+                    }
+                });
+            }
+
+            function loadSummary() {
+                $('#summary').load('@Url.Action("BoxSummary")/@Model.UserId');
+            }
+
+            function updateMessageRow() {
+                var hasItems = $('.item-row').is('*');
+                $('#noItemsRow').toggle(!hasItems);
+            }
 
         </script>
 

@@ -173,6 +173,7 @@
     <Compile Include="Controllers\ExchangesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\MatchController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\UntappdController.cs" />
@@ -189,7 +190,7 @@
     <Compile Include="Identity\UserManageResult.cs" />
     <Compile Include="Identity\BifSessionData.cs" />
     <Compile Include="Utilities\EmailClient.cs" />
-    <Compile Include="Utilities\Helper.cs" />
+    <Compile Include="Utilities\DistanceTools.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginConfirmationVM.cs" />
     <Compile Include="ViewModels\Account\ExternalLoginListVM.cs" />
     <Compile Include="ViewModels\Account\ForgotPasswordVM.cs" />
@@ -202,6 +203,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\Administration\IndexVM.cs" />
+    <Compile Include="ViewModels\Exchanges\AssignListVM.cs" />
+    <Compile Include="ViewModels\Exchanges\AssignVM.cs" />
     <Compile Include="ViewModels\Exchanges\EditVM.cs" />
     <Compile Include="ViewModels\Exchanges\ExchangeVM.cs" />
     <Compile Include="ViewModels\Exchanges\IndexVM.cs" />
@@ -216,6 +219,9 @@
     <Compile Include="ViewModels\Manage\ManageLoginsVM.cs" />
     <Compile Include="ViewModels\Manage\SetPasswordVM.cs" />
     <Compile Include="ViewModels\Manage\VerifyPhoneNumberVM.cs" />
+    <Compile Include="ViewModels\Match\MatchVM.cs" />
+    <Compile Include="ViewModels\Match\ShippingNoticeVM.cs" />
+    <Compile Include="ViewModels\Match\ShippedVM.cs" />
     <Compile Include="ViewModels\Profile\BoxVM.cs" />
     <Compile Include="ViewModels\Profile\MatchPreferencesVM.cs" />
     <Compile Include="ViewModels\Profile\ProfileVM.cs" />
@@ -223,6 +229,7 @@
   <ItemGroup>
     <Content Include="Content\img\logo.png" />
     <Content Include="Content\img\mono-icons.png" />
+    <Content Include="Content\js\tools.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\css\style.css" />
@@ -285,6 +292,11 @@
     <Content Include="Views\Profile\Box.cshtml" />
     <Content Include="Views\Profile\MatchPreferences.cshtml" />
     <Content Include="Views\Exchanges\Assign.cshtml" />
+    <Content Include="Views\Exchanges\__AssignList.cshtml" />
+    <Content Include="Views\Match\Profile.cshtml" />
+    <Content Include="Views\Match\__ShippingConfirmation.cshtml" />
+    <Content Include="Views\Match\__ShippingNotification.cshtml" />
+    <Content Include="Views\Profile\__BoxSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">

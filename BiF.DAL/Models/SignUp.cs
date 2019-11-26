@@ -22,6 +22,8 @@ namespace BiF.DAL.Models
 
         public virtual Exchange Exchange { get; set; }
         public virtual IdentityUser User { get; set; }
+        [ForeignKey("UserId")]
+        public virtual Profile Profile { get; set; }
 
 
     }

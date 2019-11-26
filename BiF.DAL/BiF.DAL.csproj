@@ -70,6 +70,7 @@
     <Compile Include="Models\MatchPreference.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\SignUp.cs" />
+    <Compile Include="Models\ZipCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

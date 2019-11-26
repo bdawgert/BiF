@@ -21,22 +21,33 @@
     </p>
     
     
-    <table class="bif-table" style="width: 500px; margin: auto">
+    <table class="bif-table" style="width: 700px; margin: auto">
         
         <colgroup>
             <col />
             <col />
+            <col style="width: 150px;" />
             <col style="width: 100px;" />
         </colgroup>
         <thead>
             <tr>
                 <td>Username</td>
                 <td>Location</td>
+                <td>Miles</td>
                 <td></td>
             </tr>
         </thead>
+        <tbody>
+            <tr style="font-weight: bold">
+                @{ var me = Model.AllUsers.FirstOrDefault(x => x.Id == Model.UserId); }
+                <td>@me.Username</td>
+                <td>@me.Location</td>
+                <td></td>
+                <td></td>
+            </tr>
+        
 
-        @foreach (var user in Model.AllUsers) {
+        @foreach (var user in Model.AllUsers.Where(x => x.Id != Model.UserId)) {
 
             <tr>
                 <td>
@@ -46,6 +57,9 @@
                     @user.Location
                 </td>
                 <td>
+                    @Math.Round(user.Distance)
+                </td>
+                <td>
                     @{ string iconClass = (userPreferences.Contains(user.Id) ? "icon-preference-no" : "icon-preference-default"); }
                     <div class="icon icon-hover @iconClass" id="excl_@user.Id" onclick="updateExclusions('@user.Id')"></div>
                 </td>
@@ -53,6 +67,7 @@
 
 
         }
+        </tbody>
     </table>
 
 </div>
@@ -66,11 +81,11 @@
     <script>
         function updateExclusions(id) {
             var data = {
-                id: id
+                id: id,
+                userId: '@Model.UserId'
             }
             $.post('@Url.Action("UpdateExclusion")', data, function (d) {
                 if (d.Success) {
-                    console.log('#excl_' + id);
                     $('#excl_' + id).removeClass('icon-preference-default').removeClass('icon-preference-no');
                     var addClass = d.Action === 'Set' ? 'icon-preference-no' : 'icon-preference-default';
                     $('#excl_' + id).addClass(addClass);

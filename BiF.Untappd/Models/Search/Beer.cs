@@ -53,9 +53,11 @@ namespace BiF.Untappd.Models.Search
         public string Description { get; set; }
         [JsonProperty("beer_style")]
         public string Style { get; set; }
+
         [JsonProperty("rating_score")]
         public double Rating { get; set; }
 
+        public Brewery Brewery { get; set; }
     }
 
     public class Brewery {

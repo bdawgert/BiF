@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,7 +24,6 @@ namespace BiF.DAL.Models
         public string TrackingNo { get; set; }
 
         public virtual Exchange Exchange { get; set; }
-
         public virtual IdentityUser Sender { get; set; }
         public virtual IdentityUser Recipient { get; set; }
     }

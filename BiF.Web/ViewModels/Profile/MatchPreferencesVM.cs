@@ -4,6 +4,7 @@ using BiF.DAL.Models;
 namespace BiF.Web.ViewModels.Profile
 {
     public class MatchPreferencesVM {
+        public string UserId { get; set; }
         public List<UserPublicProfile> AllUsers  { get; set; }
         public List<KeyValuePair<MatchPreferenceType, string>> MatchPreferences { get; set; }
         public int AllowedExclusions { get; set; }
@@ -15,6 +16,8 @@ namespace BiF.Web.ViewModels.Profile
         public string Username { get; set; }
         public string Location { get; set; }
         public Dictionary<int, string> FlavorPreferences { get; set; }
+        public double Distance { get; set; }
+        public string Zip { get; set; }
     }
 
 }

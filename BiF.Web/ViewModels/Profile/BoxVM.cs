@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace BiF.Web.ViewModels.Profile
 {
     public class BoxVM {
+        public string UserId { get; set; }
         public List<BoxItem> Items { get; set; }
     }
 

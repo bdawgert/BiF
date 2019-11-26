@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using BiF.DAL.Models;
@@ -243,31 +242,42 @@ namespace BiF.Web.Controllers
 
             email.SMTP.Send(message);
         }
+        
 
+        public ActionResult MatchPreferences(string id) {
 
-        public ActionResult Match() {
-            ViewBag.MessageTitle = "No Matches Yet";
-            ViewBag.Message = "Matches should be ready on December 4. Don't worry, we'll let you know when they're posted. ";
-            return View("Message");
-        }
-
-
-        public ActionResult MatchPreferences() {
-
-            var allUsers = DAL.Context.Users.Where(x => x.UserStatus >= IdentityUser.UserStatuses.None && x.Id != BifSessionData.Id)
+            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+            int exclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            if (id != BifSessionData.Id)
+                exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            
+            var allUsers = DAL.Context.Users.Where(x => x.UserStatus >= IdentityUser.UserStatuses.None)
                 .Select(x => new {
                     Id = x.Id,
-                    UserName = x.UserName ?? x.Profile.RedditUsername,
+                    Username = x.UserName ?? x.Profile.RedditUsername,
                     City = x.Profile.City,
-                    State = x.Profile.State
-                }).AsEnumerable();
-            List<KeyValuePair<MatchPreferenceType, string>> preferences =  DAL.Context.MatchPreferences.Where(x => x.UserId == BifSessionData.Id)
+                    State = x.Profile.State,
+                    Zip = x.Profile.Zip,
+                    x.Profile.ZipCode
+                }).OrderBy(x => x.Username).ToList();
+
+            var me = allUsers.FirstOrDefault(x => x.Id == id);
+
+            List<KeyValuePair<MatchPreferenceType, string>> preferences =  DAL.Context.MatchPreferences.Where(x => x.UserId == id)
                 .AsEnumerable().Select(x => new KeyValuePair<MatchPreferenceType, string>(x.PreferenceType, x.Value)).ToList();
 
             MatchPreferencesVM vm = new MatchPreferencesVM {
-                AllUsers = allUsers.Select(x => new UserPublicProfile { Id = x.Id, Username = x.UserName, Location = $"{x.City}, {x.State}"}).ToList(),
+                UserId = id,
+                AllUsers = allUsers.Select(x => new UserPublicProfile {
+                    Id = x.Id,
+                    Username = x.Username,
+                    Location = $"{x.City}, {x.State}",
+                    Zip = x.Zip,
+                    Distance = DistanceTools.Haversine(x.ZipCode.Latitude, x.ZipCode.Longitude, me?.ZipCode.Latitude ?? 0m, me?.ZipCode.Longitude ?? 0m)
+
+                }).ToList(),
                 MatchPreferences = preferences,
-                AllowedExclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2")
+                AllowedExclusions = exclusions
             };
 
             return View(vm);
@@ -278,11 +288,12 @@ namespace BiF.Web.Controllers
             ViewBag.MessageTitle = "Build My Box";
             ViewBag.Message = "If all goes according to plan, we'll be putting together an Untappd-linked page to save the contents of your box.  You aren't required to participate, but if you do, you'll help generate some fun data.";
 
-            return View("Message");
+            //return View("Message");
 
             id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
 
             BoxVM vm = new BoxVM {
+                UserId = id,
                 Items = boxItems(id, 2)
 
             };
@@ -297,7 +308,7 @@ namespace BiF.Web.Controllers
                 Type = x.Type,
                 Format = x.Format,
                 Cost = x.Cost,
-                UntappdRating = x.UntappdRating,
+                UntappdRating = x.UntappdRating == null ? (double?)null : Math.Round(x.UntappdRating ?? 0, 2),
                 USOunces = x.USOunces
             }).ToList();
         }
@@ -309,13 +320,13 @@ namespace BiF.Web.Controllers
             if (item.UntappdId != null) {
                 UntappdClient untappdClient = UntappdClient.Create();
                 Beer beer = untappdClient.Lookup(item.UntappdId.Value);
-                item.Name = beer.Name;
+                item.Name = $"{beer.Name} ({beer.Brewery.Name})";
                 item.UntappdRating = beer.Rating;
             }
 
             Item entity = new Item {
                 UserId = id,
-                ExchangeId = Convert.ToInt32(exchangeId),
+                ExchangeId = 2,
                 Format = item.Format,
                 Name = item.Name,
                 Type = item.Type,
@@ -330,6 +341,7 @@ namespace BiF.Web.Controllers
 
             return Json(new {
                 UserId = id,
+                Id = entity.Id,
                 ExchangeId = Convert.ToInt32(exchangeId),
                 Format = item.Format,
                 Name = item.Name,
@@ -337,34 +349,67 @@ namespace BiF.Web.Controllers
                 UntappdId = item.UntappdId,
                 USOunces = item.USOunces,
                 Cost = item.Cost,
-                UntappdRating = item.UntappdRating
+                UntappdRating = item.UntappdRating == null ? null : Math.Round(item.UntappdRating ?? 0, 2).ToString("0.00")
             });
 
         }
 
         [HttpPost]
-        public JsonResult UpdateExclusion(string id) {
-            List<MatchPreference> preferences = DAL.Context.MatchPreferences.Where(x => x.UserId == BifSessionData.Id && x.PreferenceType == MatchPreferenceType.NotUser).ToList();
+        public JsonResult DeleteItem(int id) {
+            Item item = DAL.Context.Items.Find(id);
+            if (item == null)
+                return Json(new { Success = false });
+
+            DAL.Context.Items.Remove(item);
+            DAL.Context.SaveChanges();
+
+            return Json(new { Success = true });
+        }
+
+        [HttpGet]
+        public PartialViewResult BoxSummary(string id) {
+
+            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+
+            List<Item> items = DAL.Context.Items.Where(x => x.UserId == id && x.ExchangeId == 2).ToList();
+
+            BoxBuilder boxBuilder = new BoxBuilder(items);
+            boxBuilder.SetMinimumOunces(125).SetMinimumRating(4.1);
+            
+            return PartialView("__BoxSummary", boxBuilder);
+
+        }
+
+        [HttpPost]
+        public JsonResult UpdateExclusion(string id, string userId) {
+
+            userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
+            int exclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            if (userId != BifSessionData.Id)
+                exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+
+
+            List<MatchPreference> preferences = DAL.Context.MatchPreferences.Where(x => x.UserId == userId && x.PreferenceType == MatchPreferenceType.NotUser).ToList();
 
             List<MatchPreference> existing = preferences.Where(x => x.Value == id).ToList();
             if (existing.Any()) {
                 DAL.Context.MatchPreferences.RemoveRange(existing);
                 DAL.Context.SaveChanges();
-                return Json(new { Success = true, Action = "Unset", UserId = BifSessionData.Id });
+                return Json(new { Success = true, Action = "Unset", UserId = userId });
             }
 
             int allowedExclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
             if (preferences.Count >= allowedExclusions)
-                return Json(new { Success = false, Action = "", UserId = BifSessionData.Id });
+                return Json(new { Success = false, Action = "", UserId = userId });
 
             DAL.Context.MatchPreferences.Add( new MatchPreference {
-                UserId = BifSessionData.Id,
+                UserId = userId,
                 PreferenceType = MatchPreferenceType.NotUser,
                 Value = id
             });
             DAL.Context.SaveChanges();
 
-            return Json(new { Success = true, Action = "Set", UserId = BifSessionData.Id });
+            return Json(new { Success = true, Action = "Set", UserId = userId });
 
         }
 

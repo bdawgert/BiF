@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using BiF.DAL.Models;
@@ -56,7 +57,7 @@ namespace BiF.Web.Controllers
             if (id == 0)
                 return View();
 
-            var exchange = DAL.Context.Exchanges.Find(id);
+            //Exchange exchange = DAL.Context.Exchanges.Find(id);
             
             return View();
         }
@@ -124,14 +125,94 @@ namespace BiF.Web.Controllers
 
         }
 
-        public ActionResult Assign(int id) {
-            return null;
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult Assign() {
+
+            IEnumerable<Assignment> matches = DAL.Context.Exchanges.Where(x => x.Id == 2).Select(x =>
+                x.SignUps.Where(s => s.User.UserStatus > IdentityUser.UserStatuses.None)
+                    .GroupJoin(x.Matches, s => s.UserId, m => m.SenderId,
+                        (s, m) => new {
+                            SenderId = s.UserId, SenderUsername = s.Profile.RedditUsername, Match = m.FirstOrDefault()
+                        }).Select(s => new Assignment {
+                        SenderId = s.SenderId, SenderUsername = s.SenderUsername, RecipientId = s.Match.RecipientId,
+                        RecipientUsername = s.Match.Recipient.Profile.RedditUsername
+                    }).OrderBy(s => s.SenderUsername)
+                ).First();
+
+            AssignVM vm = new AssignVM {
+                Assignments = matches.ToList()
+            };
+
+            return View(vm);
+        }
+
+
+        [Authorize(Roles = "ADMIN")]
+        public PartialViewResult AssignList(string id) {
+
+            var selectedUser = DAL.Context.Users.Where(x => x.Id == id).Select(x => new {
+                Username = x.Profile.RedditUsername,
+                MatchId = x.SendingMatches.FirstOrDefault(m => m.ExchangeId == 2).RecipientId
+            }).FirstOrDefault();
+
+            List<SelectListItem> availableUsers = DAL.Context.SignUps.Where(x => x.UserId != id &&
+                     x.ExchangeId == 2 && 
+                     x.User.UserStatus >= IdentityUser.UserStatuses.None &&
+                     !x.User.MatchPreferences.Where(p => p.PreferenceType == MatchPreferenceType.NotUser).Select(p => p.Value).Contains(id) &&
+                     !x.User.ReceivingMatches.Any(m => m.ExchangeId == 2 && m.SenderId != id))
+                .Select(x => new SelectListItem {
+                    Value = x.UserId,
+                    Text = x.Profile.RedditUsername
+                }).OrderBy(x => x.Text).ToList();
+
+            availableUsers.Insert(0, new SelectListItem {Text = ""});
+
+            AssignListVM vm = new AssignListVM {
+                MatchId = selectedUser?.MatchId,
+                AvailableUsers = availableUsers,
+                SenderUsername = selectedUser?.Username,
+                SenderId = id
+            };
+
+            return PartialView("__AssignList", vm);
+
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        public JsonResult AssignMatch(string senderId, string recipientId) {
+            List<Match> matches = DAL.Context.Matches.Where(x => x.ExchangeId == 2 && (x.SenderId == senderId || x.RecipientId == recipientId)).ToList();
+
+            if (!string.IsNullOrEmpty(recipientId) && matches.Any(x => x.RecipientId == recipientId))
+                return Json(new {Success = false, Message = "Recipient is already assigned in another match"});
+
+            var match = matches.FirstOrDefault(x => x.SenderId == senderId) ?? new Match
+                            {ExchangeId = 2, SenderId = senderId};
+
+            if (match.MatchDate == null)
+                DAL.Context.Matches.Add(match);
+
+            if (recipientId == "")
+                recipientId = null;
+
+            match.MatchDate = DateTime.Now;
+            match.RecipientId = recipientId;
+
+            match.Carrier = null;
+            match.TrackingNo = null;
+            match.ShipDate = null;
+
+            DAL.Context.SaveChanges();
+
+            return Json(new { Success = true, UserId = senderId, MatchId = recipientId });
         }
 
         public ActionResult ViewStatus(int id)
         {
             return null;
         }
+
+
+
 
     }
 

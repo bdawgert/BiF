@@ -39,6 +39,7 @@ namespace BiF.DAL.Models
         public virtual ICollection<Match> ReceivingMatches { get; set; }
 
         public virtual ICollection<SignUp> SignUps { get; set; }
+        public virtual ICollection<MatchPreference> MatchPreferences { get; set; }
 
         public enum UserStatuses
         {

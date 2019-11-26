@@ -1,0 +1,91 @@
+﻿@using System.Runtime.InteropServices
+@using BiF.Web.Utilities
+@model BoxBuilder
+
+
+<table class="bif-table" style="margin: auto">
+    <colgroup>
+        <col style="width: 150px" />
+        <col style="width: 200px" />
+        <col style="width: 50px" />
+        <col style="width: 150px" />
+        <col style="width: 200px" />
+    </colgroup>
+    <thead>
+        <tr>
+            <td></td>
+            <td>Required</td>
+            <td colspan="2">Qualifying</td>
+            <td>Total</td>
+        </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Ounces</td>
+        <td>
+            @if (Model.RequiredOunces == null) {
+                @:--
+            } else {
+                @Model.RequiredOunces
+                @:oz
+            }
+        </td>
+        <td>
+            @{
+                string iconClass = Model.MeetsOunces ? "icon-ok" : "icon-no";
+            }
+            <div class="icon @iconClass"></div>
+        </td>
+        <td>@(Model.QualifyingOunces ?? 0) oz</td>
+
+        <td>@(Model.TotalOunces ?? 0) oz</td>
+    </tr>
+    <tr>
+        <td>Cost</td>
+        <td>
+            @if (Model.RequiredCost == null) {
+                @:--
+            }
+            else {
+                @:$@(Model.RequiredCost?.ToString("0.00"))
+            }
+        </td>
+        <td>
+            @{
+                iconClass = Model.MeetsCost ? "icon-ok" : "icon-no";
+            }
+            <div class="icon @iconClass"></div>
+        </td>
+        <td>
+            $@(Math.Round(Model.QualifyingCost ?? 0, 2).ToString("0.00"))
+        </td>
+
+        <td>
+            $@(Math.Round(Model.TotalCost ?? 0, 2).ToString("0.00"))
+        </td>
+    </tr>
+    <tr>
+        <td>Avg. Rating</td>
+        <td>
+            @if (Model.RequiredRating == null) {
+                @:--
+            }
+            else
+            {
+                @(Model.RequiredRating?.ToString("0.00"))
+            }
+        </td>
+        <td>
+            @{
+                iconClass = Model.MeetsRating ? "icon-ok" : "icon-no";
+            }
+            <div class="icon @iconClass"></div>
+        </td>
+        <td>@(Math.Round(Model.QualifyingAverageRating ?? 0, 2).ToString("0.00"))</td>
+
+        <td>@(Math.Round(Model.AverageRating ?? 0, 2).ToString("0.00"))</td>
+    </tr>
+
+    </tbody>
+</table>
+
