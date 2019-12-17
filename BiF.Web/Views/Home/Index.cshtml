@@ -8,12 +8,12 @@
     @if (!Request.IsAuthenticated)
     {
         <div class="body-content" style="position: relative;">
-            <div style="max-height: 460px; overflow: hidden">
+            <div style="max-height: 360px; overflow: hidden">
                 @Html.Partial("__HomeContent")
 
             </div>
             <div style="position: absolute; bottom: 0; left: 0; right: 0; background: #012f50; background: linear-gradient(0, #012f50 40%, transparent 100%); text-align: center; height: 150px;">
-                <div style="margin-top: 95px">@Html.ActionLink("Login", "Login", "Account") or @Html.ActionLink("Register", "Register", "Account") to View More</div>
+                <div style="margin-top: 95px">@Html.ActionLink("Login", "Login", "Account") to View More</div>
             </div>
         </div>
     }
@@ -25,7 +25,7 @@
 
     @if (Request.IsAuthenticated)
     {
-        if (!session.HasProfile)
+        @*if (!session.HasProfile)
         {
             <div class="notification-content">
                 Your Profile is currently incomplete.  In order to participate in this year's Exchange, you must complete a Profile.  @Html.ActionLink("Click here to go to the Profile form", "", "Profile").
@@ -51,7 +51,7 @@
                 Your participation in this year's Secret Santa Exchange has been approved.  Start pulling together some awesome beers.  We'll let you know when matching is complete.
             </div>
 
-        }
+        }*@
 
         <div style="display: flex; align-items: flex-start; justify-content: space-between">
             
@@ -76,7 +76,7 @@
 
             </div>
 
-                <div class="body-content" style="position: relative; width: 540px" >
+            <div class="body-content" style="position: relative; width: 540px; margin-top: 0" >
                 @Html.Partial("__HomeContent")
             </div>
 

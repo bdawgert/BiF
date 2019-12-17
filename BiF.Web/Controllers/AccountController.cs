@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -141,38 +142,32 @@ namespace BiF.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ForgotPassword(ForgotPasswordVM model)
+        public  ActionResult ForgotPassword(ForgotPasswordVM model)
         {
-            if (ModelState.IsValid)
-            {
+            if (ModelState.IsValid) {
                 IdentityUser user = UserManager.FindByEmail(model.Email);
-                if (user == null )
-                    //if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
+                if (user == null ) 
                     return View("ForgotPasswordConfirmation");
-                }
+                
+                EmailClient email = EmailClient.Create();
 
-                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                string token = HttpUtility.HtmlEncode(user.PasswordHash.Substring(0, 32));
+                string resetUrl = $@"https://beeritforward.azurewebsites.net{Url.Action("ResetPassword", "Account", new { token = token })}";
+                string messageBody = "<p>A Password Reset has been requested for your account.  Click the following link to complete the reset:</p>" +
+                                     $"<a href=\"{resetUrl}\">{resetUrl}</a>";
 
-                string smtpPassword = await KeyVault.GetSecret("redditbeeritforward-gmail-com");
+                MailMessage message = new MailMessage {
+                    To = { new MailAddress(user.Email, user.Profile.FullName) },
+                    Bcc = { new MailAddress("redditbeeritforward@gmail.com"), new MailAddress("bdawgert@gmail.com") },
+                    From = new MailAddress("redditbeeritforward@gmail.com", "BeerItForward"),
+                    Subject = "BeerItForward Password Reset",
+                    Body = messageBody,
+                    IsBodyHtml = true
+                };
 
-            SmtpClient smtp = new SmtpClient {
-                Host = "smtp.gmail.com",
-                Port = 587,
-                Credentials = new System.Net.NetworkCredential("redditbeeritforward@gmail.com", smtpPassword)
+                email.SMTP.Send(message);
 
-            };
-                MailMessage message = new MailMessage("BeerItForward <redditbeeritforward@gmail.com>", null);
-
-
-            smtp.Send(message);
-
+                return View("ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed, redisplay form
@@ -182,50 +177,59 @@ namespace BiF.Web.Controllers
         //
         // GET: /Account/ForgotPasswordConfirmation
         [AllowAnonymous]
-        public ActionResult ForgotPasswordConfirmation()
-        {
+        public ActionResult ForgotPasswordConfirmation() {
             return View();
         }
 
         //
         // GET: /Account/ResetPassword
         [AllowAnonymous]
-        public ActionResult ResetPassword(string code)
+        public ActionResult ResetPassword(string token)
         {
-            return code == null ? View("Error") : View();
+
+            if (token == null || token.Length < 32)
+                return View("Unauthorized");
+
+            IdentityUser user = DAL.Context.Users.FirstOrDefault(x => x.PasswordHash.StartsWith(token));
+
+            if (user == null)
+                return View("Unauthorized");
+
+            ResetPasswordVM vm = new ResetPasswordVM {
+                Code = token
+            };
+
+            return View(vm);
         }
 
         //
         // POST: /Account/ResetPassword
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> ResetPassword(ResetPasswordVM model)
-        //{
-        //    if (!ModelState.IsValid) {
-        //        return View(model);
-        //    }
-        //    var user = UserManager.FindByEmail(model.Email);
-        //    if (user == null)
-        //    {
-        //        // Don't reveal that the user does not exist
-        //        return RedirectToAction("ResetPasswordConfirmation", "Account");
-        //    }
-        //    var result = UserManager.ResetPassword(user.Id, model.Code, model.Password);
-        //    if (result.Succeeded)
-        //    {
-        //        return RedirectToAction("ResetPasswordConfirmation", "Account");
-        //    }
-        //    addErrors(result);
-        //    return View();
-        //}
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPassword(ResetPasswordVM vm) {
+            if (!ModelState.IsValid) {
+                return View(vm);
+            }
+
+            IdentityUser user = DAL.Context.Users.FirstOrDefault(x => x.Email == vm.Email && x.PasswordHash.StartsWith(vm.Code) && x.UserStatus > 0);
+            if (user == null) 
+                return View("Unauthorized");
+
+            UserManageResult result = UserManager.SetPassword(user.Id, vm.Password.Secure());
+
+            if (result.Success) 
+                return RedirectToAction("ResetPasswordConfirmation", "Account");
+
+            addErrors(result);
+            return View();
+        }
 
 
         //
         // GET: /Account/ResetPasswordConfirmation
         [AllowAnonymous]
-        public ActionResult ResetPasswordConfirmation()
-        {
+        public ActionResult ResetPasswordConfirmation() {
             return View();
         }
 

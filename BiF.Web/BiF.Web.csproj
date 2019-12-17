@@ -209,6 +209,7 @@
     <Compile Include="ViewModels\Exchanges\ExchangeVM.cs" />
     <Compile Include="ViewModels\Exchanges\IndexVM.cs" />
     <Compile Include="ViewModels\Exchanges\SignUpVM.cs" />
+    <Compile Include="ViewModels\Exchanges\ViewStatusVM.cs" />
     <Compile Include="ViewModels\Home\ParticipantVM.cs" />
     <Compile Include="ViewModels\Manage\AddPhoneNumberVM.cs" />
     <Compile Include="ViewModels\Manage\ChangeEmailVM.cs" />
@@ -297,6 +298,8 @@
     <Content Include="Views\Match\__ShippingConfirmation.cshtml" />
     <Content Include="Views\Match\__ShippingNotification.cshtml" />
     <Content Include="Views\Profile\__BoxSummary.cshtml" />
+    <Content Include="Views\Shared\Unauthorized.cshtml" />
+    <Content Include="Views\Exchanges\ViewStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">

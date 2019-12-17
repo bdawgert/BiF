@@ -206,9 +206,26 @@ namespace BiF.Web.Controllers
             return Json(new { Success = true, UserId = senderId, MatchId = recipientId });
         }
 
-        public ActionResult ViewStatus(int id)
-        {
-            return null;
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult ViewStatus(int id = 0) {
+            id = 2;
+
+            List<ShipmentStatus> userStatus = DAL.Context.Matches.Where(x => x.ExchangeId == id).Select(x => new ShipmentStatus {
+                Sender = x.Sender.Profile.RedditUsername,
+                SenderId = x.SenderId,
+                Carrier = x.Carrier,
+                TrackingNo = x.TrackingNo,
+                ShipDate = x.ShipDate,
+                Recipient = x.Recipient.Profile.RedditUsername,
+            }).OrderBy(x => x.ShipDate != null).ThenBy(x => x.ShipDate).ToList();
+
+            ViewStatusVM vm = new ViewStatusVM {
+                ShipmentStatuses = userStatus
+            };
+
+
+            return View(vm);
+
         }
 
 
