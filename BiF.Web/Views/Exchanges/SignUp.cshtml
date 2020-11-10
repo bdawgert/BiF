@@ -14,8 +14,11 @@
 
     @Html.ValidationSummary()
 
-    @using (Html.BeginForm(isSignedUp ? "UnSignUp" : "SignUp"))
+    @using (Html.BeginForm(isSignedUp ? "UnSignUp" : "SignUp", "Exchanges"))
     {
+
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.ExchangeId)
 
         if (isSignedUp) {
             <div class="notification-content">
@@ -72,7 +75,9 @@
             </div>
             @if (!isSignedUp) {
                 <div style="margin-top: 10px; text-align: left">
-                    @Html.CheckBoxFor(x => x.IsAcknowledged, new {onclick = "signUp()", style = "transform: scale(1.6); margin: 10px 10px 0 0"}) Let's Do This!
+                    <label>
+                        @Html.CheckBoxFor(x => x.IsAcknowledged, new { onclick = "signUp()", style = "transform: scale(1.6); margin: 10px 10px 0 0" }) Let's Do This!
+                    </label>
                 </div>
             }
         </div>

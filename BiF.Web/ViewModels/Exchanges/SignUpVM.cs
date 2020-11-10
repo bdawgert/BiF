@@ -21,7 +21,6 @@ namespace BiF.Web.ViewModels.Exchanges
         
         public DateTime? SignUpDate { get; set; }
 
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Please acknowledge the \"Totally Binding Commitment\".")]
         public bool IsAcknowledged { get; set; }
 
 

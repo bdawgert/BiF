@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using BiF.Web.Utilities;
 using BiF.Web.ViewModels.Home;
 
 namespace BiF.Web.Controllers
@@ -16,7 +15,7 @@ namespace BiF.Web.Controllers
             if (Request.IsAuthenticated) {
                 Dictionary<int, string> exchanges = DAL.Context.SignUps.Where(x => x.UserId == BifSessionData.Id)
                     .Select(x => new { Id = x.ExchangeId, x.Approved, x.Exchange.Name, x.Exchange.OpenDate })
-                    .OrderBy(x => x.OpenDate).ToDictionary(x => x.Id, x => x.Name);
+                    .OrderByDescending(x => x.OpenDate).ToDictionary(x => x.Id, x => x.Name);
 
                 ViewBag.Exchanges = exchanges;
 
