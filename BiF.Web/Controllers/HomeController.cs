@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Web.Helpers;
 using System.Web.Mvc;
+using BiF.Web.Utilities;
 using BiF.Web.ViewModels.Home;
 
 namespace BiF.Web.Controllers
@@ -9,10 +10,23 @@ namespace BiF.Web.Controllers
     public class HomeController : BaseController
     {
         public ActionResult Index() {
+            
+            int exchangeId = BifSessionData.ExchangeId;
 
-            if (Request.IsAuthenticated)
-                ViewBag.Exchanges = DAL.Context.SignUps.Where(x => x.UserId == BifSessionData.Id).Select(x => new { Id = x.ExchangeId, x.Approved, x.Exchange.Name }).ToDictionary(x => x.Id, x => x.Name);
+            if (Request.IsAuthenticated) {
+                Dictionary<int, string> exchanges = DAL.Context.SignUps.Where(x => x.UserId == BifSessionData.Id)
+                    .Select(x => new { Id = x.ExchangeId, x.Approved, x.Exchange.Name, x.Exchange.OpenDate })
+                    .OrderBy(x => x.OpenDate).ToDictionary(x => x.Id, x => x.Name);
 
+                ViewBag.Exchanges = exchanges;
+
+                if (exchangeId == 0 && exchanges.Any()) {
+                    exchangeId = exchanges.Keys.First();
+                    BifSessionData.setExchangeId(exchangeId);
+                }
+            }
+
+            ViewBag.CurrentExchange = exchangeId;
 
             return View();
         }
@@ -24,10 +38,10 @@ namespace BiF.Web.Controllers
         [Authorize]
         public PartialViewResult ParticipantList(int id) {
 
-            List<ParticipantVM> vm = DAL.Context.Users.Where(x => x.UserStatus >= 0)
+            List<ParticipantVM> vm = DAL.Context.Users.Where(x => x.Roles.Any(r  => r.Name == "ADMIN"))
                 .Select(x => new ParticipantVM {
                     Id = x.Id,
-                    UserName = x.Profile.RedditUsername ?? x.Email.Substring(0, x.Email.IndexOf("@")),
+                    UserName = x.Profile.RedditUsername ?? x.Email.Substring(0, x.Email.IndexOf("@", StringComparison.Ordinal)),
                     HasProfile = x.Profile != null,
                     UserStatus = (int) x.UserStatus,
                     IsAdmin = x.Roles.Any(r => r.Name == "ADMIN"),
@@ -37,6 +51,7 @@ namespace BiF.Web.Controllers
             return PartialView("__ParticipantList", vm);
 
         }
+
 
     }
 }

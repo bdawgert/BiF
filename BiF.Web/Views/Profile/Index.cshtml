@@ -134,20 +134,20 @@
 
             <div class="form-row" style="flex-direction: column; margin-top: 15px">
                 <div class="form-label required" style="width: 100%">Previous Experience/References</div>
-                <div>
-                    Have you participated in BiF Secret Santa before? Have you participated in the monthly exchanges? Have you done beer trades in the past? Where? Are you a dead beat just looking for some free beer? Previous experience with exchanges is required to participate.
+                <div style="width: 100%">
+                    Have you participated in any BiF exchanges before? Have you done beer trades in the past? Where? Are you a dead beat just looking for some free beer? Previous experience swapping and shipping beer is generally required to participate.
                 </div>
                 <div style="width: 100%">@Html.TextAreaFor(x => x.References, 3, 0, new { style = "width: 100%", maxlength = "4000" })</div>
             </div>
 
             <div class="form-row" style="flex-direction: column; margin-top: 15px">
 
-                <div class="form-label" style="width: 100%">What else should Santa know?</div>
-                <div>Deadly nut allergy - need an epi pen taped to that PB stout? Gluten reduced only - because you hate Santa and want him to hate you back? Completely rational fear of beers with an SRM between 9 and 18?  Please deposit your issues below.</div>
+                <div class="form-label" style="width: 100%">What should your match know before packing you a box full of beer?</div>
+                <div style="width: 100%">Allergies? Intolerances? Hopes, Dreams, Inspirations?</div>
                 <div style="width: 100%">@Html.TextAreaFor(x => x.Comments, 3, 0, new { style = "width: 100%", maxlength = "4000" })</div>
             </div>
 
-            <div style="margin-top: 15px">
+            @*<div style="margin-top: 15px">
                 <div>
                     <b class="required">Totally Binding Commitment</b><br />
                     By signing up for this exchange you agree to ship at least 125 oz of objectively delicious beer to your match by December 15 (weather permitting). You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction). Failure to fulfill your obligation to meet shipping requirements will result in a ban from future BiF exchanges.
@@ -155,7 +155,7 @@
                 <div style="margin-top: 10px; text-align: left">
                     @Html.CheckBox("issignedup", new { onclick = "signUp()", style = "transform: scale(1.6); margin: 10px 10px 0 0" }) Let's Do This!
                 </div>
-            </div>
+            </div>*@
 
             <div style="margin-top: 15px">
                 <input type="submit" value="Save" />
@@ -166,15 +166,30 @@
         {
             @:Last Updated: <span id="updateDate"> </span>
             <script>
-            $(function () {
-                $('#updateDate').text(new Date('@Model.UpdateDate UTC').toLocaleString())
-            })
+                $(function () {
+                    $('#updateDate').text(new Date('@Model.UpdateDate UTC').toLocaleString())
+                })
             </script>
         }
 
     </div>
 </div>
 
+
+@section Scripts {
+    <script>
+        $(function() {
+            $('td input[type=radio]').parents('td').on('click', radioCellClickHandler);
+        });
+
+        function radioCellClickHandler(e) {
+            if(e.target.tagName.toLowerCase() !== 'td')
+                return;
+            $(this).find('input[type=radio]').click();
+        }
+
+    </script>
+}
 
 <style>
 

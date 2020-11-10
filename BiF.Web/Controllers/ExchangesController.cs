@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using BiF.DAL.Models;
+using BiF.Web.Utilities;
 using BiF.Web.ViewModels.Exchanges;
+using BiF.Web.ViewModels.Home;
 
 namespace BiF.Web.Controllers
 {
+    [Authorize]
     public class ExchangesController : BaseController
     {
 
@@ -53,39 +57,186 @@ namespace BiF.Web.Controllers
 
         [HttpGet]
         [Authorize(Roles = "ADMIN")]
-        public ActionResult Edit(int id = 0) {
-            if (id == 0)
-                return View();
-
-            //Exchange exchange = DAL.Context.Exchanges.Find(id);
-            
-            return View();
+        public ActionResult Add()
+        {
+            return View("Edit");
         }
 
+        [HttpGet]
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult Edit(string id) {
+
+            int.TryParse(id, out int exchangeId);
+
+            if (exchangeId == 0)
+                return View(new EditVM());
+
+            Exchange exchange = DAL.Context.Exchanges.Find(exchangeId);
+
+            if (exchange == null) {
+                ViewBag.Title = "Exchange Not Found";
+                ViewBag.Title = $"Exchange #{exchangeId} could not be bound";
+                return View("Message");
+            }
+            
+            EditVM vm = new EditVM {
+                Id = exchangeId,
+                Name = exchange.Name,
+                Theme = exchange.Theme,
+                Description = exchange.Description,
+                OpenDate = exchange.OpenDate,
+                CloseDate = exchange.CloseDate,
+                MatchDate = exchange.MatchDate,
+                ShipDate = exchange.ShipDate,
+                MinOunces = exchange.MinOunces,
+                MinCost = exchange.MinCost,
+                MinRating = exchange.MinRating,
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult Edit(EditVM vm) {
+
+            int id = vm.Id;
+
+            Exchange exchange;
+            if (id == 0)
+                exchange = DAL.Context.Exchanges.Add(new Exchange {
+                    CreatorId = User.Identity.Name,
+                    CreateDate = DateTime.Now
+                });
+            else
+                exchange = DAL.Context.Exchanges.Find(id);
+
+            if (exchange == null)
+                return Error("Exchange Id Not Found");
+
+            exchange.Name = vm.Name;
+            exchange.Theme = vm.Theme;
+            exchange.Description = vm.Description;
+            exchange.OpenDate = vm.OpenDate;
+            exchange.CloseDate = vm.CloseDate;
+            exchange.MatchDate = vm.MatchDate;
+            exchange.ShipDate = vm.ShipDate;
+
+            exchange.UpdateDate = DateTime.Now;
+            exchange.UpdaterId = User.Identity.Name;
+            exchange.MinOunces = vm.MinOunces;
+            exchange.MinCost = vm.MinCost;
+            exchange.MinRating = vm.MinRating;
+
+            DAL.Context.SaveChanges();
+
+            return RedirectToAction("", "Administration");
+        }
 
         [HttpGet]
         public ActionResult SignUp(int id = 0) {
 
-            bool success = signUp(id, BifSessionData.Id, out string message);
-            
-            if (success)
-                return RedirectToAction("", "Home");
+            var exchange = DAL.Context.Exchanges.Where(x => x.Id == id)
+                .Select(x => new { Exchange = x, SignUpDate = (DateTime?)x.SignUps.FirstOrDefault(s => s.UserId == BifSessionData.Id).SignUpDate }).FirstOrDefault();
 
+            if (exchange?.Exchange == null || DateTime.Now < exchange.Exchange.OpenDate) {
+                ViewBag.Message = "This exchange is not yet open";
+                return View("Message");
+            }
 
-            ViewBag.MessageTitle = "Sign Up";
-            ViewBag.Message = message;
-            return View("Message");
+            if (DateTime.Now >= exchange.Exchange.MatchDate) {
+                ViewBag.Message = $"The {exchange.Exchange.Name} exchange is closed to new Sign Ups";
+                return View("Message");
+            }
+
+            if (DateTime.Now > exchange.Exchange.CloseDate.AddDays(1)) {
+                ViewBag.Message = $"The {exchange.Exchange.Name} exchange is now closed";
+                return View("Message");
+            }
+
+            SignUpVM vm = new SignUpVM {
+                ExchangeId = id,
+                Name = exchange.Exchange.Name,
+                Description = exchange.Exchange.Description,
+                MinCost = exchange.Exchange.MinCost,
+                MinOunces = exchange.Exchange.MinOunces,
+                MinRating = exchange.Exchange.MinRating,
+                OpenDate = exchange.Exchange.OpenDate,
+                ShipDate = exchange.Exchange.ShipDate,
+                MatchDate = exchange.Exchange.MatchDate,
+                CloseDate = exchange.Exchange.CloseDate,
+                SignUpDate = exchange.SignUpDate,
+                IsAcknowledged = exchange.SignUpDate != null
+            };
             
+            return View("SignUp", vm);
         }
 
         [HttpPost]
-        public JsonResult SignUpAsync(string userId, int exchangeId = 0) {
-            bool success = signUp(exchangeId, userId, out string message);
-            return Json(new {Success = success, Message = message});
+        public ActionResult SignUp(SignUpVM vm) {
+
+            var exchange = DAL.Context.Exchanges.Where(x => x.Id == vm.ExchangeId)
+                .Select(x => new { Exchange = x, IsSignedUp = x.SignUps.Any(s => s.ExchangeId == vm.ExchangeId && s.UserId == BifSessionData.Id) }).FirstOrDefault();
+
+            ViewBag.MessageTitle = "Sign Up";
+            if (exchange?.Exchange == null || DateTime.Now < exchange.Exchange.OpenDate) {
+                ViewBag.Message = "This exchange is not yet open";
+                return View("Message");
+            }
+
+            if (DateTime.Now >= exchange.Exchange.MatchDate) {
+                ViewBag.Message = "This exchange is closed to new Sign Ups";
+                return View("Message");
+            }
+
+            if (DateTime.Now > exchange.Exchange.CloseDate.AddDays(1)) {
+                ViewBag.Message = "This exchange is now closed";
+                return View("Message");
+            }
+
+            bool success = doSignUp(vm.ExchangeId, BifSessionData.Id, out string message);
+
+            if (!success) {
+                ViewBag.Message = message;
+                return View("Message");
+            }
+
+            CookieManager.SetCookie(new HttpCookie("exchangeId", exchange.Exchange.Id.ToString()));
+
+            return RedirectToAction("", "");
+            
+        }
+
+
+        [HttpPost]
+        public ActionResult UnSignUp(SignUpVM vm) {
+            var signUp = DAL.Context.SignUps.Where(x => x.ExchangeId == vm.ExchangeId && x.UserId == BifSessionData.Id)
+                .Select(x => new { SignUp = x, Exchange = x.Exchange}).FirstOrDefault();
+
+            if (signUp?.SignUp == null) {
+                return RedirectToAction("", "");
+            }
+
+            if (DateTime.Now < signUp.Exchange.MatchDate) {
+                DAL.Context.SignUps.Remove(signUp.SignUp);
+                DAL.Context.SaveChanges();
+                //ViewBag.Title = "";
+                //ViewBag.Message = message;
+                //return View("Message");
+            }
+
+            return RedirectToAction("", "");
 
         }
 
-        private bool signUp(int exchangeId, string userId, out string message) {
+        //[HttpPost]
+            //public JsonResult SignUpAsync(string userId, int exchangeId = 0) {
+            //    bool success = signUp(exchangeId, userId, out string message);
+            //    return Json(new {Success = success, Message = message});
+
+            //}
+
+        private bool doSignUp(int exchangeId, string userId, out string message) {
 
             var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
                 .Select(x => new {Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId)}).FirstOrDefault();
@@ -126,9 +277,11 @@ namespace BiF.Web.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        public ActionResult Assign() {
+        public ActionResult Assign(string id) {
 
-            IEnumerable<Assignment> matches = DAL.Context.Exchanges.Where(x => x.Id == 2).Select(x =>
+            int.TryParse(id, out int exchangeId);
+            
+            IEnumerable<Assignment> matches = DAL.Context.Exchanges.Where(x => x.Id == exchangeId).Select(x =>
                 x.SignUps.Where(s => s.User.UserStatus > IdentityUser.UserStatuses.None)
                     .GroupJoin(x.Matches, s => s.UserId, m => m.SenderId,
                         (s, m) => new {
@@ -148,18 +301,20 @@ namespace BiF.Web.Controllers
 
 
         [Authorize(Roles = "ADMIN")]
-        public PartialViewResult AssignList(string id) {
+        public PartialViewResult AssignList(string id, string userId) {
 
-            var selectedUser = DAL.Context.Users.Where(x => x.Id == id).Select(x => new {
+            int.TryParse(id, out int exchangeId);
+
+            var selectedUser = DAL.Context.Users.Where(x => x.Id == userId).Select(x => new {
                 Username = x.Profile.RedditUsername,
-                MatchId = x.SendingMatches.FirstOrDefault(m => m.ExchangeId == 2).RecipientId
+                MatchId = x.SendingMatches.FirstOrDefault(m => m.ExchangeId == BifSessionData.ExchangeId).RecipientId
             }).FirstOrDefault();
 
-            List<SelectListItem> availableUsers = DAL.Context.SignUps.Where(x => x.UserId != id &&
-                     x.ExchangeId == 2 && 
+            List<SelectListItem> availableUsers = DAL.Context.SignUps.Where(x => x.UserId != userId &&
+                     x.ExchangeId == exchangeId && 
                      x.User.UserStatus >= IdentityUser.UserStatuses.None &&
-                     !x.User.MatchPreferences.Where(p => p.PreferenceType == MatchPreferenceType.NotUser).Select(p => p.Value).Contains(id) &&
-                     !x.User.ReceivingMatches.Any(m => m.ExchangeId == 2 && m.SenderId != id))
+                     !x.User.MatchPreferences.Where(p => p.PreferenceType == MatchPreferenceType.NotUser).Select(p => p.Value).Contains(userId) &&
+                     !x.User.ReceivingMatches.Any(m => m.ExchangeId == BifSessionData.ExchangeId && m.SenderId != userId))
                 .Select(x => new SelectListItem {
                     Value = x.UserId,
                     Text = x.Profile.RedditUsername
@@ -171,7 +326,7 @@ namespace BiF.Web.Controllers
                 MatchId = selectedUser?.MatchId,
                 AvailableUsers = availableUsers,
                 SenderUsername = selectedUser?.Username,
-                SenderId = id
+                SenderId = userId
             };
 
             return PartialView("__AssignList", vm);
@@ -180,13 +335,13 @@ namespace BiF.Web.Controllers
 
         [Authorize(Roles = "ADMIN")]
         public JsonResult AssignMatch(string senderId, string recipientId) {
-            List<Match> matches = DAL.Context.Matches.Where(x => x.ExchangeId == 2 && (x.SenderId == senderId || x.RecipientId == recipientId)).ToList();
+            List<Match> matches = DAL.Context.Matches.Where(x => x.ExchangeId == BifSessionData.ExchangeId && (x.SenderId == senderId || x.RecipientId == recipientId)).ToList();
 
             if (!string.IsNullOrEmpty(recipientId) && matches.Any(x => x.RecipientId == recipientId))
                 return Json(new {Success = false, Message = "Recipient is already assigned in another match"});
 
-            var match = matches.FirstOrDefault(x => x.SenderId == senderId) ?? new Match
-                            {ExchangeId = 2, SenderId = senderId};
+            Match match = matches.FirstOrDefault(x => x.SenderId == senderId) ?? new Match
+                              {ExchangeId = BifSessionData.ExchangeId, SenderId = senderId};
 
             if (match.MatchDate == null)
                 DAL.Context.Matches.Add(match);
@@ -207,10 +362,11 @@ namespace BiF.Web.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        public ActionResult ViewStatus(int id = 0) {
-            id = 2;
+        public ActionResult ViewStatus(string id) {
 
-            List<ShipmentStatus> userStatus = DAL.Context.Matches.Where(x => x.ExchangeId == id).Select(x => new ShipmentStatus {
+            int.TryParse(id, out int exchangeId);
+
+            List<ShipmentStatus> userStatus = DAL.Context.Matches.Where(x => x.ExchangeId == exchangeId).Select(x => new ShipmentStatus {
                 Sender = x.Sender.Profile.RedditUsername,
                 SenderId = x.SenderId,
                 Carrier = x.Carrier,
@@ -228,7 +384,46 @@ namespace BiF.Web.Controllers
 
         }
 
+        public ActionResult ParticipantList()
+        {
+            ParticipantsVM vm = new ParticipantsVM();
 
+            var participantData  = DAL.Context.Exchanges.Where(x => x.Id == BifSessionData.ExchangeId)
+                .Select(x => new {
+                    ExchangeName = x.Name,
+                    Participants = x.SignUps.Select(s => new {  
+                        Id = s.UserId,
+                        RedditUsername = s.Profile.RedditUsername,
+                        Email = s.User.Email,
+                        City = s.Profile.City, 
+                        State = s.Profile.State,
+                        HasProfile = s.Profile != null,
+                        UserStatus = (int)s.User.UserStatus,
+                        IsAdmin = s.User.Roles.Any(r => r.Name == "ADMIN"),
+                    })
+                }).FirstOrDefault();
+
+            if (participantData == null) {
+                ViewBag.Message = "Exchange Not Found";
+                return View("Message");
+            }
+
+            vm.ExchangeName = participantData.ExchangeName;
+            vm.Participants = participantData.Participants.Select(x => new ParticipantVM {
+                    Id = x.Id,
+                    UserName = x.RedditUsername ?? x.Email.Substring(0, x.Email.IndexOf("@", StringComparison.Ordinal)),
+                    Location = $"{x.City}, {x.State}",
+                    HasProfile = x.HasProfile,
+                    UserStatus = x.UserStatus,
+                    IsAdmin = x.IsAdmin,
+                    IsSignedUp = true
+                }).OrderByDescending(x => x.IsAdmin).ThenByDescending(x => x.UserStatus).ToList();
+
+            return View(vm);
+
+
+
+        }
 
 
     }

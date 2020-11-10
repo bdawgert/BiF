@@ -50,6 +50,8 @@ namespace BiF.DAL.Models
         public int? Spicy { get; set; }
         public int? Crisp { get; set; }
 
+        public int Rating { get; set; }
+
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
         

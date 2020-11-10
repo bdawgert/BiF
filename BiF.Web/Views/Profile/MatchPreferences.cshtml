@@ -3,26 +3,24 @@
 @model MatchPreferencesVM
 @{
     ViewBag.Title = "MatchPreferences";
-
-    var userPreferences = Model.MatchPreferences.Where(x => x.Key == MatchPreferenceType.NotUser).Select(x => x.Value).ToList();
-
+    List<string> userPreferences = Model.MatchPreferences.Where(x => x.Key == MatchPreferenceType.NotUser).Select(x => x.Value).ToList();
 }
 
 <div class="body-content" style="width: 800px">
     <h2>Match Preferences</h2>
     <p>
-        For the benefit of the frequent BiF'ers, we will allow you to select up to <b>@Model.AllowedExclusions</b> people that you DO NOT want to be your Santa.
+        For the benefit of the frequent BiF'ers, we will allow you to select up to <b>@Model.AllowedExclusions</b> people that you DO NOT want to be matched with.
     </p>
     <p>
-        The minimum radius for matches will be at least 500 miles. You do not need to exclude anyone living within 500 miles of your shipping address.
+        The minimum radius for matches is about 400 miles. You do not need to exclude anyone living within 400 miles of your shipping address.
     </p>
     <p>
         Click the user icon next to the user below to denote your preference NOT to receive a box from that user.
     </p>
-    
-    
+
+
     <table class="bif-table" style="width: 700px; margin: auto">
-        
+
         <colgroup>
             <col />
             <col />
@@ -45,28 +43,29 @@
                 <td></td>
                 <td></td>
             </tr>
-        
-
-        @foreach (var user in Model.AllUsers.Where(x => x.Id != Model.UserId)) {
-
-            <tr>
-                <td>
-                    @user.Username
-                </td>
-                <td>
-                    @user.Location
-                </td>
-                <td>
-                    @Math.Round(user.Distance)
-                </td>
-                <td>
-                    @{ string iconClass = (userPreferences.Contains(user.Id) ? "icon-preference-no" : "icon-preference-default"); }
-                    <div class="icon icon-hover @iconClass" id="excl_@user.Id" onclick="updateExclusions('@user.Id')"></div>
-                </td>
-            </tr>
 
 
-        }
+            @foreach (var user in Model.AllUsers.Where(x => x.Id != Model.UserId))
+            {
+
+                <tr>
+                    <td>
+                        @user.Username
+                    </td>
+                    <td>
+                        @user.Location
+                    </td>
+                    <td>
+                        @Math.Round(user.Distance)
+                    </td>
+                    <td>
+                        @{ string iconClass = (userPreferences.Contains(user.Id) ? "icon-preference-no" : "icon-preference-default"); }
+                        <div class="icon icon-hover @iconClass" id="excl_@user.Id" onclick="updateExclusions('@user.Id')"></div>
+                    </td>
+                </tr>
+
+
+            }
         </tbody>
     </table>
 

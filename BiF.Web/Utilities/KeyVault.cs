@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Security;
 using System.Threading.Tasks;
-using System.Web;
 using BiF.DAL.Extensions;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Rest;
 
 namespace BiF.Web.Utilities
 {
@@ -28,12 +24,10 @@ namespace BiF.Web.Utilities
             if (_keyVault == null)
                 _keyVault = new KeyVault();
 
-            if (_keys.ContainsKey(name)) {
+            if (_keys.ContainsKey(name)) 
                 return _keys[name].Unsecure();
-            }
-            
-            try
-            {
+
+            try {
                 /* The next four lines of code show you how to use AppAuthentication library to fetch secrets from your key vault */
                 AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
                 string accessToken = await azureServiceTokenProvider.GetAccessTokenAsync("https://vault.azure.net");
@@ -42,7 +36,6 @@ namespace BiF.Web.Utilities
                 //KeyVaultClient keyVaultClient = new KeyVaultClient(new TokenCredentials(accessToken));
                 KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                 SecretBundle secret = await keyVaultClient.GetSecretAsync(secretIdentifier).ConfigureAwait(false);
-                
 
                 _keys.Add(name, secret.Value.Secure());
                 LastException = null;
@@ -52,8 +45,7 @@ namespace BiF.Web.Utilities
             /// <exception cref="KeyVaultErrorException">
             /// Thrown when the operation returned an invalid status code
             /// </exception>
-            catch (KeyVaultErrorException keyVaultException)
-            {
+            catch (KeyVaultErrorException keyVaultException) {
                 LastException = keyVaultException.Message;
                 return null;
             }

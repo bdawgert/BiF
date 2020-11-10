@@ -1,4 +1,28 @@
-﻿<div>
+﻿@using BiF.Web.Identity
+@{
+    BifSessionData sessionData = (BifSessionData)ViewBag.Session;
+
+    bool? isAdmin = sessionData?.Roles.Any(x => x.Name == "ADMIN");
+
+}
+
+<div style="text-align: center; margin: 25px auto">
+    <h2>It's Coming...</h2>
+
+    <video autoplay loop muted playsinline>
+        <source src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.mp4" type="video/mp4">
+        <img src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.gif">
+    </video>
+        
+    
+    @if (isAdmin == true) {
+        <div>
+            <input type="button" value="Sign Up" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new { id = 3 })'" />
+        </div>
+    }
+</div>
+
+@*<div style="display: none;">
     
     <div style="text-align: center; margin-top: 25px">
         <img src="https://media.giphy.com/media/3zFcbgHoIXzykQc7vU/giphy.gif" />
@@ -26,8 +50,8 @@
 
 </div>
 
-<div style="display: none;">
-    <h2>BiF Secret Santa 2019</h2>
+<div>
+    <h2>BiF Secret Santa 2020</h2>
     <p>
         Alright boys and girls, it's that magical time of year again, BiF Secret Santa.  Use the Register link above to create an account, complete a Profile, and join the Exchange.
     </p>
@@ -82,4 +106,4 @@
         <p>
             Remember, BiF's are about sharing great beer, spreading the Christmas spirit, and having fun.  They're not about winning and losing.  However, we can all agree the box itsalongwaydown received made him the loser last year, so don't be the guy that ships the box (bucket) full of turds.
         </p>
-    </div>
+    </div>*@

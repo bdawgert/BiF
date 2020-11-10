@@ -8,7 +8,8 @@
 <div class="body-content" style="width: 800px; position: relative;">
 
     <h2>Box Builder</h2>
-    
+    <h3 class="sub-title">@Model.ExchangeName</h3>
+
     <p>
         Search for a beer or add a non-beer item in the form below.  Click "Add" to save the item.  The Summary will auto-update to help you plan your box.
     </p>
@@ -81,7 +82,7 @@
                     <td>$@(item.Cost ?? 0)</td>
                     <td>@(item.UntappdRating == null ? "" : item.UntappdRating?.ToString("0.00"))</td>
                     <td>
-                        <div class="icon icon-hover icon-x-red" onclick="deleteItem(@item.Id)"></div>
+                        <div class="icon icon-hover icon-delete" onclick="deleteItem(@item.Id)"></div>
                     </td>
                 </tr>
 
@@ -211,13 +212,13 @@
 
         function add() {
             var data = {
+                ExchangeId: @Model.ExchangeId,
                 UntappdId: $('#addBeerId').val(),
                 Type: $('#addBeerType').val(),
                 Name: $('#addBeerName').val(),
                 Format: $('#addBeerFormat').val(),
                 USOunces: $('#addBeerOunces').val(),
                 Cost: $('#addBeerCost').val(),
-                ExchangeId: parseInt($('#exchangeId').val()),
                 UserId: '@Model.UserId'
             }
             $.ajax({
@@ -229,6 +230,9 @@
                 success: function (d) {
 
                     $('#addBeerId, #addBeerName, #addBeerOunces, #addBeerCost').val('');
+
+                    if (d.Success === false)
+                        return; 
 
                     $('#boxItems').append(
                         '<tr id="item_' + d.Id + '" class="item-row">' +
@@ -266,7 +270,7 @@
             }
 
             function loadSummary() {
-                $('#summary').load('@Url.Action("BoxSummary")/@Model.UserId');
+                $('#summary').load('@Url.Action("BoxSummary")/@Model.ExchangeId/@Model.UserId');
             }
 
             function updateMessageRow() {

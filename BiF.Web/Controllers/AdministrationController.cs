@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using BiF.DAL.Models;
-using BiF.Web.Identity;
 using BiF.Web.ViewModels.Administration;
 
 namespace BiF.Web.Controllers
@@ -13,14 +13,28 @@ namespace BiF.Web.Controllers
         // GET: Administration
         public ActionResult Index() {
 
-            var users = DAL.Context.Users.Select(x => new {User = x, Profile = x.Profile, Claims = x.Claims, Roles = x.Roles.Select(s => s.Name)}).ToList();
+            //var exchanges = DAL.Context.Exchanges.Where(x => !x.Deleted).Select(x => new {
+            //    x.Id,
+            //    x.Name,
+            //    x.Description
+            //});
+            var users = DAL.Context.Users.Select(x => new { User = x, Profile = x.Profile, Claims = x.Claims, Roles = x.Roles.Select(s => s.Name) }).ToList();
 
-            List<UserInformation> list = users.Select(x => new UserInformation {
+            List<ExchangeInformation> exchangeList = DAL.Context.Exchanges.Where(x => !x.Deleted).Select(x => new ExchangeInformation {
+                Id = x.Id, 
+                Name = x.Name, 
+                Description = x.Description,
+                OpenDate = x.OpenDate,
+                CloseDate = x.CloseDate
+            }).ToList();
+
+            List<UserInformation> usersList = users.Select(x => new UserInformation {
                 Id = x.User.Id,
                 Email = x.User.Email,
                 Username = x.User.UserName ?? x.Profile?.RedditUsername ?? x.User.Email,
                 HasProfile = x.Profile != null,
                 Roles = x.Roles.ToArray(),
+                Rating = x.Profile?.Rating ?? 4,
                 UserStatus = (int?)x.User.UserStatus ?? 0,
                 AllowedExclusions = x.Claims.FirstOrDefault(c => c.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value
             }).Where(x => x.UserStatus > -10)
@@ -30,7 +44,8 @@ namespace BiF.Web.Controllers
             .ToList();
 
             IndexVM vm = new IndexVM {
-                Users = list
+                Exchanges = exchangeList,
+                Users = usersList
             };
 
             return View(vm);
@@ -80,6 +95,7 @@ namespace BiF.Web.Controllers
             return Json(new { Success = true });
         }
 
+        [HttpPost]
         public JsonResult UpdateAllowedExclusionCount(string id, int count) {
             string claimType = "http://21brews.com/identity/claims/allowed-exclusions";
 
@@ -96,7 +112,18 @@ namespace BiF.Web.Controllers
 
         }
 
+        [HttpPost]
+        public JsonResult UpdateRating(string id, int rating) {
+            Profile profile = DAL.Context.Profiles.Find(id);
+            if (profile == null)
+                return Json(new { Success = false });
 
+            profile.Rating = rating;
+
+            DAL.Context.SaveChanges();
+
+            return Json(new { Success = true });
+        }
     }
 
 

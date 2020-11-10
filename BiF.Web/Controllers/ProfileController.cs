@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -25,7 +26,7 @@ namespace BiF.Web.Controllers
                 id = BifSessionData.Id;
 
             var user = DAL.Context.Users.Where(x => x.Id == id)
-                .Select(x => new { Email = x.Email, Profile = x.Profile, IsSignedUp = x.SignUps.Any(s => s.ExchangeId == 2)})
+                .Select(x => new { Email = x.Email, Profile = x.Profile, IsSignedUp = x.SignUps.Any(s => s.ExchangeId == BifSessionData.ExchangeId)})
                 .FirstOrDefault();
 
             if (user == null)
@@ -68,7 +69,7 @@ namespace BiF.Web.Controllers
                 Email = user.Email,
 
                 UpdateDate = user.Profile.UpdateDate,
-                IsSignedUp = user.IsSignedUp
+                //IsSignedUp = user.IsSignedUp
 
             };
             
@@ -93,7 +94,6 @@ namespace BiF.Web.Controllers
             }
 
             string id = BifSessionData.IsInRole("ADMIN") ? vm.Id ?? BifSessionData.Id : BifSessionData.Id;
-
 
             Profile profile = DAL.Context.Profiles.FirstOrDefault(x => x.Id == id) ?? new Profile {Id = id};
 
@@ -126,12 +126,13 @@ namespace BiF.Web.Controllers
 
             if (profile.CreateDate == null) {
                 profile.CreateDate = DateTime.UtcNow;
+                profile.Rating = 4;
                 DAL.Context.Profiles.Add(profile);
             }
             DAL.Context.SaveChanges();
 
 
-            bool success = signUp(2, id, out string message);
+            //bool success = signUp(, id, out string message);
             
 
             if (id == BifSessionData.Id) { // Only send if edited by self
@@ -244,14 +245,19 @@ namespace BiF.Web.Controllers
         }
         
 
-        public ActionResult MatchPreferences(string id) {
+        public ActionResult MatchPreferences(string id, string userId) {
 
-            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+            int.TryParse(id, out int exchangeId);
+            if (exchangeId == 0)
+                exchangeId = BifSessionData.ExchangeId;
+
+            userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
+            
             int exclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
-            if (id != BifSessionData.Id)
+            if (userId != BifSessionData.Id)
                 exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
             
-            var allUsers = DAL.Context.Users.Where(x => x.UserStatus >= IdentityUser.UserStatuses.None)
+            var allUsers = DAL.Context.Users.Where(x => x.UserStatus == IdentityUser.UserStatuses.Approved && x.Profile != null)
                 .Select(x => new {
                     Id = x.Id,
                     Username = x.UserName ?? x.Profile.RedditUsername,
@@ -261,13 +267,16 @@ namespace BiF.Web.Controllers
                     x.Profile.ZipCode
                 }).OrderBy(x => x.Username).ToList();
 
-            var me = allUsers.FirstOrDefault(x => x.Id == id);
-
-            List<KeyValuePair<MatchPreferenceType, string>> preferences =  DAL.Context.MatchPreferences.Where(x => x.UserId == id)
+            var me = allUsers.FirstOrDefault(x => x.Id == userId);
+            
+            List<KeyValuePair<MatchPreferenceType, string>> preferences =  DAL.Context.MatchPreferences.Where(x => x.UserId == userId)
                 .AsEnumerable().Select(x => new KeyValuePair<MatchPreferenceType, string>(x.PreferenceType, x.Value)).ToList();
 
+                //Exchange exchange = DAL.Context.Exchanges.Find(exchangeId);
+
             MatchPreferencesVM vm = new MatchPreferencesVM {
-                UserId = id,
+                UserId = userId,
+                //ExchangeName = exchange?.Name,
                 AllUsers = allUsers.Select(x => new UserPublicProfile {
                     Id = x.Id,
                     Username = x.Username,
@@ -283,26 +292,32 @@ namespace BiF.Web.Controllers
             return View(vm);
         }
 
-        public ActionResult Box(string id)
-        {
-            ViewBag.MessageTitle = "Build My Box";
-            ViewBag.Message = "If all goes according to plan, we'll be putting together an Untappd-linked page to save the contents of your box.  You aren't required to participate, but if you do, you'll help generate some fun data.";
+        public ActionResult Box(string id, string userId) {
 
-            //return View("Message");
+            int.TryParse(id, out int exchangeId);
+            if (exchangeId == 0)
+                exchangeId = BifSessionData.ExchangeId;
 
-            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+            userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
+
+            Exchange exchange = DAL.Context.SignUps.Where(s => s.UserId == userId && s.ExchangeId == exchangeId).Select(x => x.Exchange).FirstOrDefault();
+
+            if (exchange == null && exchangeId != 0)
+                return RedirectToAction("", "Home");
 
             BoxVM vm = new BoxVM {
-                UserId = id,
-                Items = boxItems(id, 2)
-
+                UserId = userId,
+                ExchangeId = exchangeId,
+                ExchangeName = exchange?.Name ?? "Open",
+                Items = boxItems(userId, exchangeId),
             };
 
             return View(vm);
         }
 
         private List<BoxItem> boxItems(string userId, int exchangeId) {
-            return DAL.Context.Items.Where(x => x.UserId == userId && x.ExchangeId == exchangeId).Select(x => new BoxItem {
+            return DAL.Context.Items.Where(x => x.UserId == userId && x.ExchangeId == exchangeId)
+                .Select(x => new BoxItem {
                 Id = x.Id,
                 Name = x.Name,
                 Type = x.Type,
@@ -313,9 +328,12 @@ namespace BiF.Web.Controllers
             }).ToList();
         }
 
-        public JsonResult AddItem(BoxItem item, string exchangeId, string userId) {
-
+        public JsonResult AddItem(BoxItem item, string userId, int exchangeId) {
             string id = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
+
+            Exchange exchange = DAL.Context.Exchanges.Find(BifSessionData.ExchangeId);
+            if (exchange == null || exchange.CloseDate.AddDays(30) < DateTime.Today)
+                return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be edited"});
 
             if (item.UntappdId != null) {
                 UntappdClient untappdClient = UntappdClient.Create();
@@ -326,7 +344,7 @@ namespace BiF.Web.Controllers
 
             Item entity = new Item {
                 UserId = id,
-                ExchangeId = 2,
+                ExchangeId = exchangeId,
                 Format = item.Format,
                 Name = item.Name,
                 Type = item.Type,
@@ -340,9 +358,10 @@ namespace BiF.Web.Controllers
             DAL.Context.SaveChanges();
 
             return Json(new {
+                Success = true,
                 UserId = id,
                 Id = entity.Id,
-                ExchangeId = Convert.ToInt32(exchangeId),
+                ExchangeId = BifSessionData.ExchangeId,
                 Format = item.Format,
                 Name = item.Name,
                 Type = item.Type,
@@ -360,6 +379,10 @@ namespace BiF.Web.Controllers
             if (item == null)
                 return Json(new { Success = false });
 
+            Exchange exchange = DAL.Context.Exchanges.Find(item.ExchangeId);
+            if (exchange == null || exchange.CloseDate.AddDays(30) < DateTime.Today)
+                return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be editted" });
+
             DAL.Context.Items.Remove(item);
             DAL.Context.SaveChanges();
 
@@ -367,28 +390,30 @@ namespace BiF.Web.Controllers
         }
 
         [HttpGet]
-        public PartialViewResult BoxSummary(string id) {
+        public PartialViewResult BoxSummary(string id, string userid) {
+            int.TryParse(id, out int exchangeId);
+            userid = BifSessionData.IsInRole("ADMIN") ? userid ?? BifSessionData.Id : BifSessionData.Id;
 
-            id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+            Exchange exchange = DAL.Context.Exchanges.Find(exchangeId);
 
-            List<Item> items = DAL.Context.Items.Where(x => x.UserId == id && x.ExchangeId == 2).ToList();
+            List<Item> items = DAL.Context.Items.Where(x => x.UserId == userid && x.ExchangeId == exchangeId).ToList();
 
-            BoxBuilder boxBuilder = new BoxBuilder(items);
-            boxBuilder.SetMinimumOunces(125).SetMinimumRating(4.1);
+            BoxBuilder boxBuilder = new BoxBuilder(items)
+                .SetMinimumOunces(exchange?.MinOunces)
+                .SetMinimumRating(exchange?.MinRating)
+                .SetMinimumCost(exchange?.MinCost);
             
             return PartialView("__BoxSummary", boxBuilder);
-
         }
 
         [HttpPost]
         public JsonResult UpdateExclusion(string id, string userId) {
 
             userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
-            int exclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
-            if (userId != BifSessionData.Id)
-                exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
-
-
+            //int exclusions = Convert.ToInt32(BifSessionData.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            //if (userId != BifSessionData.Id)
+            //    exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
+            
             List<MatchPreference> preferences = DAL.Context.MatchPreferences.Where(x => x.UserId == userId && x.PreferenceType == MatchPreferenceType.NotUser).ToList();
 
             List<MatchPreference> existing = preferences.Where(x => x.Value == id).ToList();
@@ -439,8 +464,7 @@ namespace BiF.Web.Controllers
         }
 
 
-        private bool signUp(int exchangeId, string userId, out string message)
-        {
+        private bool signUp(int exchangeId, string userId, out string message)         {
 
             var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
                 .Select(x => new { Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId) }).FirstOrDefault();
@@ -451,20 +475,20 @@ namespace BiF.Web.Controllers
                 return false;
             }
 
-            //if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) {
-            //    message = "The requested Exchange is not currently open for signups.";
-            //    return false;
-            //}
+            if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) {
+                message = "The requested Exchange is not currently open for signups.";
+                return false;
+            }
 
             if (exchange.SignUp) {
                 message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
                 return false;
             }
 
-            //if (!BifSessionData.HasProfile) {
-            //    message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
-            //    return false;
-            //}
+            if (!BifSessionData.HasProfile) {
+                message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
+                return false;
+            }
 
             SignUp signup = new SignUp {
                 ExchangeId = exchangeId,

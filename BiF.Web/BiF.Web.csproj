@@ -185,6 +185,7 @@
     <Compile Include="Identity\BifUserStore.cs" />
     <Compile Include="Identity\IBifResult.cs" />
     <Compile Include="Utilities\BoxBuilder.cs" />
+    <Compile Include="Utilities\CookieManager.cs" />
     <Compile Include="Utilities\KeyVault.cs" />
     <Compile Include="Identity\SignInResult.cs" />
     <Compile Include="Identity\UserManageResult.cs" />
@@ -208,6 +209,7 @@
     <Compile Include="ViewModels\Exchanges\EditVM.cs" />
     <Compile Include="ViewModels\Exchanges\ExchangeVM.cs" />
     <Compile Include="ViewModels\Exchanges\IndexVM.cs" />
+    <Compile Include="ViewModels\Exchanges\ParticipantsVM.cs" />
     <Compile Include="ViewModels\Exchanges\SignUpVM.cs" />
     <Compile Include="ViewModels\Exchanges\ViewStatusVM.cs" />
     <Compile Include="ViewModels\Home\ParticipantVM.cs" />
@@ -294,12 +296,15 @@
     <Content Include="Views\Profile\MatchPreferences.cshtml" />
     <Content Include="Views\Exchanges\Assign.cshtml" />
     <Content Include="Views\Exchanges\__AssignList.cshtml" />
-    <Content Include="Views\Match\Profile.cshtml" />
+    <Content Include="Views\Match\Index.cshtml" />
     <Content Include="Views\Match\__ShippingConfirmation.cshtml" />
     <Content Include="Views\Match\__ShippingNotification.cshtml" />
     <Content Include="Views\Profile\__BoxSummary.cshtml" />
     <Content Include="Views\Shared\Unauthorized.cshtml" />
     <Content Include="Views\Exchanges\ViewStatus.cshtml" />
+    <Content Include="Views\Home\__HomePreview.cshtml" />
+    <Content Include="Views\Exchanges\UnSignUp.cshtml" />
+    <Content Include="Views\Exchanges\ParticipantList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BiF.DAL\BiF.DAL.csproj">

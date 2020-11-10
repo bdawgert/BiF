@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using BiF.DAL.Concrete;
 using BiF.Web.Identity;
-using Microsoft.Ajax.Utilities;
+using BiF.Web.Utilities;
 
 namespace BiF.Web.Controllers
 {
@@ -24,13 +25,23 @@ namespace BiF.Web.Controllers
 
             string username = BifSessionData.Username;
             string email = BifSessionData.Email ?? "user_";
-            string emailname = email.Contains("@") ? email.Substring(0, email.IndexOf("@")) : email;
+            string emailname = email.Contains("@") ? email.Substring(0, email.IndexOf("@", StringComparison.Ordinal)) : email;
             ViewBag.Username = username ?? emailname;
             ViewBag.Session = BifSessionData;
         }
 
         public ActionResult Error(string message) {
+            ViewBag.Message = message;
             return View("Error");
+        }
+
+        public JsonResult SwitchExchange(string id) {
+            int.TryParse(id, out int exchangeId);
+            if (exchangeId == 0)
+                return Json(new { Success = false, ExchangeId = CookieManager.GetCookie("exchangeId")?.Value }, JsonRequestBehavior.AllowGet);
+
+            CookieManager.SetCookie(new HttpCookie("exchangeId", exchangeId.ToString()));
+            return Json(new { Success = true, ExchangeId = exchangeId }, JsonRequestBehavior.AllowGet);
         }
 
         public static string RenderPartialToString(Controller controller, string viewName, object model) {
@@ -46,5 +57,6 @@ namespace BiF.Web.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
+
     }
 }

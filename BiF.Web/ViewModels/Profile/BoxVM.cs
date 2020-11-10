@@ -5,6 +5,8 @@ namespace BiF.Web.ViewModels.Profile
 {
     public class BoxVM {
         public string UserId { get; set; }
+        public int ExchangeId { get; set; }
+        public string ExchangeName { get; set; }
         public List<BoxItem> Items { get; set; }
     }
 

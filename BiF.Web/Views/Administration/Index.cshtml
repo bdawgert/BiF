@@ -4,7 +4,7 @@
 @{
     ViewBag.Title = "BeerItForward | Administration";
 
-    var exclusionsList = Enumerable.Range(2, 10).Select(x => new SelectListItem {Value = x.ToString(), Text = x.ToString()}).ToList();
+    List<SelectListItem> exclusionsList = Enumerable.Range(2, 10).Select(x => new SelectListItem {Value = x.ToString(), Text = x.ToString()}).ToList();
 }
 
 
@@ -28,6 +28,58 @@
     
     <h2>Administration</h2>
     
+    <h3>Exchanges</h3>
+    <table class="bif-table" style="width: 100%">
+        <colgroup>
+            <col style="width: 200px;" />
+            <col style="width: 50px;" />
+            <col />
+            <col style="width: 50px;" />
+            <col style="width: 100px;" />
+        </colgroup>
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td></td>
+            <td>Description</td>
+            <td></td>
+            <td>Status</td>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (ExchangeInformation exchange in Model.Exchanges) {
+        <tr id="exchange_@exchange.Id" data-id="@exchange.Id">
+            <td>@exchange.Name</td>
+            <td><div class="icon icon-hover icon-config" onclick="window.location='@Url.Action("Edit", "Exchanges")/@exchange.Id'"></div></td>
+            <td>@exchange.Description</td>
+            <td><div class="icon icon-hover icon-list" onclick="window.location='@Url.Action("Assign", "Exchanges")/@exchange.Id'"></div></td>
+            <td>
+                @if (exchange.CloseDate == null || exchange.OpenDate == null)
+                {
+                    @:Unknown
+                }
+                else if (exchange.OpenDate.Value > DateTime.Now)
+                {
+                    @:Pending
+                }
+                else if (exchange.CloseDate.Value < DateTime.Now)
+                {
+                    @Html.ActionLink("Closed", "ViewStatus", "Exchanges", new { id = exchange.Id }, null )
+                }
+                else {
+                    @:Open
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5" style="text-align: right"><input type="button" value="Add Exchange" onclick="window.location='@Url.Action("Add", "Exchanges")'" /></td>
+        </tr>
+    </tfoot>
+    </table>    
+
     <h3>Users</h3>
     <table class="bif-table" style="width: 100%">
         <colgroup>
@@ -37,19 +89,21 @@
             <col style="width: 100px;" />
             <col style="width: 100px;" />
             <col style="width: 100px;" />
+            <col style="width: 50px;" />
         </colgroup>
         <thead>
             <tr>
                 <td>Username</td>
                 <td>Profile</td>
-                <td>Admin</td>
-                <td># Excl.</td>
                 <td>Status</td>
+                <td>Rating</td>
+                <td># Excl.</td>
+                <td>Admin</td>
                 <td>Delete</td>
             </tr>
         </thead>
         <tbody>
-        @foreach (var user in Model.Users) {
+        @foreach (UserInformation user in Model.Users) {
             <tr id="user_@user.Id" data-id="@user.Id">
                 <td>@user.Username</td>
                 <td>
@@ -57,19 +111,33 @@
                         <div class="icon icon-hover icon-profile" onclick="document.location='@Url.Action("", "Profile")/?id=@user.Id'"></div>
                     }
                 </td>
-            <td>@Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new { @class="role-checkbox" })</td>
                 <td>
-                    <select id = "excl_@user.Id" onchange="updateExclusions('@user.Id')">
-                        @foreach (var exclusion in exclusionsList) {
+                    <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
+                </td>
+                <td>
+                @if (user.HasProfile) {
+                    <select id="rating_@user.Id" onchange="updateRating('@user.Id')">
+                        @for (int i = 1; i <= 9; i++) {
+                            string selected = user.Rating == i ? "selected" : "";
+                            <option value="@i" @selected>@i</option>
+                        }
+                    </select>
+                }
+                </td>
+                <td>
+                @if (user.HasProfile) {
+                    <select id="excl_@user.Id" onchange="updateExclusions('@user.Id')">
+                        @foreach (SelectListItem exclusion in exclusionsList) {
                             string selected = exclusion.Value == user.AllowedExclusions ? "selected" : "";
                             <option value="@exclusion.Value" @selected>@exclusion.Text</option>
                         }
                     </select>
+                }
+                </td>
+                <td>
+                    @Html.CheckBox("admin", user.Roles.Any(x => x == "ADMIN"), new {@class = "role-checkbox"})
                 </td>
 
-                <td>
-                    <div id="status_@user.Id" class="icon icon-hover @displayUserStatus(user.UserStatus)" data-status="@user.UserStatus" onclick="setApproval('@user.Id')"></div>
-                </td>
                 <td>
                     <div class="icon icon-hover icon-delete" onclick="deleteUser('@user.Id')"></div>
                 </td>
@@ -79,16 +147,6 @@
         </tbody>
     </table>
     
-    
-    <h3>Secret Santa 2019</h3>
-  
-
-    <div style="display: flex; flex-direction: column">
-        @Html.ActionLink("Assign Matches", "Assign", "Exchanges")
-        @Html.ActionLink("View Status", "ViewStatus", "Exchanges")
-    </div>
-    
-
 </div>
 
 <script>
@@ -173,6 +231,17 @@
             count: count
         }
         $.post('@Url.Action("UpdateAllowedExclusionCount")', data);
+    }
+
+    function updateRating(id) {
+
+        var rating = $('#rating_' + id).val();
+
+        var data = {
+            id: id,
+            rating: rating
+        }
+        $.post('@Url.Action("UpdateRating")', data);
     }
 
 </script>

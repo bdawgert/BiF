@@ -10,71 +10,77 @@
     <div style="display: flex; justify-content: space-between; align-content: flex-start">
 
         <div>
-            
+
             <h3>Match Information</h3>
+            <h3 class="sub-title">@Model.ExchangeName</h3>
 
             <table style="width: 320px; margin: auto">
 
-        <tr>
-            <td>
-                <b>Full Name</b>
-            </td>
-            <td>
-                @Model.Name
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>Reddit Username</b>
-            </td>
-            <td>
-                <a href="https://reddit.com/u/@Model.RedditUsername" target="_blank">@Model.RedditUsername</a>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>Untappd Username</b>
-            </td>
-            <td>
-                <a href="https://untappd.com/user/@Model.UntappdUsername" target="_blank">
-                    @Model.UntappdUsername</a>
-            </td>
-        </tr>
-            
-    </table>
-    
-    <h3>Shipping Information</h3>
-
-            <table style="width: 320px; margin: auto">
-
-                <tr style="vertical-align: top">
-                    <td>
-                        <b>Address</b>
-                    </td>
-                    <td>
-                        @Model.Address<br />
-                        @Model.City, @Model.State<br />
-                        @Model.Zip
-                    </td>
-                </tr>
-        
                 <tr>
                     <td>
-                        <b>Phone</b>
+                        <b>Full Name</b>
                     </td>
-                    <td>@Model.Phone</td>
+                    <td>
+                        @Model.Name
+                    </td>
                 </tr>
-        
-                @if (!string.IsNullOrWhiteSpace(Model.DeliveryNotes)) {
+                <tr>
+                    <td>
+                        <b>Reddit Username</b>
+                    </td>
+                    <td>
+                        <a href="https://reddit.com/u/@Model.RedditUsername" target="_blank">@Model.RedditUsername</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Untappd Username</b>
+                    </td>
+                    <td>
+                        <a href="https://untappd.com/user/@Model.UntappdUsername" target="_blank">
+                            @Model.UntappdUsername
+                        </a>
+                    </td>
+                </tr>
+
+            </table>
+
+            <h3>Shipping Information</h3>
+
+            <table style="width: 320px; margin: auto">
+                @if (!string.IsNullOrWhiteSpace(Model.Address))
+                {
+                    <tr style="vertical-align: top">
+                        <td>
+                            <b>Address</b>
+                        </td>
+                        <td>
+                            @Model.Address<br />
+                            @Model.City, @Model.State<br />
+                            @Model.Zip
+                        </td>
+                    </tr>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <tr>
+                        <td>
+                            <b>Phone</b>
+                        </td>
+                        <td>@Model.Phone</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.DeliveryNotes))
+                {
                     <tr>
                         <td colspan="2">
-                            <b>Delivery Instructions</b><br/>
+                            <b>Delivery Instructions</b><br />
                             @Model.DeliveryNotes
                         </td>
                     </tr>
                 }
             </table>
-            
+
             <table style="display: none; margin-top: 25px; width: 320px;" id="shippingForm">
                 <tr>
                     <td colspan="2">
@@ -103,8 +109,8 @@
                 </tr>
 
             </table>
-           
-            
+
+
             <table style="display: none; margin-top: 25px; width: 320px;" id="shippingInfo">
                 <tr>
                     <td>
@@ -124,9 +130,12 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" >
+                    <td colspan="2">
                         <i>Shipped <span id="shipDate">@(Model.ShipDate?.ToShortDateString())</span></i>
-                        <input type="button" value="Edit" onclick="editShipping()" style="margin-left: 20px; padding: 0 2px; width: 100px"/>
+                        @if (DateTime.Now <= Model.CloseDate)
+                        {
+                            <input type="button" value="Edit" onclick="editShipping()" style="margin-left: 20px; padding: 0 2px; width: 100px" />
+                        }
                     </td>
                 </tr>
             </table>
@@ -168,7 +177,7 @@
     </div>
    
     <div style="margin-top: 15px">
-        <b>What else should Santa know?</b><br/>
+        <b>What else should you know?</b><br/>
         @Model.Comments
     </div>
 

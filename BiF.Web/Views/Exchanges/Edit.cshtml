@@ -2,9 +2,138 @@
 @model EditVM
 @{
     ViewBag.Title = "Edit";
+    IEnumerable<SelectListItem> themeList = new[] {"Monthly", "Secret Santa", "July.P.A."}.Select(x => new SelectListItem {Text = x, Value = x});
 }
 
-@Html.AntiForgeryToken()
+<div class="body-content" style="width: 800px">
+    
+<h2>Edit Exchange</h2>
+@using (Html.BeginForm("Edit", "Exchanges")) {
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.Id)
+
+    <div style="margin: auto; width: 600px">
+
+        <div class="form-row">
+            <div class="form-label required">
+                Name
+            </div>
+            <div>
+                @Html.TextBoxFor(x => x.Name, new { style = " width: 400px" })
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-label required">
+                Theme
+            </div>
+            <div>
+                @Html.DropDownListFor(x => x.Theme, themeList, new { style = " width: 400px" })
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-label required">
+                Description
+            </div>
+            <div>
+                @Html.TextAreaFor(x => x.Description, new { style="height: 3.6em; width: 400px" })
+            </div>
+        </div>
+    
+        <div style="display: flex">
+
+            <div class="form-row" style="flex: auto">
+                <div class="form-label required">
+                    Open Date
+                </div>
+                <div>
+                    @Html.TextBoxFor(x => x.OpenDate, "{0:M/d/yyyy}", new { style="width: 100px" })
+                </div>
+            </div>
+
+            <div class="form-row" style="flex: auto">
+                <div class="form-label required">
+                    Close Date
+                </div>
+                <div>
+                    @Html.TextBoxFor(x => x.CloseDate, "{0:M/d/yyyy}", new { style = "width: 100px" })
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: flex">
+
+            <div class="form-row" style="flex: auto">
+                <div class="form-label required">
+                    Match Date
+                </div>
+                <div>
+                    @Html.TextBoxFor(x => x.MatchDate, "{0:M/d/yyyy}", new { style="width: 100px" })
+                </div>
+            </div>
+
+            <div class="form-row" style="flex: auto">
+                <div class="form-label required">
+                    Ship Date
+                </div>
+                <div>
+                    @Html.TextBoxFor(x => x.ShipDate, "{0:M/d/yyyy}", new { style = "width: 100px" })
+                </div>
+            </div>
+        </div>
+        
+        
+        <div style="display: flex; margin-top: 10px">
+
+            <div class="form-row" style="flex: auto">
+                <div class="form-label required">
+                    Quantity
+                </div>
+                <div>
+                    @Html.TextBoxFor(x => x.MinOunces, new { style = "text-align: right; width: 50px" }) oz
+                </div>
+            </div>
+        </div>
+
+            <div style="display: flex">
+                <div class="form-row" style="flex: auto">
+                    <div class="form-label required">
+                        Cost
+                    </div>
+                    <div>
+                        @Html.TextBoxFor(x => x.MinCost, new { style = "text-align: right; width: 50px" }) dollars
+                    </div>
+                </div>
+            </div>
+                <div style="display: flex">
+                    <div class="form-row" style="flex: auto">
+                        <div class="form-label required">
+                            Rating
+                        </div>
+                        <div>
+                            @Html.TextBoxFor(x => x.MinRating, "{0:0.0}", new { style = "text-align: right; width: 50px" })
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div style="margin: 10px auto; text-align: center">
+                    <input type="submit" value="Save" />
+                    <input type="button" value="Cancel" onclick="window.location='@Url.Action("", "Administration")'" />
+                </div>
+
+                <div style="display: flex; flex-direction: column">
+                    @Html.ActionLink("Assign Matches", "Assign", new { id = Model.Id })
+                    @Html.ActionLink("View Shipping Status", "ViewStatus", new { id = Model.Id })
+                </div>
+
+            </div>
+
+}
+
+
 
 
 

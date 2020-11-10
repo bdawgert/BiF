@@ -71,9 +71,9 @@ namespace BiF.Web.ViewModels
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        [Required(ErrorMessage = "Please confirm your commitment to the rules of the Secret Santa Exchange")]
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Please confirm your commitment to the rules of the Secret Santa Exchange")]
-        public bool? IsSignedUp { get; set; }
+        //[Required(ErrorMessage = "Please confirm your commitment to the Beer It Forward rules.")]
+        //[Range(typeof(bool), "true", "true", ErrorMessage = "Please confirm your commitment to the Beer It Forward rules.")]
+        //public bool? IsSignedUp { get; set; }
 
     }
 }

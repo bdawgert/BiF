@@ -4,7 +4,7 @@
 @{
     ViewBag.Title = "Assign";
 
-    List<SelectListItem> users = Model.Assignments.Select(x => new SelectListItem {Text = x.SenderUsername, Value = x.SenderId}).ToList();
+    //List<SelectListItem> users = Model.Assignments.Select(x => new SelectListItem {Text = x.SenderUsername, Value = x.SenderId}).ToList();
 
 }
 
@@ -31,11 +31,13 @@
             </tr>
         </thead>
 
-        @foreach (var signUp in Model.Assignments)
+        @foreach (Assignment signUp in Model.Assignments)
         {
             <tr id="row_@signUp.SenderId">
                 <td>
-                    @signUp.SenderUsername
+                    <a href="@Url.Action("", "Profile", new { id = signUp.SenderId })" target="_blank">
+                        @signUp.SenderUsername
+                    </a>
                 </td>
                 
                 @{
@@ -97,7 +99,7 @@
 
         function assign(id) {
             popup._popup.empty();
-            popup._popup.load('@Url.Action("AssignList")/' + id, function() {
+            popup._popup.load('@Url.Action("AssignList")/@Model.ExchangeId/' + id, function() {
                 popup.Show();
             });
 
@@ -106,8 +108,9 @@
         function saveAssignment() {
             var data = {
                 senderId: $('.popup #SenderId').val(),
-                recipientId: $('.popup #MatchId').val()
-            }
+                recipientId: $('.popup #MatchId').val(),
+                exchangeId: @Model.ExchangeId
+            };
             var matchUsername = $('.popup #MatchId option:selected').text();
 
             $.post('@Url.Action("AssignMatch")', data, function(d) {
@@ -118,8 +121,13 @@
                         $('#row_' + d.UserId).children('td').eq(1).removeClass('assign-nomatch').text(matchUsername);
                         $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').html('<div class="icon icon-hover icon-x-red" onclick="unassign(\'' + d.UserId + '\')"></div>');
                     }
+                    popup.Hide();
                 }
-                popup.Hide();
+                else {
+                    popup.Hide();
+                    popup._popup.html(d.ErrorMessage);
+                    popup.Show();
+                }
             });
 
         }

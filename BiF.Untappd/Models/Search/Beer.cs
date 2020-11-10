@@ -55,7 +55,7 @@ namespace BiF.Untappd.Models.Search
         public string Style { get; set; }
 
         [JsonProperty("rating_score")]
-        public double Rating { get; set; }
+        public float Rating { get; set; }
 
         public Brewery Brewery { get; set; }
     }

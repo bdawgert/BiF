@@ -5,6 +5,7 @@ namespace BiF.Web.ViewModels.Home
     {
         public string Id { get; set; }
         public string UserName { get; set; }
+        public string Location { get; set; }
         public bool HasProfile { get; set; }
         public int UserStatus { get; set; }
         public bool IsAdmin { get; set; }

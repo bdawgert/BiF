@@ -4,8 +4,8 @@
 @{
     ViewBag.Title = "BeerItForward | Log in";
 }
-<div class="body-content" style="width: 500px">
-    <div style="margin: 0 auto; width: 400px">
+<div class="body-content" style="width: 400px">
+    <div style="margin: 0 auto; width: 320px">
         @using (Html.BeginForm("Login", "Account", new {ReturnUrl = ViewBag.ReturnUrl}, FormMethod.Post)) {
             @Html.AntiForgeryToken()
 
@@ -29,7 +29,7 @@
             </div>
 
             <div class="form-row">
-                <div class="form-label">
+                <div class="form-label" style="width: 125px">
                 </div>
                 <div style="text-align: right">
                     @Html.CheckBoxFor(x => x.RememberMe, new { style = "transform: scale(1.6); margin: 10px 10px 0 0"  }) Remember Me

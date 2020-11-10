@@ -1,0 +1,91 @@
+﻿@using System.Windows.Forms
+@using BiF.Web.ViewModels.Exchanges
+@model ViewStatusVM
+
+@{
+    ViewBag.Title = "View Status";
+
+}
+
+<div class="body-content" style="width: 800px">
+    <h2>Shipping Status</h2>
+    
+    <table class="bif-table" style="margin: auto">
+        <colgroup>
+            <col style="width: 180px" />
+            <col style="width: 100px" />
+            <col style="width: 200px" />
+            <col style="width: 100px" />
+            <col style="width: 180px" />
+        </colgroup>
+            
+        <thead>
+        <tr>
+            <td>
+                Sender
+            </td>
+            <td>
+                Carrier
+            </td>
+            <td>
+                Tracking
+            </td>
+            <td>
+                Ship Date
+            </td>
+            <td>
+                Recipient
+            </td>
+            <td>
+                Box
+            </td>
+        </tr>
+        </thead>
+        
+        <tbody>
+        @foreach (ShipmentStatus status in Model.ShipmentStatuses) {
+            <tr>
+                <td>
+                    @status.Sender
+                </td>
+                <td>
+                    @status.Carrier
+                </td>
+                <td>
+
+                    @if (status.Carrier?.ToLower() == "fedex")
+                    {
+                        <a href="http://fedex.com/apps/fedextrack/?tracknumbers=@status.TrackingNo" target="_blank">@status.TrackingNo</a>
+                    }
+                    else if (status.Carrier?.ToLower() == "ups")
+                    {
+                        <a href="https://www.ups.com/track?loc=en_US&tracknum=@status.TrackingNo" target="_blank">@status.TrackingNo</a>
+                    }
+                    else if (status.Carrier?.ToLower() == "usps")
+                    {
+                        <a href="https://tools.usps.com/go/TrackConfirmAction?tLabels=@status.TrackingNo" target="_blank">@status.TrackingNo</a>
+                        
+                        }
+                    else
+                    {
+                        @status.TrackingNo
+                    }
+                </td>
+                <td>
+                    @(status.ShipDate?.ToShortDateString())
+                </td>
+                <td>
+                    @status.Recipient
+                </td>
+                <td style="text-align: center">
+                    <div class="icon icon-hover" style="background-position: -4px -4px" onclick="window.location = '@Url.Action("Box", "Profile", new { id = status.SenderId })'"></div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .bif-table td {text-align: left}
+</style>

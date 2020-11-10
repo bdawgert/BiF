@@ -53,7 +53,7 @@ namespace BiF.Web.Utilities
             IOrderedEnumerable<Item> qualifyingItems = _items.Where(x => x.Type == "Beer").OrderByDescending(x => x.UntappdRating);
             double ounces = 0;
             double rating = 0;
-            foreach (var item in qualifyingItems) {
+            foreach (Item item in qualifyingItems) {
                 if (ounces >= _minOunces)
                     break;
                 double itemOunces = item.USOunces ?? 0;
@@ -74,19 +74,19 @@ namespace BiF.Web.Utilities
         public double? QualifyingAverageRating => _qualifyingAverageRating;
         public double? QualifyingCost => _qualifyingCost;
 
-        public BoxBuilder SetMinimumOunces(double minOunces) {
+        public BoxBuilder SetMinimumOunces(double? minOunces) {
             _minOunces = minOunces;
             calculateSummary();
             return this;
         }
 
-        public BoxBuilder SetMinimumCost(double minCost) {
+        public BoxBuilder SetMinimumCost(double? minCost) {
             _minCost = minCost;
             calculateSummary();
             return this;
         }
 
-        public BoxBuilder SetMinimumRating(double minRating) {
+        public BoxBuilder SetMinimumRating(double? minRating) {
             _minRating = minRating;
             calculateSummary();
             return this;

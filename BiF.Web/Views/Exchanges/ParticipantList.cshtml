@@ -1,0 +1,64 @@
+﻿@using BiF.Web.ViewModels.Exchanges
+@using BiF.Web.ViewModels.Home
+@model ParticipantsVM
+
+@{
+    ViewBag.Title = "ParticipantList";
+}
+
+@functions {
+
+    string userIconClass(ParticipantVM vm)
+    {
+        if (vm.IsAdmin)
+            return "icon-user-admin";
+
+        if (!vm.IsSignedUp || !vm.HasProfile)
+            return "icon-user-incomplete";
+
+        if (vm.UserStatus == 1)
+            return "icon-user-approved";
+
+        return "icon-user";
+    }
+}
+
+<div class="body-content" style="width: 600px; position: relative;">
+
+    <h2>@Model.ExchangeName</h2>
+    <h3 class="sub-title">Participant List</h3>
+
+    <table class="bif-table" style="width: 100%">
+        <colgroup>
+            <col style="width: 36px" />
+            <col />
+            <col />
+        </colgroup>
+        <thead>
+            <tr>
+                <td></td>
+                <td>Name</td>
+                <td>Location</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ParticipantVM user in Model.Participants)
+            {
+                <tr>
+                    <td><div class="icon @userIconClass(user)"></div></td>
+                    <td>@user.UserName</td>
+                    <td>@user.Location</td>
+                </tr>
+            }
+
+        </tbody>
+        <tfoot>
+
+        </tfoot>
+    </table>
+</div>
+
+
+    <style>
+        .bif-table tbody td { text-align: left }
+    </style>

@@ -1,7 +1,89 @@
-﻿
+﻿@using BiF.Web.ViewModels.Exchanges
+@model SignUpVM
 @{
     ViewBag.Title = "SignUp";
+    
+    string minQuantityLanguage = Model.MinOunces > 0 ? $"{Model.MinOunces} oz" : null;
+    string minCostLanguage = Model.MinCost > 0 ? $"${Model.MinCost} worth" : null;
+
+    string requirementsLanguage = string.Join(" and ", new[] {minQuantityLanguage, minCostLanguage}.Where(x => x != null));
+    bool isSignedUp = Model.SignUpDate != null;
 }
 
-<h2>SignUp</h2>
+<div class="body-content" style="width: 500px; position: relative;">
 
+    @Html.ValidationSummary()
+
+    @using (Html.BeginForm(isSignedUp ? "UnSignUp" : "SignUp"))
+    {
+
+        if (isSignedUp) {
+            <div class="notification-content">
+                You signed up for this exchange on @Model.SignUpDate.Value.ToLongDateString()
+            </div>
+        }
+
+        <h2>@Model.Name</h2>
+        <h3 class="sub-title">Exchange Sign Up</h3>
+        
+        <div>
+            @Model.Description
+        </div>
+
+        <div style="margin-top: 15px">
+            <div style="font-weight: bold">Details</div>
+
+            @if (Model.MinCost != 0)
+            {
+                <div>Min Cost: @Model.MinCost.ToString("c")</div>
+            }
+            @if (Model.MinOunces != 0)
+            {
+                <div>Min Quantity: @Model.MinOunces.ToString("n0")oz</div>
+            }
+            @if (Model.MinRating != 0)
+            {
+                <div>Min Rating: @Model.MinRating.ToString("n1") (Untappd)</div>
+            }
+
+            @if (Model.MatchDate != null)
+            {
+                <div>Match Date: @Model.MatchDate.Value.ToLongDateString()</div>
+            }
+            @if (Model.ShipDate != null)
+            {
+                <div>Ship Date: @Model.ShipDate.Value.ToLongDateString()</div>
+            }
+
+        </div>
+
+        <div style="margin-top: 15px">
+            <div class="required" style="font-weight: bold">Totally Binding Commitment</div>
+            <div>
+                By signing up for this exchange you agree to ship @(!string.IsNullOrEmpty(requirementsLanguage) ? $"at least {requirementsLanguage}" : "")
+                of objectively delicious beer @(Model.MinRating > 0 ? $"(rated {Model.MinRating}+)" : "") to your match
+                @if (Model.ShipDate != null)
+                {
+                    @:by @(Model.ShipDate?.ToLongDateString())(weather permitting).
+                }
+                You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction).
+
+                Failure to fulfill your obligation to meet shipping requirements will result in a ban from future BiF exchanges.
+            </div>
+            @if (!isSignedUp) {
+                <div style="margin-top: 10px; text-align: left">
+                    @Html.CheckBoxFor(x => x.IsAcknowledged, new {onclick = "signUp()", style = "transform: scale(1.6); margin: 10px 10px 0 0"}) Let's Do This!
+                </div>
+            }
+        </div>
+
+        <div style="margin-top: 15px; text-align: center">
+            @{
+                string submitLabel = isSignedUp ? "Cancel Sign Up" : "Sign Up";
+            }
+            <input type="submit" value="@submitLabel" style="margin-right: 10px;" />
+            <input type="button" value="Back" onclick="window.location = '@Url.Action("", "")'" />
+        </div>
+
+    }
+</div>

@@ -7,7 +7,7 @@ using BiF.Web.Utilities;
 namespace BiF.Web.Controllers
 {
     [Authorize]
-    public class UntappdController : BaseController
+    public class UntappdController : Controller
     {
         // GET: Untappd
         public ActionResult Index()

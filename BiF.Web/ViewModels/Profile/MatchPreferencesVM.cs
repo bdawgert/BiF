@@ -5,6 +5,7 @@ namespace BiF.Web.ViewModels.Profile
 {
     public class MatchPreferencesVM {
         public string UserId { get; set; }
+        //public string ExchangeName { get; set; }
         public List<UserPublicProfile> AllUsers  { get; set; }
         public List<KeyValuePair<MatchPreferenceType, string>> MatchPreferences { get; set; }
         public int AllowedExclusions { get; set; }

@@ -49,6 +49,9 @@ namespace BiF.Web.ViewModels.Match
         public string SenderId { get; set; }
         public string Carrier { get; set; }
         public string TrackingNo { get; set; }
+
+        public string ExchangeName { get; set; }
         public DateTime? ShipDate { get; set; }
+        public DateTime CloseDate { get; set; }
     }
 }

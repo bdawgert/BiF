@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mail;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using BiF.DAL.Models;
 using BiF.Web.Utilities;
@@ -16,24 +14,33 @@ namespace BiF.Web.Controllers
         public ActionResult Index(string id) {
 
             id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
+            
+            var match = DAL.Context.Matches.Where(x => x.SenderId == id && x.ExchangeId == BifSessionData.ExchangeId)
+                .Select(x => new {
+                    Profile = x.Recipient.Profile, 
+                    Email = x.Recipient.Email, 
+                    Match = x,
+                    Exchange = x.Exchange
+                } ).FirstOrDefault();
 
-            var match = DAL.Context.Matches.Where(x => x.SenderId == id && x.ExchangeId == 2)
-                .Select(x => new { Profile = x.Recipient.Profile, Email = x.Recipient.Email, Match = x } ).FirstOrDefault();
-
+            
             if (match == null) {
+                Exchange exchange = DAL.Context.Exchanges.Find(BifSessionData.ExchangeId);
                 ViewBag.MessageTitle = "No Matches Yet";
-                ViewBag.Message = "Matches should be ready on December 4. Don't worry, we'll let you know when they're posted. ";
+                ViewBag.Message = $"Matches should be ready around {exchange?.MatchDate?.ToLongDateString()}. Don't worry, we'll let you know when they're posted. ";
                 return View("Message");
             }
 
             string phoneNumber = match.Profile.PhoneNumber?.PadLeft(10, ' ');
 
+            DateTime hideDate = match.Exchange.ShipDate?.AddDays(14) ?? match.Exchange.MatchDate?.AddDays(28) ?? match.Exchange.CreateDate.AddDays(60);
+
             MatchVM vm = new MatchVM {
                 Name = match.Profile.FullName,
-                Address = match.Profile.Address,
-                City = match.Profile.City,
-                State = match.Profile.State,
-                Zip = match.Profile.Zip,
+                Address = hideDate >= DateTime.Now ? match.Profile.Address : "",
+                City = hideDate >= DateTime.Now ? match.Profile.City : "",
+                State = hideDate >= DateTime.Now ? match.Profile.State : "",
+                Zip = hideDate >= DateTime.Now ? match.Profile.Zip : "",
 
                 RedditUsername = match.Profile.RedditUsername,
                 UntappdUsername = match.Profile.UntappdUsername,
@@ -53,17 +60,20 @@ namespace BiF.Web.Controllers
                 Spicy = match.Profile.Spicy,
                 Crisp = match.Profile.Crisp,
 
-                Phone = phoneNumber == null ? null : $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}",
-                Email = match.Email,
+                Phone = hideDate >= DateTime.Now ? phoneNumber == null ? null : $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6, 4)}" : "",
+                Email = hideDate >= DateTime.Now ? match.Email : "",
 
                 SenderId = id,
                 Carrier = match.Match.Carrier,
                 TrackingNo = match.Match.TrackingNo,
+
+                ExchangeName = match.Exchange.Name,
                 ShipDate = match.Match.ShipDate,
+                CloseDate = match.Exchange.CloseDate
 
             };
 
-            return View("Profile", vm);
+            return View("Index", vm);
         }
 
         [HttpPost]
@@ -71,7 +81,7 @@ namespace BiF.Web.Controllers
 
             string id = BifSessionData.IsInRole("ADMIN") ? vm.SenderId ?? BifSessionData.Id : BifSessionData.Id;
 
-            var match = DAL.Context.Matches.Where(x => x.ExchangeId == 2 && x.SenderId == id)
+            var match = DAL.Context.Matches.Where(x => x.ExchangeId == BifSessionData.ExchangeId && x.SenderId == id)
                 .Select(x => new { Match = x, ExchangeName = x.Exchange.Name, SenderEmail = x.Sender.Email, SenderUsername = x.Sender.Profile.RedditUsername, RecipientEmail = x.Recipient.Email, RecipientUsername = x.Recipient.Profile.RedditUsername })
                 .FirstOrDefault();
 
