@@ -7,19 +7,24 @@
 }
 
 <div style="text-align: center; margin: 25px auto">
-    <h2>It's Coming...</h2>
+    @if (isAdmin != true)
+    {
 
-    <video autoplay loop muted playsinline>
-        <source src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.mp4" type="video/mp4">
-        <img src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.gif">
-    </video>
-        
-    
-    @if (isAdmin == true) {
-        <div>
-            <input type="button" value="Sign Up" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new { id = 3 })'" />
-        </div>
+        <h2>It's Coming...</h2>
+
+        <video autoplay loop muted playsinline>
+            <source src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.mp4" type="video/mp4">
+            <img src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.gif">
+        </video>
     }
+    else
+    {
+
+
+<div>
+    <input type="button" value="Sign Up" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 3})'" />
+</div>
+}
 </div>
 
 @*<div style="display: none;">

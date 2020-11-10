@@ -74,8 +74,8 @@ namespace BiF.Web.Controllers
             Exchange exchange = DAL.Context.Exchanges.Find(exchangeId);
 
             if (exchange == null) {
-                ViewBag.Title = "Exchange Not Found";
-                ViewBag.Title = $"Exchange #{exchangeId} could not be bound";
+                ViewBag.MessageTitle = "Exchange Not Found";
+                ViewBag.Message = $"Exchange #{exchangeId} could not be bound";
                 return View("Message");
             }
             
@@ -175,6 +175,11 @@ namespace BiF.Web.Controllers
         [HttpPost]
         public ActionResult SignUp(SignUpVM vm) {
 
+            if (!vm.IsAcknowledged) {
+                ModelState.AddModelError("IsAcknowledged", "Please acknowledge the \"Totally Binding Commitment\".");
+                return SignUp(vm.ExchangeId);
+            }
+            
             var exchange = DAL.Context.Exchanges.Where(x => x.Id == vm.ExchangeId)
                 .Select(x => new { Exchange = x, IsSignedUp = x.SignUps.Any(s => s.ExchangeId == vm.ExchangeId && s.UserId == BifSessionData.Id) }).FirstOrDefault();
 
@@ -194,7 +199,7 @@ namespace BiF.Web.Controllers
                 return View("Message");
             }
 
-            bool success = doSignUp(vm.ExchangeId, BifSessionData.Id, out string message);
+            bool success = doSignUp(exchange.Exchange, BifSessionData.Id, out string message);
 
             if (!success) {
                 ViewBag.Message = message;
@@ -209,8 +214,12 @@ namespace BiF.Web.Controllers
 
 
         [HttpPost]
-        public ActionResult UnSignUp(SignUpVM vm) {
-            var signUp = DAL.Context.SignUps.Where(x => x.ExchangeId == vm.ExchangeId && x.UserId == BifSessionData.Id)
+        [ValidateAntiForgeryToken]
+        public ActionResult UnSignUp(string exchangeId) {
+
+            int.TryParse(exchangeId, out int id);
+
+            var signUp = DAL.Context.SignUps.Where(x => x.ExchangeId == id && x.UserId == BifSessionData.Id)
                 .Select(x => new { SignUp = x, Exchange = x.Exchange}).FirstOrDefault();
 
             if (signUp?.SignUp == null) {
@@ -236,24 +245,17 @@ namespace BiF.Web.Controllers
 
             //}
 
-        private bool doSignUp(int exchangeId, string userId, out string message) {
-
-            var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
-                .Select(x => new {Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId)}).FirstOrDefault();
+        private bool doSignUp(Exchange exchange, string userId, out string message) {
 
             message = null;
-            if (exchange?.Exchange == null) {
+            if (exchange == null) {
                 message = "The requested Exchange cannot be found.";
                 return false;
             }
 
-            if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) { 
+            DateTime signUpEndDate = exchange.MatchDate ?? exchange.OpenDate.AddDays(14);
+            if ((DateTime.Now < exchange.OpenDate  || DateTime.Now >= signUpEndDate) && !BifSessionData.IsInRole("ADMIN")) { 
                 message = "The requested Exchange is not currently open for signups.";
-                return false;
-            }
-
-            if (exchange.SignUp) {
-                message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
                 return false;
             }
 
@@ -263,7 +265,7 @@ namespace BiF.Web.Controllers
             }
 
             SignUp signup = new SignUp {
-                ExchangeId = exchangeId,
+                ExchangeId = exchange.Id,
                 UserId = userId,
                 SignUpDate = DateTime.Now,
                 Approved = false
