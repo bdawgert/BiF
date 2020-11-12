@@ -14,9 +14,10 @@
     
     <table class="bif-table" style="margin: auto">
         <colgroup>
+            <col style="width: 200px" />
+            <col style="width: 200px" />
             <col style="width: 250px" />
-            <col style="width: 250px" />
-            <col style="width: 100px" />
+            <col style="width: 36px" />
         </colgroup>
         
         <thead>
@@ -25,41 +26,56 @@
                     Sender
                 </td>
                 <td>
+                    Location
+                </td>
+                <td>
                     Recipient
                 </td>
-                <td>  </td>
+                <td>Box</td>
             </tr>
         </thead>
 
         @foreach (Assignment signUp in Model.Assignments)
         {
-            <tr id="row_@signUp.SenderId">
-                <td>
-                    <a href="@Url.Action("", "Profile", new { id = signUp.SenderId })" target="_blank">
-                        @signUp.SenderUsername
-                    </a>
-                </td>
-                
-                @{
-                    string text, className;
-                    if (signUp.RecipientUsername == null) {
-                        text = "ASSIGN";
-                        className = "assign-nomatch";
-                    } else {
-                        className = "assign-match";
-                        text = signUp.RecipientUsername;
-                    }
-                }
+    <tr id="row_@signUp.SenderId">
+        <td>
+            <a href="@Url.Action("", "Profile", new { id = signUp.SenderId })" target="_blank">
+                @signUp.SenderUsername
+            </a>
+        </td>
+        <td>
+            @signUp.SenderLocation
+        </td>
 
-                <td onclick="assign('@signUp.SenderId')" class="@className" id =" ">
-                    @text
-                </td>
-                <td>
-                    @if (signUp.RecipientUsername != null) {
-                        <div class="icon icon-hover icon-x-red" onclick="unassign('@signUp.SenderId')"></div>
-                    }
-                </td>
-            </tr>
+        @{
+            string text, className;
+            if (signUp.RecipientUsername == null)
+            {
+                text = "ASSIGN";
+                className = "assign-nomatch";
+            }
+            else
+            {
+                className = "assign-match";
+                text = signUp.RecipientUsername;
+                
+            }
+        }
+
+        <td onclick="assign('@signUp.SenderId')" class="@className" id=" ">
+            <div>
+                <span>@text</span>
+                @if (signUp.RecipientUsername != null)
+                {
+                    <div class="icon icon-hover icon-x-red" onclick="unassign('@signUp.SenderId')"></div>
+                }
+            </div>
+        </td>
+
+        <td>
+            <a href="@Url.Action("Box", "Profile", new { id = Model.ExchangeId, userId = signUp.SenderId })">Box</a>
+        </td>
+    </tr>
 
         }
     </table>    
@@ -67,9 +83,18 @@
 </div>
 
 <style>
-    .bif-table td:nth-child(2) {
+    .bif-table td {
+        text-align: left;
+    }
+
+    .bif-table td.assign-match {
         text-align: left;
         cursor: default;
+    }
+
+    .bif-table td.assign-match > div {
+        display: flex;
+        justify-content: space-between
     }
 
     .bif-table td.assign-nomatch {

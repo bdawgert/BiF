@@ -106,9 +106,9 @@ namespace BiF.Web.Controllers
                     HttpContext.User = userPrincipal;
                     
                     if (!DAL.Context.Profiles.Any(x => x.Id == userPrincipal.Identity.Name))
-                        return RedirectToAction("Index", "Profile");
+                        return RedirectToAction("", "Profile");
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("", "");
                 }
                 addErrors(userManagerResult);
             }
@@ -233,13 +233,9 @@ namespace BiF.Web.Controllers
             return View();
         }
 
-        //
-        // POST: /Account/LogOff
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult LogOff() {
             FormsAuthentication.SignOut();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("", "");
         }
 
         #region Helpers

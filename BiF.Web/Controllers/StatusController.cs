@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
+using BiF.Web.Utilities;
 
 namespace BiF.Web.Controllers
 {
@@ -23,6 +24,12 @@ namespace BiF.Web.Controllers
 
             return View("Message");
         }
+
+        public ActionResult Reset() {
+            KeyVault.Reset();
+            return RedirectToAction("");
+        }
+
 
     }
 }

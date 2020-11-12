@@ -19,9 +19,9 @@ namespace BiF.Web
             );
 
             routes.MapRoute(
-                name: "Logout",
-                url: "Logout",
-                defaults: new { controller = "Account", action = "Logout" }
+                name: "Logoff",
+                url: "Logoff",
+                defaults: new { controller = "Account", action = "LogOff" }
             );
 
             routes.MapRoute(

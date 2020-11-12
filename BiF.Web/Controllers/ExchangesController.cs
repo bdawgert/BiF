@@ -28,8 +28,7 @@ namespace BiF.Web.Controllers
                     MatchDate = x.MatchDate
                 }).ToList()
             };
-
-
+            
             return View(vm);
         }
 
@@ -138,6 +137,11 @@ namespace BiF.Web.Controllers
 
             var exchange = DAL.Context.Exchanges.Where(x => x.Id == id)
                 .Select(x => new { Exchange = x, SignUpDate = (DateTime?)x.SignUps.FirstOrDefault(s => s.UserId == BifSessionData.Id).SignUpDate }).FirstOrDefault();
+
+            if (BifSessionData.UserStatus <= 0 || !BifSessionData.HasProfile) {
+                ViewBag.Message = "Your user profile is still pending.  An administrator will review and approve your profile before you can participate in the exchanges. Please check back soon.";
+                return View("Message");
+            }
 
             if (exchange?.Exchange == null || DateTime.Now < exchange.Exchange.OpenDate) {
                 ViewBag.Message = "This exchange is not yet open";
@@ -287,14 +291,22 @@ namespace BiF.Web.Controllers
                 x.SignUps.Where(s => s.User.UserStatus > IdentityUser.UserStatuses.None)
                     .GroupJoin(x.Matches, s => s.UserId, m => m.SenderId,
                         (s, m) => new {
-                            SenderId = s.UserId, SenderUsername = s.Profile.RedditUsername, Match = m.FirstOrDefault()
+                            SenderId = s.UserId, 
+                            SenderUsername = s.Profile.RedditUsername, 
+                            SenderCity = s.Profile.City,
+                            SenderState = s.Profile.State,
+                            Match = m.FirstOrDefault()
                         }).Select(s => new Assignment {
-                        SenderId = s.SenderId, SenderUsername = s.SenderUsername, RecipientId = s.Match.RecipientId,
-                        RecipientUsername = s.Match.Recipient.Profile.RedditUsername
+                            SenderId = s.SenderId, 
+                            SenderUsername = s.SenderUsername, 
+                            SenderLocation = s.SenderCity + ", " + s.SenderState,
+                            RecipientId = s.Match.RecipientId,
+                            RecipientUsername = s.Match.Recipient.Profile.RedditUsername
                     }).OrderBy(s => s.SenderUsername)
                 ).First();
 
             AssignVM vm = new AssignVM {
+                ExchangeId = exchangeId,
                 Assignments = matches.ToList()
             };
 

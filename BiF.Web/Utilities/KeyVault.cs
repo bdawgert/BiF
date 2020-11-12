@@ -19,6 +19,10 @@ namespace BiF.Web.Utilities
             _keys = new Dictionary<string, SecureString>();
         }
 
+        public static async Task Reset() {
+            _keyVault = null;
+        }
+
         public static async Task<string> GetSecret(string name) {
 
             if (_keyVault == null)

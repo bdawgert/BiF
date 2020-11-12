@@ -6,7 +6,6 @@
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
     {
-        @Html.AntiForgeryToken()
         <div class="account-menu">
             <div class="bar-item">
                 @Html.ActionLink(username, "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })

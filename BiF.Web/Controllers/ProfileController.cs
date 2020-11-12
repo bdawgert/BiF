@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -257,7 +256,7 @@ namespace BiF.Web.Controllers
             if (userId != BifSessionData.Id)
                 exclusions = Convert.ToInt32(DAL.Context.Claims.FirstOrDefault(x => x.Type == "http://21brews.com/identity/claims/allowed-exclusions")?.Value ?? "2");
             
-            var allUsers = DAL.Context.Users.Where(x => x.UserStatus == IdentityUser.UserStatuses.Approved && x.Profile != null)
+            var allUsers = DAL.Context.Users.Where(x => x.UserStatus == IdentityUser.UserStatuses.Approved && x.Profile != null || x.Id == userId)
                 .Select(x => new {
                     Id = x.Id,
                     Username = x.UserName ?? x.Profile.RedditUsername,
@@ -294,9 +293,19 @@ namespace BiF.Web.Controllers
 
         public ActionResult Box(string id, string userId) {
 
+            if (BifSessionData.UserStatus <= 0 || !BifSessionData.HasProfile) {
+                ViewBag.Message = "Your user profile is still pending.  An administrator will review and approve your profile before you can use the Box Builder. Please check back soon.";
+                return View("Message");
+            }
+            
             int.TryParse(id, out int exchangeId);
             if (exchangeId == 0)
                 exchangeId = BifSessionData.ExchangeId;
+
+            if (exchangeId == 0) {
+                ViewBag.Message = "No Exchange selected.";
+                return View("Message");
+            }
 
             userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
 

@@ -1,4 +1,4 @@
-﻿@using BiF.Web.Identity
+﻿
 @{
     ViewBag.Title = "BeerItForward | Home";
 }
@@ -10,66 +10,56 @@
         <div class="body-content" style="position: relative;">
             @Html.Partial("__HomePreview")
             @*<div style="position: absolute; bottom: 0; left: 0; right: 0; background: #012f50; background: linear-gradient(0, #012f50 40%, transparent 100%); text-align: center; height: 150px;">
-                <div style="margin-top: 95px">@Html.ActionLink("Login", "Login", "Account") to View More</div>
-            </div>*@
+                    <div style="margin-top: 95px">@Html.ActionLink("Login", "Login", "Account") to View More</div>
+                </div>*@
         </div>
     }
     
-    @{
-        //BifSessionData session = (BifSessionData) ViewBag.Session;
+    @if (Request.IsAuthenticated) {
+
         int currentExchange = ViewBag.CurrentExchange;
         Dictionary<int, string> exchanges = ViewBag.Exchanges;
-    }
+        int userStatus = ViewBag.Session?.UserStatus;
+        bool hasProfile = ViewBag.Session?.HasProfile;
 
-    @if (Request.IsAuthenticated)
-    {
-        @*if (!session.HasProfile)
-        {
+        if (!hasProfile) {
             <div class="notification-content">
-                Your Profile is currently incomplete.  In order to participate in this year's Exchange, you must complete a Profile.  @Html.ActionLink("Click here to go to the Profile form", "", "Profile").
+                Your Profile is currently incomplete. In order to participate, you must complete a Profile. @Html.ActionLink("Click here to go to the Profile form", "", "Profile").
             </div>
         }
-        else if (!exchanges.ContainsKey(2))
-        {
+        else if (userStatus == 0) {
             <div class="notification-content">
-                <p>Thanks for registering!  Review the information below, and if you want to participate in this year's Secret Santa Exchange, check the box below to officially sign up.</p>
-                
-                <p>
-                    <b>Totally Binding Commitment</b><br/>
-                    By signing up for this exchange you agree to ship at least 125 oz of objectively delicious beer to your match by December 15 (weather permitting). You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction). Failure to fulfill your obligation to meet shipping requirements will result in a ban from future BiF exchanges. 
-                </p>
-                <div>
-                    @Html.CheckBox("signup", new { onclick="signUp()", style="transform: scale(1.6); margin: 10px 10px 0 0" }) Let's Do This!
-                </div>
+                Thanks for registering!  An admin will review your profile.  Once approved, you'll be able to sign up for the exchanges.
             </div>
         }
-        else if (session.UserStatus > 0)
-        {
+        else if (userStatus < 0) {
             <div class="notification-content">
-                Your participation in this year's Secret Santa Exchange has been approved.  Start pulling together some awesome beers.  We'll let you know when matching is complete.
+                Unfortunately we are unable to approve your profile at this time.  You will be unable to participate in any exchanges until your profile is approved.
             </div>
-
-        }*@
+        }
 
         <div style="display: flex; align-items: flex-start; justify-content: space-between">
-            
+
             <div>
-                
+
                 <div class="body-content sidebar" style="width: 180px; padding: 10px">
                     <div>
                         @Html.ActionLink("Profile", "", "Profile")
                     </div>
-                    <div>
-                        @Html.ActionLink("Match Preferences", "MatchPreferences", "Profile")
-                    </div>
+                    @if (userStatus > 0) {
+                        <div>
+                            @Html.ActionLink("Match Preferences", "MatchPreferences", "Profile")
+                        </div>
+                    }
                 </div>
-                
 
-                @if (exchanges != null && exchanges.Any()) {
+
+                @if (exchanges != null && exchanges.Any())
+                {
                     <div style="margin-top: 15px">
-                        @Html.DropDownList("exchange", exchanges.Select(x => new SelectListItem {Text = x.Value, Value = x.Key.ToString(), Selected = x.Key == currentExchange}), new {@class="body-content", style = "color: #fff; font-weight: bold; padding: 2px 0;  width: 100%", onchange="setExchange()"})
+                        @Html.DropDownList("exchange", exchanges.Select(x => new SelectListItem { Text = x.Value, Value = x.Key.ToString(), Selected = x.Key == currentExchange }), new { @class = "body-content", style = "color: #fff; font-weight: bold; padding: 2px 0;  width: 100%", onchange = "setExchange()" })
                     </div>
-                
+
                     <div class="body-content sidebar" style="width: 180px; padding: 5px 10px">
                         <div>
                             @Html.ActionLink("Participant List", "ParticipantList", "Exchanges")
@@ -82,12 +72,10 @@
                         </div>
                     </div>
                 }
-                <div id="participantList" class="body-content sidebar" style="width: 180px; padding: 10px; margin-top: 15px">
-                </div>
 
             </div>
 
-            <div class="body-content" style="position: relative; width: 540px; margin-top: 0" >
+            <div class="body-content" style="position: relative; width: 540px; margin-top: 0">
                 @Html.Partial("__HomeContent")
             </div>
 
