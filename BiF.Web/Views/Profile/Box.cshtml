@@ -82,7 +82,7 @@
                     <td>$@(item.Cost ?? 0)</td>
                     <td>@(item.UntappdRating == null ? "" : item.UntappdRating?.ToString("0.00"))</td>
                     <td>
-                        <div class="icon icon-hover icon-delete" onclick="deleteItem(@item.Id)"></div>
+                        <div class="icon icon-hover icon-x-red" onclick="deleteItem(@item.Id)"></div>
                     </td>
                 </tr>
 

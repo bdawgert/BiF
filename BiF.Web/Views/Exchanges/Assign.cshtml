@@ -15,9 +15,10 @@
     <table class="bif-table" style="margin: auto">
         <colgroup>
             <col style="width: 200px" />
-            <col style="width: 200px" />
-            <col style="width: 250px" />
+            <col style="width: 180px" />
+            <col style="width: 236px" />
             <col style="width: 36px" />
+            <col style="width: 100px" />
         </colgroup>
         
         <thead>
@@ -32,6 +33,7 @@
                     Recipient
                 </td>
                 <td>Box</td>
+                <td>Shipping</td>
             </tr>
         </thead>
 
@@ -48,10 +50,10 @@
         </td>
 
         @{
-            string text, className;
+            string text, className, id;
             if (signUp.RecipientUsername == null)
             {
-                text = "ASSIGN";
+                text = "";
                 className = "assign-nomatch";
             }
             else
@@ -62,24 +64,32 @@
             }
         }
 
-        <td onclick="assign('@signUp.SenderId')" class="@className" id=" ">
-            <div>
-                <span>@text</span>
-                @if (signUp.RecipientUsername != null)
-                {
-                    <div class="icon icon-hover icon-x-red" onclick="unassign('@signUp.SenderId')"></div>
-                }
-            </div>
-        </td>
+    <td class="assign @className" data-id="@signUp.SenderId" data-name="@text" id="assign_@signUp.SenderId">
+        
+        @*<div>
+            <span onclick="assign('@signUp.SenderId')">@text</span>
+            @if (signUp.RecipientUsername != null) {
+                <div class="icon icon-hover icon-x-red" onclick="unassign('@signUp.SenderId')"></div>
+            }
+        </div>*@
+    </td>
 
         <td>
             <a href="@Url.Action("Box", "Profile", new { id = Model.ExchangeId, userId = signUp.SenderId })">Box</a>
         </td>
+        <td></td>
     </tr>
 
         }
     </table>    
 
+</div>
+
+<div id="matchAssignmentPrototype" style="display: none; height: 0">
+    <div>
+        <span onclick="assign('##id##')">##name##</span>
+        <div class="icon icon-hover icon-x-red" onclick="unassign('##id##')"></div>
+    </div>
 </div>
 
 <style>
@@ -109,8 +119,21 @@
 
     <script>
 
+        function writeMatch(name, id) {
+            var matchNode = $('#matchAssignmentPrototype').clone();
+            if (name === '') {
+                matchNode.find('.icon').remove();
+                name = 'ASSIGN';
+            }
+            var matchNodeHtml = matchNode.html().replace('##name##', name).replace(/##id##/g, id);
+            return matchNodeHtml;
+        }
 
         $(function() {
+
+            $('.assign').each(function() {
+                $(this).html(writeMatch($(this).data('name'), $(this).data('id')));
+            });
 
             $('.recipient-select').on('change', function() {
                 var selected = $(this).val();
@@ -141,10 +164,9 @@
             $.post('@Url.Action("AssignMatch")', data, function(d) {
                 if (d.Success) {
                     if ((d.MatchId || '') === '')
-                        $('#row_' + d.UserId).children('td').eq(1).addClass('assign-nomatch').text('ASSIGN');
+                        $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-match').addClass('assign-nomatch').text('ASSIGN');
                     else {
-                        $('#row_' + d.UserId).children('td').eq(1).removeClass('assign-nomatch').text(matchUsername);
-                        $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').html('<div class="icon icon-hover icon-x-red" onclick="unassign(\'' + d.UserId + '\')"></div>');
+                        $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').addClass('assign-match').html(writeMatch(matchUsername, data.senderId));
                     }
                     popup.Hide();
                 }
@@ -162,12 +184,10 @@
                 senderId: id,
                 recipientId: null
             }
-            var matchUsername = $('.popup #MatchId option:selected').text();
 
             $.post('@Url.Action("AssignMatch")', data, function(d) {
                 if (d.Success) {
-                    $('#row_' + d.UserId).children('td').eq(1).addClass('assign-nomatch').text('ASSIGN');
-                    $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-nomatch').empty();
+                    $('#row_' + d.UserId).children('td').eq(2).removeClass('assign-match').addClass('assign-nomatch').html(writeMatch('', d.UserId));
                 }
                 popup.Hide();
             });

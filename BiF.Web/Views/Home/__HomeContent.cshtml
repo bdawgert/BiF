@@ -7,16 +7,33 @@
 }
 
 <div style="text-align: left; margin: 25px auto">
-    @if (isAdmin != true)
-    {
-        <div style="text-align: center">
-        <h2>It's Coming...</h2>
+    @if (DateTime.UtcNow < new DateTime(2020, 11, 16, 13, 0, 0)) {
+        TimeSpan difference = (new DateTime(2020, 11, 16, 13, 0, 0) - DateTime.UtcNow);
+        string timeDifference;
+        double hourDifference = difference.TotalHours;
+        if (hourDifference > 12) {
+            timeDifference = $"<b>{Math.Floor(hourDifference):n0} hours</b> (and <b>{difference.Minutes:n0} minutes</b>) ";
+        } else {
+            timeDifference = $"<b>{Math.Floor(difference.TotalMinutes):n0}</b> minutes (and <b>{difference.Seconds:n0} seconds</b>)";
+        }
 
+        <div style="text-align: center">
+    
+            <h2>It's So Close...</h2>
+
+            <div style="margin-bottom: 15px">
+                Sign Ups will officially begin Monday, November 16.<br/>
+                Check back in @Html.Raw(timeDifference) to complete your Secret Santa 2020 registration.
+            </div>
+    
             <video autoplay loop muted playsinline>
-                <source src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.mp4" type="video/mp4">
-                <img src="https://media.giphy.com/media/RRu9WYixQ7NEA/giphy.gif">
+                <source src="https://media.giphy.com/media/5xtDaryAMLjvAyN4eiY/giphy.mp4" type="video/mp4">
+                <img src="https://media.giphy.com/media/5xtDaryAMLjvAyN4eiY/giphy.gif">
             </video>
+    
         </div>
+
+
     }
     else
     {
@@ -43,7 +60,7 @@
         
         <p>
             <div style="margin: 6px 20px">
-                <b>Sign Ups:</b> November 16 - November 29
+                <b>Sign Ups:</b> November 14 - November 29
             </div>
             <div style="margin: 6px 20px">
                 <b>Matching:</b> December 1
@@ -119,7 +136,7 @@
             </video>
         </div>
         <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
-            It's beer - we all win.'
+            It's beer - we all win.
         </div>
         <div style="margin: 10px auto; max-width: 500px; text-align: center">
             <input type="button" value="Sign Up" style="font-size: 1.5em; width: 160px" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 3})'" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Cryptography.X509Certificates;
 using System.Web.Mvc;
 using BiF.DAL.Models;
 using BiF.Web.Utilities;
@@ -14,20 +15,35 @@ namespace BiF.Web.Controllers
         public ActionResult Index(string id) {
 
             id = BifSessionData.IsInRole("ADMIN") ? id ?? BifSessionData.Id : BifSessionData.Id;
-            
-            var match = DAL.Context.Matches.Where(x => x.SenderId == id && x.ExchangeId == BifSessionData.ExchangeId)
-                .Select(x => new {
-                    Profile = x.Recipient.Profile, 
-                    Email = x.Recipient.Email, 
-                    Match = x,
-                    Exchange = x.Exchange
-                } ).FirstOrDefault();
 
-            
-            if (match == null) {
-                Exchange exchange = DAL.Context.Exchanges.Find(BifSessionData.ExchangeId);
+            var match = DAL.Context.Exchanges.Where(x => x.Id == BifSessionData.ExchangeId)
+                .Select(x => new {
+                    Exchange = x,
+                    Match = x.Matches.FirstOrDefault(m => m.SenderId == id),
+                }).Select(x => new {
+                    Exchange = x.Exchange,
+                    Match = x.Match,
+                    Profile = x.Match.Recipient.Profile,
+                    Email = x.Match.Recipient.Email
+                }).FirstOrDefault();
+
+            //var match = DAL.Context.Matches.Where(x => x.SenderId == id && x.ExchangeId == BifSessionData.ExchangeId)
+            //    .Select(x => new {
+            //        Profile = x.Recipient.Profile, 
+            //        Email = x.Recipient.Email, 
+            //        Match = x,
+            //        Exchange = x.Exchange
+            //    } ).FirstOrDefault();
+
+            if (match?.Exchange.MatchDate != null && match.Exchange.MatchDate > DateTime.UtcNow.AddHours(-14)) { // UTC -14 on a date is 9:00AM EST
                 ViewBag.MessageTitle = "No Matches Yet";
-                ViewBag.Message = $"Matches should be ready around {exchange?.MatchDate?.ToLongDateString()}. Don't worry, we'll let you know when they're posted. ";
+                ViewBag.Message = $"Matches should be ready on {match.Exchange.MatchDate?.ToLongDateString()}. Don't worry, we'll let you know when they're posted. ";
+                return View("Message");
+            }
+
+            if (match.Match == null) {
+                ViewBag.MessageTitle = "No Matches Yet";
+                ViewBag.Message = $"Matches should be ready around {match.Exchange?.MatchDate?.ToLongDateString()}. Don't worry, we'll let you know when they're posted. ";
                 return View("Message");
             }
 
