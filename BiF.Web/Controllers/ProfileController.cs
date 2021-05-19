@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using BiF.DAL.Models;
@@ -10,6 +11,7 @@ using BiF.Untappd.Models.Search;
 using BiF.Web.Utilities;
 using BiF.Web.ViewModels;
 using BiF.Web.ViewModels.Profile;
+using Match = BiF.DAL.Models.Match;
 
 namespace BiF.Web.Controllers
 {
@@ -155,6 +157,7 @@ namespace BiF.Web.Controllers
                 City = user.Profile.City,
                 State = user.Profile.State,
                 Zip = user.Profile.Zip,
+                DeliveryNotes = user.Profile.DeliveryNotes,
 
                 RedditUsername = user.Profile.RedditUsername,
                 UntappdUsername = user.Profile.UntappdUsername,
@@ -183,7 +186,41 @@ namespace BiF.Web.Controllers
 
             return View("View", vm);
         }
-        
+
+        [HttpGet]
+        [Authorize(Roles = "ADMIN")]
+        public ActionResult ExchangeList(string id) {
+            var user = DAL.Context.Profiles.Where(x => x.Id == id).Select(x => new {
+                Id = id, 
+                UserName = x.RedditUsername,
+                RecieveFromMatches = x.RecipientMatches.Select(s => new { ExchangeId = s.ExchangeId, Id = s.SenderId, Name = s.SenderProfile.RedditUsername }),
+                SendToMatches = x.SenderMatches.Select(r => new { ExchangeId = r.ExchangeId, Id = r.RecipientId, Name = r.RecipientProfile.RedditUsername }),
+                Exchanges = x.SignUps.Select(s => s.Exchange)
+            }).FirstOrDefault();
+
+            if (user == null)
+                return View("Error"); //TODO: Message View
+
+            var matches = user.RecieveFromMatches.Join(user.SendToMatches, x => x.ExchangeId, x => x.ExchangeId,
+                (r, s) => new {
+                    RecipientId = r.Id, RecipientName = r.Name, SenderId = s.Id, SenderName = s.Name,
+                    ExchangeId = r.ExchangeId
+                });
+
+            var exchanges = user.Exchanges.GroupJoin(matches, x => x.Id, x => x.ExchangeId, (e, m) => new {
+                Exchange = e, Match = m.FirstOrDefault()
+            });
+
+            ExchangeListVM vm = new ExchangeListVM {
+                UserId = id,
+                UserName = user.UserName,
+                Exchanges = exchanges.OrderBy(x => x.Exchange.OpenDate).Select(x => new ExchangeVM { Id = x.Exchange.Id, Name = x.Exchange.Name, ReceiveFromId = x.Match?.RecipientId, ReceiveFromName = x.Match?.RecipientName, SendToId = x.Match?.SenderId, SendToName = x.Match?.SenderName}).ToList()
+            };
+
+            return View(vm);
+
+        }
+
         private void createUserConfirmationEmail(string id) {
 
             EmailClient email = EmailClient.Create();
@@ -202,6 +239,7 @@ namespace BiF.Web.Controllers
                 City = user.Profile.City,
                 State = user.Profile.State,
                 Zip = user.Profile.Zip,
+                DeliveryNotes = user.Profile.DeliveryNotes,
 
                 RedditUsername = user.Profile.RedditUsername,
                 UntappdUsername = user.Profile.UntappdUsername,
@@ -318,6 +356,7 @@ namespace BiF.Web.Controllers
                 UserId = userId,
                 ExchangeId = exchangeId,
                 ExchangeName = exchange?.Name ?? "Open",
+                IsLocked = exchange?.ShipDate < DateTime.Now.AddDays(-14),
                 Items = boxItems(userId, exchangeId),
             };
 
@@ -390,7 +429,7 @@ namespace BiF.Web.Controllers
 
             Exchange exchange = DAL.Context.Exchanges.Find(item.ExchangeId);
             if (exchange == null || exchange.CloseDate.AddDays(30) < DateTime.Today)
-                return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be editted" });
+                return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be edited" });
 
             DAL.Context.Items.Remove(item);
             DAL.Context.SaveChanges();
@@ -409,7 +448,9 @@ namespace BiF.Web.Controllers
 
             BoxBuilder boxBuilder = new BoxBuilder(items)
                 .SetMinimumOunces(exchange?.MinOunces)
-                .SetMinimumRating(exchange?.MinRating)
+                .SetMinimumBeerRating(exchange?.MinRating)
+                .SetMinimumBoxRating(exchange?.MinBoxRating)
+                .SetMinimumUnique(exchange?.MinUnique)
                 .SetMinimumCost(exchange?.MinCost);
             
             return PartialView("__BoxSummary", boxBuilder);

@@ -58,7 +58,7 @@ namespace BiF.Web.Controllers
         [Authorize(Roles = "ADMIN")]
         public ActionResult Add()
         {
-            return View("Edit");
+            return View("Edit", new EditVM());
         }
 
         [HttpGet]
@@ -89,7 +89,9 @@ namespace BiF.Web.Controllers
                 ShipDate = exchange.ShipDate,
                 MinOunces = exchange.MinOunces,
                 MinCost = exchange.MinCost,
-                MinRating = exchange.MinRating,
+                MinBeerRating = exchange.MinRating,
+                MinBoxRating = exchange.MinBoxRating,
+                MinUnique = exchange.MinUnique
             };
 
             return View(vm);
@@ -125,7 +127,9 @@ namespace BiF.Web.Controllers
             exchange.UpdaterId = User.Identity.Name;
             exchange.MinOunces = vm.MinOunces;
             exchange.MinCost = vm.MinCost;
-            exchange.MinRating = vm.MinRating;
+            exchange.MinRating = vm.MinBeerRating;
+            exchange.MinBoxRating = vm.MinBoxRating;
+            exchange.MinUnique = vm.MinUnique;
 
             DAL.Context.SaveChanges();
 
@@ -165,6 +169,8 @@ namespace BiF.Web.Controllers
                 MinCost = exchange.Exchange.MinCost,
                 MinOunces = exchange.Exchange.MinOunces,
                 MinRating = exchange.Exchange.MinRating,
+                MinBoxRating = exchange.Exchange.MinBoxRating,
+                MinUnique = exchange.Exchange.MinUnique,
                 OpenDate = exchange.Exchange.OpenDate,
                 ShipDate = exchange.Exchange.ShipDate,
                 MatchDate = exchange.Exchange.MatchDate,
@@ -203,7 +209,7 @@ namespace BiF.Web.Controllers
                 return View("Message");
             }
 
-            bool success = doSignUp(exchange.Exchange, BifSessionData.Id, out string message);
+            bool success = doSignUp(exchange.Exchange, BifSessionData.Id, vm.Comment?.Trim(), out string message);
 
             if (!success) {
                 ViewBag.Message = message;
@@ -249,7 +255,7 @@ namespace BiF.Web.Controllers
 
             //}
 
-        private bool doSignUp(Exchange exchange, string userId, out string message) {
+        private bool doSignUp(Exchange exchange, string userId, string comment, out string message) {
 
             message = null;
             if (exchange == null) {
@@ -272,7 +278,8 @@ namespace BiF.Web.Controllers
                 ExchangeId = exchange.Id,
                 UserId = userId,
                 SignUpDate = DateTime.Now,
-                Approved = false
+                Approved = false,
+                Comment = comment
             };
 
             DAL.Context.SignUps.Add(signup);
@@ -286,9 +293,14 @@ namespace BiF.Web.Controllers
         public ActionResult Assign(string id) {
 
             int.TryParse(id, out int exchangeId);
+
+            if (exchangeId == 0)
+                return RedirectToAction("", "Administration");
             
+            CookieManager.SetCookie(new HttpCookie("exchangeId", exchangeId.ToString()));
+
             IEnumerable<Assignment> matches = DAL.Context.Exchanges.Where(x => x.Id == exchangeId).Select(x =>
-                x.SignUps.Where(s => s.User.UserStatus > IdentityUser.UserStatuses.None)
+                x.SignUps
                     .GroupJoin(x.Matches, s => s.UserId, m => m.SenderId,
                         (s, m) => new {
                             SenderId = s.UserId, 
@@ -301,7 +313,9 @@ namespace BiF.Web.Controllers
                             SenderUsername = s.SenderUsername, 
                             SenderLocation = s.SenderCity + ", " + s.SenderState,
                             RecipientId = s.Match.RecipientId,
-                            RecipientUsername = s.Match.Recipient.Profile.RedditUsername
+                            RecipientUsername = s.Match.Recipient.Profile.RedditUsername,
+                            Carrier = s.Match.Carrier,
+                            TrackingNo = s.Match.TrackingNo
                     }).OrderBy(s => s.SenderUsername)
                 ).First();
 
@@ -317,7 +331,6 @@ namespace BiF.Web.Controllers
         [Authorize(Roles = "ADMIN")]
         public PartialViewResult AssignList(string id, string userId) {
 
-            int.TryParse(id, out int exchangeId);
 
             var selectedUser = DAL.Context.Users.Where(x => x.Id == userId).Select(x => new {
                 Username = x.Profile.RedditUsername,
@@ -325,8 +338,7 @@ namespace BiF.Web.Controllers
             }).FirstOrDefault();
 
             List<SelectListItem> availableUsers = DAL.Context.SignUps.Where(x => x.UserId != userId &&
-                     x.ExchangeId == exchangeId && 
-                     x.User.UserStatus >= IdentityUser.UserStatuses.None &&
+                     x.ExchangeId == BifSessionData.ExchangeId && 
                      !x.User.MatchPreferences.Where(p => p.PreferenceType == MatchPreferenceType.NotUser).Select(p => p.Value).Contains(userId) &&
                      !x.User.ReceivingMatches.Any(m => m.ExchangeId == BifSessionData.ExchangeId && m.SenderId != userId))
                 .Select(x => new SelectListItem {
@@ -390,6 +402,7 @@ namespace BiF.Web.Controllers
             }).OrderBy(x => x.ShipDate != null).ThenBy(x => x.ShipDate).ToList();
 
             ViewStatusVM vm = new ViewStatusVM {
+                ExchangeId = exchangeId,
                 ShipmentStatuses = userStatus
             };
 

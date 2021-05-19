@@ -43,6 +43,7 @@ namespace BiF.Web.Identity
             bool authenticated = user.PasswordHash == password.HashValue(user.Entropy);
             if (authenticated) {
                 signInResult.Status |= SignInResult.SignInStatus.Authenticated;
+                _bifUserManager.RecordLogin(user);
             }
 
             return signInResult;

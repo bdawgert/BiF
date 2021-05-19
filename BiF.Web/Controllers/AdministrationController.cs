@@ -25,8 +25,9 @@ namespace BiF.Web.Controllers
                 Name = x.Name, 
                 Description = x.Description,
                 OpenDate = x.OpenDate,
-                CloseDate = x.CloseDate
-            }).ToList();
+                CloseDate = x.CloseDate,
+                MatchDate = x.MatchDate
+            }).OrderBy(x => x.OpenDate).ToList();
 
             List<UserInformation> usersList = users.Select(x => new UserInformation {
                 Id = x.User.Id,

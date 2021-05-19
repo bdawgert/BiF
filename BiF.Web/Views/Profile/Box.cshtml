@@ -10,56 +10,63 @@
     <h2>Box Builder</h2>
     <h3 class="sub-title">@Model.ExchangeName</h3>
 
-    <p>
-        Search for a beer or add a non-beer item in the form below.  Click "Add" to save the item.  The Summary will auto-update to help you plan your box.
-    </p>
+    @if (!Model.IsLocked) {
+        <p>
+            Search for a beer or add a non-beer item in the form below.  Click "Add" to save the item.  The Summary will auto-update to help you plan your box.
+        </p>
 
-    @*<select id="exchangeId">
-        <option value="0">-- No Exchange --</option>
-        <option value="2" selected>Secret Santa 2019</option>
-    </select>*@
+        @*<select id="exchangeId">
+                <option value="0">-- No Exchange --</option>
+                <option value="2" selected>Secret Santa 2019</option>
+            </select>*@
 
-    <div class="item-search" style="margin: auto">
-        <div class="box-item">
-            <input type="hidden" id="addBeerId" />
-            <div>
-                <span style="font-size: .6em; font-weight: bold">TYPE</span><br />
-                <select id="addBeerType">
-                    <option>Beer</option>
-                    <option>Other</option>
-                </select>
-            </div>
-            <div>
-                <span style="font-size: .6em; font-weight: bold">NAME (UNTAPPD SEARCH)</span><br />
-                <input type="text" id="addBeerName" style="width: 300px" />
-            </div>
 
-            <div>
-                <span style="font-size: .6em; font-weight: bold">SIZE</span><br />
-                <input type="text" id="addBeerOunces" style="width: 3em" /> oz
+        <div class="item-search" style="margin: auto">
+            <div class="box-item">
+                <input type="hidden" id="addBeerId" />
+                <div>
+                    <span style="font-size: .6em; font-weight: bold">TYPE</span><br />
+                    <select id="addBeerType">
+                        <option>Beer</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <span style="font-size: .6em; font-weight: bold">NAME (UNTAPPD SEARCH)</span><br />
+                    <input type="text" id="addBeerName" style="width: 300px" />
+                </div>
+
+                <div>
+                    <span style="font-size: .6em; font-weight: bold">SIZE</span><br />
+                    <input type="text" id="addBeerOunces" style="width: 3em" /> oz
+                </div>
+                <div>
+                    <span style="font-size: .6em; font-weight: bold">COST</span><br />
+                    $<input type="text" id="addBeerCost" style="width: 4em" />
+                </div>
+                <div id="addBeerRating"></div>
+                <div>
+                    <input type="button" value="Add" style="margin-top: 23px; padding: 1px 2px; width: 100px" onclick="add()" />
+                </div>
             </div>
-            <div>
-                <span style="font-size: .6em; font-weight: bold">COST</span><br />
-                $<input type="text" id="addBeerCost" style="width: 4em" />
-            </div>
-            <div id="addBeerRating"></div>
-            <div>
-                <input type="button" value="Add" style="margin-top: 23px; padding: 1px 2px; width: 100px" onclick="add()" />
-            </div>
+            <div id="searchResults"></div>
         </div>
-        <div id="searchResults"></div>
-    </div>
-    
-    
-    <div style="padding-top: 15px; margin-top: 15px; border-top: 1px solid #fff"></div>
+
+
+        <div style="padding-top: 15px; margin-top: 15px; border-top: 1px solid #fff"></div>
+    }
+    else
+    {
+        <div class="notification-content">This Exchange is now closed. Your box may no longer be edited</div>
+    }
     <table id="boxItems" class="bif-table" style="margin: auto">
         <colgroup>
             <col style="width: 50px" />
             <col style="width: 480px" />
-            <col style="width: 90px"/>
-            <col style="width: 50px"/>
-            <col style="width: 70px"/>
-            <col style="width: 36px"/>
+            <col style="width: 90px" />
+            <col style="width: 50px" />
+            <col style="width: 70px" />
+            <col style="width: 36px" />
         </colgroup>
         <thead>
             <tr>
@@ -82,7 +89,9 @@
                     <td>$@(item.Cost ?? 0)</td>
                     <td>@(item.UntappdRating == null ? "" : item.UntappdRating?.ToString("0.00"))</td>
                     <td>
+                    @if (!Model.IsLocked) {
                         <div class="icon icon-hover icon-x-red" onclick="deleteItem(@item.Id)"></div>
+                    }
                     </td>
                 </tr>
 
@@ -98,12 +107,12 @@
 
     <div style="font-size: .9em; font-style: italic; text-align: center">
         U.S. oz cheat sheet:
-        750ml = 25.4 oz, 
+        750ml = 25.4 oz,
         500ml = 16.9 oz,
-        375ml = 12.7 oz, 
+        375ml = 12.7 oz,
         330ml = 11.2 oz
     </div>
-    
+
     <h3>Summary</h3>
     <div id="summary"></div>
 
@@ -231,8 +240,10 @@
 
                     $('#addBeerId, #addBeerName, #addBeerOunces, #addBeerCost').val('');
 
-                    if (d.Success === false)
-                        return; 
+                    if (d.Success === false) {
+                        writeError(d.Message);
+                        return;
+                    }
 
                     $('#boxItems').append(
                         '<tr id="item_' + d.Id + '" class="item-row">' +
@@ -261,7 +272,12 @@
                     contentType: 'application/json',
                     data: JSON.stringify(data),
                     dataType: 'json',
-                    success: function(d) {
+                    success: function (d) {
+                        if (d.Success === false) {
+                            writeError(d.Message);
+                            return;
+                        };
+
                         $('#item_' + id).remove();
                         updateMessageRow();
                         loadSummary();
@@ -271,13 +287,13 @@
 
             function loadSummary() {
                 $('#summary').load('@Url.Action("BoxSummary")/@Model.ExchangeId/@Model.UserId');
-            }
+        }
 
-            function updateMessageRow() {
-                var hasItems = $('.item-row').is('*');
-                $('#noItemsRow').toggle(!hasItems);
-            }
-
+        function updateMessageRow() {
+            var hasItems = $('.item-row').is('*');
+            $('#noItemsRow').toggle(!hasItems);
+        }
+            
         </script>
 
     }

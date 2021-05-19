@@ -28,6 +28,7 @@ namespace BiF.DAL.Models
         public int AccessFailedCount { get; set; }
         public bool Approved { get; set; }
         public UserStatuses UserStatus { get; set; }
+        public DateTime? LastLogin { get; set; }
 
         public virtual ICollection<IdentityClaim> Claims { get; set; }
         public virtual ICollection<IdentityRole> Roles { get; set; }

@@ -75,9 +75,27 @@
     </td>
 
         <td>
-            <a href="@Url.Action("Box", "Profile", new { id = Model.ExchangeId, userId = signUp.SenderId })">Box</a>
+            <div class="icon icon-hover icon-untappd" onclick="window.location = '@Url.Action("Box", "Profile", new {id = Model.ExchangeId, userid = signUp.SenderId})'"></div>
         </td>
-        <td></td>
+        <td>
+            @if (signUp.Carrier?.ToLower() == "fedex")
+            {
+                <a href="http://fedex.com/apps/fedextrack/?tracknumbers=@signUp.TrackingNo" target="_blank">@signUp.TrackingNo</a>
+            }
+            else if (signUp.Carrier?.ToLower() == "ups")
+            {
+                <a href="https://www.ups.com/track?loc=en_US&tracknum=@signUp.TrackingNo" target="_blank">@signUp.TrackingNo</a>
+            }
+            else if (signUp.Carrier?.ToLower() == "usps")
+            {
+                <a href="https://tools.usps.com/go/TrackConfirmAction?tLabels=@signUp.TrackingNo" target="_blank">@signUp.TrackingNo</a>
+                        
+            }
+            else
+            {
+                @signUp.TrackingNo
+            }
+        </td>
     </tr>
 
         }

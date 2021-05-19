@@ -29,6 +29,7 @@ namespace BiF.Web.ViewModels.Administration
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime? OpenDate { get; set; }
+        public DateTime? MatchDate { get; set; }
         public DateTime? CloseDate { get; set; }
     }
 

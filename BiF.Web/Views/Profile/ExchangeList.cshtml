@@ -1,0 +1,61 @@
+﻿@using BiF.Web.ViewModels.Profile
+@model ExchangeListVM
+
+@{
+    ViewBag.Title = Model.UserName + " Exchange List";
+}
+
+<div class="body-content" style="width: 600px; position: relative;">
+
+    <h2>@Model.UserName</h2>
+    <h3 class="sub-title">Exchange History</h3>
+
+    <table class="bif-table" style="width: 100%">
+        <colgroup>
+            <col />
+            <col />
+            <col style="width: 36px" />
+            <col />
+            <col style="width: 36px" />
+        </colgroup>
+        <thead>
+            <tr>
+                <td>Exchange</td>
+                <td>Send To</td>
+                <td>Box</td>
+                <td>Receive From</td>
+                <td>Box</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var exchange in Model.Exchanges) {
+            <tr>
+                <td>@exchange.Name</td>
+                <td>
+                    <a href="@Url.Action("", "Profile", new { id = exchange.SendToId })" target="_blank">@exchange.SendToName</a>
+                </td>
+                <td>
+                    <div class="icon icon-hover icon-untappd" onclick="window.location = '@Url.Action("Box", "Profile", new {id = exchange.Id, userid = Model.UserId})'"></div>
+                </td>
+                <td>
+                    <a href="@Url.Action("", "Profile", new {id = exchange.ReceiveFromId})" target="_blank">@exchange.ReceiveFromName</a>
+                </td>
+                <td>
+                    @if (exchange.ReceiveFromId != null) {
+                        <div class="icon icon-hover icon-untappd" onclick="window.location = '@Url.Action("Box", "Profile", new {id = exchange.Id, userid = exchange.ReceiveFromId})'"></div>
+                    }
+                </td>
+            </tr>
+            }
+
+        </tbody>
+        <tfoot>
+
+        </tfoot>
+    </table>
+</div>
+
+
+    <style>
+        .bif-table tbody td { text-align: left }
+    </style>

@@ -66,6 +66,11 @@
                 {
                     @Html.ActionLink("Closed", "ViewStatus", "Exchanges", new { id = exchange.Id }, null )
                 }
+                else if (exchange.MatchDate.HasValue && exchange.MatchDate.Value < DateTime.Now)
+                {
+                    @Html.ActionLink("Matched", "ViewStatus", "Exchanges", new { id = exchange.Id }, null )
+                }
+
                 else {
                     @:Open
                 }
@@ -99,7 +104,7 @@
                 <td>Rating</td>
                 <td># Excl.</td>
                 <td>Admin</td>
-                <td>Delete</td>
+                <td>Exchanges</td>
             </tr>
         </thead>
         <tbody>
@@ -139,7 +144,7 @@
                 </td>
 
                 <td>
-                    <div class="icon icon-hover icon-delete" onclick="deleteUser('@user.Id')"></div>
+                    <div class="icon icon-hover icon-list" onclick="window.location='@Url.Action("ExchangeList", "Profile")/@user.Id'"></div>
                 </td>
             </tr>
 

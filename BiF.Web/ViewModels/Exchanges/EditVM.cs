@@ -14,8 +14,10 @@ namespace BiF.Web.ViewModels.Exchanges
         public DateTime? MatchDate { get; set; }
         public DateTime? ShipDate { get; set; }
 
-        public double MinOunces { get; set; }
-        public double MinCost { get; set; }
-        public double MinRating { get; set; }
+        public double? MinOunces { get; set; }
+        public double? MinCost { get; set; }
+        public double? MinBeerRating { get; set; }
+        public double? MinBoxRating { get; set; }
+        public int? MinUnique { get; set; }
     }
 }

@@ -77,7 +77,7 @@
                     @status.Recipient
                 </td>
                 <td style="text-align: center">
-                    <div class="icon icon-hover" style="background-position: -4px -4px" onclick="window.location = '@Url.Action("Box", "Profile", new { id = status.SenderId })'"></div>
+                    <div class="icon icon-hover icon-untappd" onclick="window.location = '@Url.Action("Box", "Profile", new { id = Model.ExchangeId, userid = status.SenderId })'"></div>
                 </td>
             </tr>
         }

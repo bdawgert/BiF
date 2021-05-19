@@ -20,6 +20,9 @@ namespace BiF.DAL.Models
         public DateTime SignUpDate { get; set; }
         public bool Approved { get; set; }
 
+        [MaxLength(4000)]
+        public string Comment { get; set; }
+
         public virtual Exchange Exchange { get; set; }
         public virtual IdentityUser User { get; set; }
         [ForeignKey("UserId")]

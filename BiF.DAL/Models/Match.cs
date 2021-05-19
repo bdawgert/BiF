@@ -26,5 +26,11 @@ namespace BiF.DAL.Models
         public virtual Exchange Exchange { get; set; }
         public virtual IdentityUser Sender { get; set; }
         public virtual IdentityUser Recipient { get; set; }
+        [ForeignKey("SenderId")]
+        public virtual Profile SenderProfile { get; set; }
+        [ForeignKey("RecipientId")]
+        public virtual Profile RecipientProfile { get; set; }
+
+
     }
 }

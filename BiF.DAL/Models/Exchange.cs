@@ -30,9 +30,11 @@ namespace BiF.DAL.Models
         public bool PrivateMatches { get; set; }
         public bool Deleted { get; set; }
 
-        public double MinOunces { get; set; }
-        public double MinRating { get; set; }
-        public double MinCost { get; set; }
+        public double? MinOunces { get; set; }
+        public double? MinRating { get; set; }
+        public double? MinCost { get; set; }
+        public double? MinBoxRating { get; set; }
+        public int? MinUnique { get; set; }
 
         public virtual ICollection<SignUp> SignUps { get; set; }
         public virtual ICollection<Match> Matches { get; set; }

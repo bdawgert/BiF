@@ -17,6 +17,8 @@ namespace BiF.Web.ViewModels.Exchanges
         public string SenderLocation { get; set; }
         public string RecipientId { get; set; }
         public string RecipientUsername { get; set; }
+        public string Carrier { get; set; }
+        public string TrackingNo { get; set; }
 
     }
 

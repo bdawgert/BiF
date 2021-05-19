@@ -42,7 +42,7 @@
     <tr>
         <td>Cost</td>
         <td>
-            @if (Model.RequiredCost == null) {
+            @if (Model.RequiredCost == null || Model.RequiredCost == 0) {
                 @:--
             }
             else {
@@ -63,27 +63,73 @@
             $@(Math.Round(Model.TotalCost ?? 0, 2).ToString("0.00"))
         </td>
     </tr>
-    <tr>
-        <td>Avg. Rating</td>
-        <td>
-            @if (Model.RequiredRating == null) {
-                @:--
-            }
-            else
-            {
-                @(Model.RequiredRating?.ToString("0.00"))
-            }
-        </td>
-        <td>
-            @{
-                iconClass = Model.MeetsRating ? "icon-ok" : "icon-no";
-            }
-            <div class="icon @iconClass"></div>
-        </td>
-        <td>@(Math.Round(Model.QualifyingAverageRating ?? 0, 2).ToString("0.00"))</td>
+    @if (Model.RequiredBoxRating != null) {
 
-        <td>@(Math.Round(Model.AverageRating ?? 0, 2).ToString("0.00"))</td>
-    </tr>
+        <tr>
+            <td>Box Avg Rating</td>
+            <td>
+                @if (Model.RequiredBoxRating == null || Model.RequiredBoxRating == 0) {
+                    @:--
+                } else {
+                    @(Model.RequiredBoxRating?.ToString("0.00"))
+                }
+            </td>
+            <td>
+                @{
+                    iconClass = Model.MeetsBoxRating ? "icon-ok" : "icon-no";
+                }
+                <div class="icon @iconClass"></div>
+            </td>
+            <td>@(Math.Round(Model.QualifyingBoxRating ?? 0, 2).ToString("0.00"))</td>
+
+            <td>@(Math.Round(Model.AverageBoxRating ?? 0, 2).ToString("0.00"))</td>
+        </tr>
+    }
+    @if (Model.RequiredBeerRating != null) {
+
+        <tr>
+            <td>Beer Min Rating</td>
+            <td>
+                @if (Model.RequiredBeerRating == null || Model.RequiredBeerRating == 0) {
+                    @:--
+                } else {
+                    @(Model.RequiredBeerRating?.ToString("0.00"))
+                }
+            </td>
+            <td>
+                @{
+                    iconClass = Model.MeetsBeerRating ? "icon-ok" : "icon-no";
+                }
+                <div class="icon @iconClass"></div>
+            </td>
+            <td>@(Math.Round(Model.QualifyingBeerRating ?? 0, 2).ToString("0.00"))</td>
+
+            <td>@(Math.Round(Model.MinimumBeerRating ?? 0, 2).ToString("0.00"))</td>
+        </tr>
+    }
+        
+    @if (Model.RequiredUnique != null) {
+
+        <tr>
+            <td>Min Unique</td>
+            <td>
+                @if (Model.RequiredUnique == 0) {
+                    @:--
+                } else {
+                    @Model.RequiredUnique
+                }
+            </td>
+            <td>
+                @{
+                    iconClass = Model.MeetsUnique ? "icon-ok" : "icon-no";
+                }
+                <div class="icon @iconClass"></div>
+            </td>
+            <td>@Model.TotalUnique</td>
+
+            <td>@Model.TotalUnique</td>
+        </tr>
+    }
 
     </tbody>
 </table>

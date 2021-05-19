@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -57,5 +58,10 @@ namespace BiF.DAL.Models
         
         public virtual IdentityUser User { get; set; }
         public virtual ZipCode ZipCode { get; set; }
+        public virtual ICollection<SignUp> SignUps { get; set; }
+        [InverseProperty("SenderProfile")] 
+        public virtual ICollection<Match> SenderMatches { get; set; }
+        [InverseProperty("RecipientProfile")] 
+        public virtual ICollection<Match> RecipientMatches { get; set; }
     }
 }

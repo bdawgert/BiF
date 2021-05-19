@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace BiF.Web.ViewModels.Exchanges
 {
@@ -15,10 +14,14 @@ namespace BiF.Web.ViewModels.Exchanges
         public DateTime? MatchDate { get; set; }
         public DateTime CloseDate { get; set; }
 
-        public double MinOunces { get; set; }
-        public double MinCost { get; set; }
-        public double MinRating { get; set; }
-        
+        public double? MinOunces { get; set; }
+        public double? MinCost { get; set; }
+        public double? MinRating { get; set; }
+        public double? MinBoxRating { get; set; }
+        public int? MinUnique { get; set; }
+
+        public string Comment { get; set; }
+
         public DateTime? SignUpDate { get; set; }
 
         public bool IsAcknowledged { get; set; }

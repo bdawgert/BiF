@@ -14,7 +14,7 @@
 
     @Html.ValidationSummary()
 
-    @using (Html.BeginForm(isSignedUp ? "UnSignUp" : "SignUp", "Exchanges"))
+    @using (Html.BeginForm("SignUp", "Exchanges"))
     {
 
         @Html.AntiForgeryToken()
@@ -36,19 +36,27 @@
         <div style="margin-top: 15px">
             <div style="font-weight: bold">Details</div>
 
-            @if (Model.MinCost != 0)
+            @if (Model.MinCost != null && Model.MinCost != 0)
             {
-                <div>Min Cost: @Model.MinCost.ToString("c")</div>
+                <div>Min Cost: @(Model.MinCost?.ToString("c"))</div>
             }
-            @if (Model.MinOunces != 0)
+            @if (Model.MinOunces != null && Model.MinOunces != 0)
             {
-                <div>Min Quantity: @Model.MinOunces.ToString("n0")oz</div>
+                <div>Min Quantity: @(Model.MinOunces?.ToString("n0"))oz</div>
             }
-            @if (Model.MinRating != 0)
+            @if (Model.MinRating != null && Model.MinRating != 0)
             {
-                <div>Min Rating: @Model.MinRating.ToString("n1") (Untappd)</div>
+                <div>Min Beer Rating: @(Model.MinRating?.ToString("n1")) (Untappd)</div>
             }
-
+            @if (Model.MinBoxRating != null && Model.MinBoxRating != 0)
+            {
+                <div>Min Box Rating: @(Model.MinBoxRating?.ToString("n1")) (Untappd)</div>
+            }
+            @if (Model.MinUnique != null && Model.MinUnique != 0)
+            {
+                <div>Min Unique: At least @Model.MinUnique different beers</div>
+            }
+            <div style="height: 15px;"></div>
             @if (Model.MatchDate != null)
             {
                 <div>Match Date: @Model.MatchDate.Value.ToLongDateString()</div>
@@ -67,7 +75,7 @@
                 of objectively delicious beer @(Model.MinRating > 0 ? $"(rated {Model.MinRating}+)" : "") to your match
                 @if (Model.ShipDate != null)
                 {
-                    @:by @(Model.ShipDate?.ToLongDateString())(weather permitting).
+                    @:by @(Model.ShipDate?.ToLongDateString()) (weather permitting).
                 }
                 You will be responsible for the contents of the box up until the point the box is delivered undamaged at the recipient's address (hopefully inflicting maximum porch destruction).
 
@@ -82,13 +90,30 @@
             }
         </div>
 
+        @*<div style="margin-top: 15px">
+            <div class="required" style="font-weight: bold">Notes</div>
+            @Html.TextAreaFor(x => x.Comment)
+        </div>*@
+
         <div style="margin-top: 15px; text-align: center">
             @{
-                string submitLabel = isSignedUp ? "Cancel Sign Up" : "Sign Up";
+                string submitLabel = isSignedUp ? "Update Sign Up" : "Sign Up";
             }
             <input type="submit" value="@submitLabel" style="margin-right: 10px;" />
+            @if (isSignedUp) {
+                <input type="button" value="Cancel Sign Up" style="margin-right: 10px;" onclick= "cancelSignUp()" />
+            }
             <input type="button" value="Back" onclick="window.location = '@Url.Action("", "")'" />
         </div>
 
     }
 </div>
+
+@section Scripts {
+    <script>
+        function cancelSignUp() {
+            $('form').attr('action', '@Url.Action("UnSignUp")').submit();
+
+        }
+    </script>
+}

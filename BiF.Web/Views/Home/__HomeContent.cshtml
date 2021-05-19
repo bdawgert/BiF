@@ -7,6 +7,116 @@
 }
 
 <div style="text-align: left; margin: 25px auto">
+    <h2>It's a Christmas-in-July Miracle!</h2>
+
+    <p>
+        Are you ready for porch beer season? Dreaming of a sudsy poolside quaffer? Salivating for a crispy boi al fresco?  Lusting after a hoppy patio banger?
+    </p>
+    <p>
+        Well... how about we help make that happen?
+    </p>
+
+    <p>
+        This summer, we're presenting a warm weather-centric, day drinking friendly, Secret Santa.  And to make this one extra accessible, there will be 
+        two tiers - the Standard exchange, and a second "Pro" tier with higher minimums and rewards. The goal is to make this exchange really easy for everyone 
+        to participate and get back to the core principles of forwarding objectively good, under the local beer.
+    </p>
+    
+    <div style="text-align: center">
+        <video autoplay loop muted playsinline>
+            <source src="https://media.giphy.com/media/WsY8UaENzzvuoDsQKK/giphy.mp4" type="video/mp4">
+            <img src="https://media.giphy.com/media/WsY8UaENzzvuoDsQKK/giphy.gif">
+        </video>
+    </div>
+
+    <h3>The Setup</h3>
+
+    <p>
+        Just like the Holiday Secret Santa Exchange, matches will be half blind - you'll know who you're sending to, but not know who is sending to you. 
+        Unlike the Secret Santa, we won't have a hard ship date. This will allow everyone to plan their box around the local brewery release schedules 
+        so you're sending the best, freshest beer you can find.
+    </p>
+    
+    <p>
+        <i><b>If you're traveling this summer, add a Note to your profile under "What should your match know..." or "Delivery Instructions" with 
+            the dates you can't receive beer at your address.</b></i>
+    </p>
+
+    <h3>The Exchanges</h3>
+    <p>
+        <b>The Standard</b>: 128oz minimum with a 4.0 average Untappd rating.  There is no minimum rating for an individual beer - ship anything as long 
+        as the best 128oz averages to 4.0.  This should allow everyone the flexibility to ship that awesome, but underrated pils. You must include a 
+        minimum of 8 different beers (no, you can't just send two 64oz growlers and call it a day). [<a href="@Url.Action("SignUp", "Exchanges", new {id = 5})">Sign Up</a>]
+    </p>
+    <p>
+        <b>The Pro</b>: The same basic rules as the Standard, but the minimum is 160oz and 10 unique beers. To further the challenge, two beers must be lagers 
+        and two must be farmhouse ales. The top shippers in this tier will be allowed to give us a preference list for their Holiday Secret Santa matching. 
+        Judging will be based on variety, quality, and probably a d20 roll. [<a href="@Url.Action("SignUp", "Exchanges", new {id = 6})">Sign Up</a>]
+    </p>    
+    <p>
+        The best news is, each tier is a separate exchange, so you can sign up for BOTH tiers. Mathematically, two summer boxes is 7.643 times better than one summer 
+        box (no one fact check that).  However, if either exchange fails to hit enough participants, we'll cancel the Pro and roll everyone into the Standard.
+    </p>
+    
+    <div style="margin-top: 15px; text-align: center">
+        <video autoplay loop muted playsinline>
+            <source src="https://media.giphy.com/media/W22sEwc2LZ6wxdffXb/giphy.mp4" type="video/mp4">
+            <img src="https://media.giphy.com/media/W22sEwc2LZ6wxdffXb/giphy.gif">
+        </video>
+    </div>
+    <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
+        Heroes do both.
+    </div>
+
+    <h3>The Dates</h3>
+    <p>
+        Matching: mid-June-ish<br/>
+        Shipping: Anytime after Matching, but before August 1 (unless your match requests later)<br/>
+    </p>
+
+    <h3>The Rules</h3>
+
+        <b>Standard</b>
+        <ul style="margin-top: 5px">
+            <li>Minimum 128oz</li>
+            <li>Minimum 8 unique beers</li>
+            <li>Average rating for the best 128oz must be 4.0</li>
+        </ul>
+
+        <b>Pro</b>
+        <ul style="margin-top: 5px">
+            <li>Minimum 160oz</li>
+            <li>Minimum 10 unique beers</li>
+            <li>Average rating for the best 160oz must be 4.0</li>
+            <li>At least 2 Lagers<sup>*</sup> and 2 Farmhouse beers<sup>**</sup></li>
+        </ul>
+        <div style="font-size: .9em"><sup>*</sup> "Lager" includes any bottom fermented or cold conditioned beer.  This includes Pilsners, Kölsches, and High Life. Ship Baltic Porters at your own risk.</div>
+        <div style="font-size: .9em"><sup>**</sup> "Farmhouse" includes traditional farmhouse styles as well as wild ales.</div>
+    
+    <p>
+        
+        <div style="margin: 10px auto; display: flex; justify-content: space-around">
+            <input type="button" value="STANDARD Sign Up" style="font-size: 1.5em; width: 250px" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 5})'" />
+            <input type="button" value="PRO Sign Up" style="font-size: 1.5em; width: 250px" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 6})'" />
+        </div>
+
+    </p>
+
+    <div style="text-align: center">
+        <video autoplay loop muted playsinline>
+            <source src="https://media.giphy.com/media/mGK0QLlJtLkzIx43PI/giphy.mp4" type="video/mp4">
+            <img src="https://media.giphy.com/media/mGK0QLlJtLkzIx43PI/giphy.gif">
+        </video>
+    </div>
+    <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
+        Please misuse your beer responsibly this summer.
+    </div>
+
+
+
+</div>
+
+@*
     @if (DateTime.UtcNow < new DateTime(2020, 11, 16, 13, 0, 0)) {
         TimeSpan difference = (new DateTime(2020, 11, 16, 13, 0, 0) - DateTime.UtcNow);
         string timeDifference;
@@ -79,73 +189,73 @@
 
         <p>
             All participants will need to send a minimum of <b>155oz</b> of really fucking good beer, rated <b>4.1 or above</b> on Untappd. The average box last year was almost 200oz and the average rating was 4.26. We won't restrict your outpouring of holiday spirit again this year, but there is no guarantee you'll get an equally generous box in return. Based on the poll, we chose to up the minimum a little bit this year.  Two cans of freshies should fill the difference for those worried.
-        </p>
+        </p>-->
 
         @*<div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align:center">
                 "Do you know where I can find that guy that dropped 200oz of awesome on my porch last year?"
             </div>
             <div style="text-align: center">
                 <img src="https://i.imgur.com/Tep4DbK.gif" />
-            </div>*@
-
-        <p>
-            Only 155oz must be rated 4.1 or above, so you can send that ridiculously unappreciated farmhouse ale you love - the one brewed in the traditional method over super-heated stones imported from North Ostrobothnia and flavored with juniper foraged from head brewer's backyard - but get those 155oz of objectively well-rated beer out of the way first.  Face it - everyone just wants that 'tose.
-        </p>
-        <div style="text-align: center">
-            <video autoplay loop muted playsinline>
-                <source src="https://media.giphy.com/media/nrrpZ3p3ZRyRq/giphy.mp4" type="video/mp4">
-                <img src="https://media.giphy.com/media/nrrpZ3p3ZRyRq/giphy.gif">
-            </video>
-        </div>
-        <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
-            That draft list lookin straight fire bro.
-        </div>
-
-        <p>
-            Remember, make your Untappd public starting December 1, so your Santa can low-key stalk your past check-ins.  Who knows, maybe your Santa will find you something off your Wish List or grab one of your favorites.
-        </p>
-        <div style="text-align: center">
-            <video autoplay loop muted playsinline>
-                <source src="https://media.giphy.com/media/xT9KVxDx0nqvVzqXgQ/giphy.mp4" type="video/mp4">
-                <img src="https://media.giphy.com/media/xT9KVxDx0nqvVzqXgQ/giphy.gif">
-            </video>
-        </div>
-            <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
-                It warms my heart to see strangers putting in the effort to make me happy.
             </div>
 
-            <p>
-                As always, this is a Christmas exchange - don't be a Grinch. (I recognize in the third act, the Grinch soften and becomes nice. However, he only returns what was stolen - he doesn't gift anything new. And then he rapidly develops hypertrophic cardiomyopathy and probably dies shortly after the story wraps. Don't be that Grinch either.)
-                <div style="text-align: center">
-                    <video autoplay loop muted playsinline>
-                        <source src="https://media.giphy.com/media/DehVekltB70Ck/giphy.mp4" type="video/mp4">
-                        <img src="https://media.giphy.com/media/DehVekltB70Ck/giphy.gif">
-                    </video>
-                </div>
-                <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
-                    R.I.P.
-                </div>
-            </p>
-            <p>
-                Remember, BiF's are about sharing great local beer, spreading the holiday spirit, and having fun. They're not about winning and losing. 
-            </p>
-        <div style="text-align: center">
-            <video autoplay loop muted playsinline>
-                <source src="https://media.giphy.com/media/l0ErCAaHCtxxSCcoM/giphy.mp4" type="video/mp4">
-                <img src="https://media.giphy.com/media/l0ErCAaHCtxxSCcoM/giphy.gif">
-            </video>
-        </div>
-        <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
-            It's beer - we all win.
-        </div>
-        <div style="margin: 10px auto; max-width: 500px; text-align: center">
-            <input type="button" value="Sign Up" style="font-size: 1.5em; width: 160px" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 3})'" />
-        </div>
+<!--<p>
+    Only 155oz must be rated 4.1 or above, so you can send that ridiculously unappreciated farmhouse ale you love - the one brewed in the traditional method over super-heated stones imported from North Ostrobothnia and flavored with juniper foraged from head brewer's backyard - but get those 155oz of objectively well-rated beer out of the way first.  Face it - everyone just wants that 'tose.
+</p>
+<div style="text-align: center">
+    <video autoplay loop muted playsinline>
+        <source src="https://media.giphy.com/media/nrrpZ3p3ZRyRq/giphy.mp4" type="video/mp4">
+        <img src="https://media.giphy.com/media/nrrpZ3p3ZRyRq/giphy.gif">
+    </video>
+</div>
+<div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
+    That draft list lookin straight fire bro.
+</div>
 
-        }
+<p>
+    Remember, make your Untappd public starting December 1, so your Santa can low-key stalk your past check-ins.  Who knows, maybe your Santa will find you something off your Wish List or grab one of your favorites.
+</p>
+<div style="text-align: center">
+    <video autoplay loop muted playsinline>
+        <source src="https://media.giphy.com/media/xT9KVxDx0nqvVzqXgQ/giphy.mp4" type="video/mp4">
+        <img src="https://media.giphy.com/media/xT9KVxDx0nqvVzqXgQ/giphy.gif">
+    </video>
+</div>
+<div style="font-style: italic; font-size: .9em; margin: auto; max-width: 500px; text-align: center">
+    It warms my heart to see strangers putting in the effort to make me happy.
+</div>
+
+<p>
+    As always, this is a Christmas exchange - don't be a Grinch. (I recognize in the third act, the Grinch soften and becomes nice. However, he only returns what was stolen - he doesn't gift anything new. And then he rapidly develops hypertrophic cardiomyopathy and probably dies shortly after the story wraps. Don't be that Grinch either.)
+    <div style="text-align: center">
+        <video autoplay loop muted playsinline>
+            <source src="https://media.giphy.com/media/DehVekltB70Ck/giphy.mp4" type="video/mp4">
+            <img src="https://media.giphy.com/media/DehVekltB70Ck/giphy.gif">
+        </video>
     </div>
+    <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
+        R.I.P.
+    </div>
+</p>
+<p>
+    Remember, BiF's are about sharing great local beer, spreading the holiday spirit, and having fun. They're not about winning and losing. 
+</p>
+<div style="text-align: center">
+    <video autoplay loop muted playsinline>
+        <source src="https://media.giphy.com/media/l0ErCAaHCtxxSCcoM/giphy.mp4" type="video/mp4">
+        <img src="https://media.giphy.com/media/l0ErCAaHCtxxSCcoM/giphy.gif">
+    </video>
+</div>
+<div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
+    It's beer - we all win.
+</div>
+<div style="margin: 10px auto; max-width: 500px; text-align: center">
+    <input type="button" value="Sign Up" style="font-size: 1.5em; width: 160px" onclick="window.location = '@Url.Action("SignUp", "Exchanges", new {id = 3})'" />
+</div>
 
-@*<div style="display: none;">
+}
+</div>
+
+<div style="display: none;">
     
     <div style="text-align: center; margin-top: 25px">
         <img src="https://media.giphy.com/media/3zFcbgHoIXzykQc7vU/giphy.gif" />
@@ -218,15 +328,16 @@
     </p>
 
     <p>
-            As always, this is a Christmas exchange - don't be a Grinch, or a Krampus, or an errant BB. Grabbing a mixed six of barrel-aged Founders and a few good IPAs technically fulfills the requirement, but that's the BiF equivalent of a stocking full of underwear.
+        As always, this is a Christmas exchange - don't be a Grinch, or a Krampus, or an errant BB. Grabbing a mixed six of barrel-aged Founders and a few good IPAs technically fulfills the requirement, but that's the BiF equivalent of a stocking full of underwear.
         <div style="text-align: center">
             <img src="https://media.giphy.com/media/8BkMgHay3rTAWaq5ms/giphy.gif" />
         </div>
-            <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
-                Aubrey spittin' truth to KBS
-            </div>
-</p>
-        <p>
-            Remember, BiF's are about sharing great beer, spreading the Christmas spirit, and having fun.  They're not about winning and losing.  However, we can all agree the box itsalongwaydown received made him the loser last year, so don't be the guy that ships the box (bucket) full of turds.
-        </p>
-    </div>*@
+        <div style="font-style: italic; font-size: .9em; margin: auto; max-width: 400px; text-align: center">
+            Aubrey spittin' truth to KBS
+        </div>
+    </p>
+    <p>
+        Remember, BiF's are about sharing great beer, spreading the Christmas spirit, and having fun.  They're not about winning and losing.  However, we can all agree the box itsalongwaydown received made him the loser last year, so don't be the guy that ships the box (bucket) full of turds.
+    </p>
+</div>
+*@

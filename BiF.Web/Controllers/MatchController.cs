@@ -24,6 +24,7 @@ namespace BiF.Web.Controllers
                     Exchange = x.Exchange,
                     Match = x.Match,
                     Profile = x.Match.Recipient.Profile,
+                    SignUpComment = x.Match.Recipient.Profile.SignUps.FirstOrDefault().Comment,
                     Email = x.Match.Recipient.Email
                 }).FirstOrDefault();
 

@@ -5,6 +5,7 @@ namespace BiF.Web.ViewModels.Exchanges
 {
     public class ViewStatusVM
     {
+        public int ExchangeId { get; set; }
         public List<ShipmentStatus> ShipmentStatuses { get; set; }
     }
 

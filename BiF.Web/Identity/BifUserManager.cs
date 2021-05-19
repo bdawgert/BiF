@@ -39,7 +39,8 @@ namespace BiF.Web.Identity
                 Id = Guid.NewGuid().ToString(),
                 Entropy = salt,
                 Email = email.Trim(),
-                PasswordHash = password.HashValue(salt)
+                PasswordHash = password.HashValue(salt),
+                LastLogin = DateTime.UtcNow
             };
             _bifUserStore.Add(user);
             _bifUserStore.Update();
@@ -71,6 +72,14 @@ namespace BiF.Web.Identity
 
         }
 
+        public UserManageResult RecordLogin(IdentityUser user) {
+            user.LastLogin = DateTime.UtcNow;
+            _bifUserStore.Update();
+
+            return new UserManageResult {
+                Success = true
+            };
+        }
 
         public IdentityUser FindById(string id) {
             return _bifUserStore.LoadUserById(id);
