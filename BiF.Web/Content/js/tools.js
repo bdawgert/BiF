@@ -1,4 +1,8 @@
 ﻿
+function writeError(message) {
+	console.debug(message);
+}
+
 var Popup = function() {
 	this._popup = $('.popup');
 	this.Show = function(msg) {
@@ -21,3 +25,4 @@ var popup;
 $(function() {
 	popup = new Popup();
 });
+
