@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using BiF.DAL.Models;
@@ -11,7 +10,6 @@ using BiF.Untappd.Models.Search;
 using BiF.Web.Utilities;
 using BiF.Web.ViewModels;
 using BiF.Web.ViewModels.Profile;
-using Match = BiF.DAL.Models.Match;
 
 namespace BiF.Web.Controllers
 {
@@ -147,7 +145,10 @@ namespace BiF.Web.Controllers
         public ActionResult ViewProfile(string id) {
             var user = DAL.Context.Users.Where(x => x.Id == id).Select(x => new { Email = x.Email, Profile = x.Profile }).FirstOrDefault();
 
-            string phoneNumber = user?.Profile?.PhoneNumber?.PadLeft(10, ' ') ?? "";
+            if (user?.Profile == null)
+                return View("Error");
+
+            string phoneNumber = user.Profile.PhoneNumber?.PadLeft(10, ' ') ?? "";
 
             ProfileVM vm = new ProfileVM
             {
@@ -198,7 +199,7 @@ namespace BiF.Web.Controllers
                 Exchanges = x.SignUps.Select(s => s.Exchange)
             }).FirstOrDefault();
 
-            if (user == null)
+            if (user?.Exchanges == null)
                 return View("Error"); //TODO: Message View
 
             var matches = user.RecieveFromMatches.Join(user.SendToMatches, x => x.ExchangeId, x => x.ExchangeId,
@@ -284,9 +285,9 @@ namespace BiF.Web.Controllers
 
         public ActionResult MatchPreferences(string id, string userId) {
 
-            int.TryParse(id, out int exchangeId);
-            if (exchangeId == 0)
-                exchangeId = BifSessionData.ExchangeId;
+            //int.TryParse(id, out int exchangeId);
+            //if (exchangeId == 0)
+            //    exchangeId = BifSessionData.ExchangeId;
 
             userId = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
             
@@ -349,14 +350,14 @@ namespace BiF.Web.Controllers
 
             Exchange exchange = DAL.Context.SignUps.Where(s => s.UserId == userId && s.ExchangeId == exchangeId).Select(x => x.Exchange).FirstOrDefault();
 
-            if (exchange == null && exchangeId != 0)
+            if (exchange == null)
                 return RedirectToAction("", "Home");
 
             BoxVM vm = new BoxVM {
                 UserId = userId,
                 ExchangeId = exchangeId,
-                ExchangeName = exchange?.Name ?? "Open",
-                IsLocked = exchange?.ShipDate < DateTime.Now.AddDays(-14),
+                ExchangeName = exchange.Name ?? "Open",
+                IsLocked = exchange.ShipDate < DateTime.Now.AddDays(-15),
                 Items = boxItems(userId, exchangeId),
             };
 
@@ -380,7 +381,10 @@ namespace BiF.Web.Controllers
             string id = BifSessionData.IsInRole("ADMIN") ? userId ?? BifSessionData.Id : BifSessionData.Id;
 
             Exchange exchange = DAL.Context.Exchanges.Find(BifSessionData.ExchangeId);
-            if (exchange == null || exchange.CloseDate.AddDays(30) < DateTime.Today)
+
+            DateTime? freezeDate = exchange?.ShipDate?.AddDays(15) ?? exchange?.CloseDate.AddDays(30);
+
+            if (freezeDate == null || freezeDate < DateTime.Today)
                 return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be edited"});
 
             if (item.UntappdId != null) {
@@ -428,7 +432,10 @@ namespace BiF.Web.Controllers
                 return Json(new { Success = false });
 
             Exchange exchange = DAL.Context.Exchanges.Find(item.ExchangeId);
-            if (exchange == null || exchange.CloseDate.AddDays(30) < DateTime.Today)
+
+            DateTime? freezeDate = exchange?.ShipDate?.AddDays(15) ?? exchange?.CloseDate.AddDays(30);
+
+            if (freezeDate == null || freezeDate < DateTime.Today)
                 return Json(new { Success = false, Message = "This Exchange is now closed. The box may no longer be edited" });
 
             DAL.Context.Items.Remove(item);
@@ -504,54 +511,54 @@ namespace BiF.Web.Controllers
 
         //}
 
-        private enum FlavorPrefernece
-        {
-            None = 0,
-            LoveIt = 1,
-            LikeIt = 2,
-            Maybe = 3,
-            No = 5
-        }
+        //private enum FlavorPrefernece
+        //{
+        //    None = 0,
+        //    LoveIt = 1,
+        //    LikeIt = 2,
+        //    Maybe = 3,
+        //    No = 5
+        //}
 
 
-        private bool signUp(int exchangeId, string userId, out string message)         {
+        //private bool signUp(int exchangeId, string userId, out string message) {
 
-            var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
-                .Select(x => new { Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId) }).FirstOrDefault();
+        //    var exchange = DAL.Context.Exchanges.Where(x => x.Id == exchangeId)
+        //        .Select(x => new { Exchange = x, SignUp = x.SignUps.Any(s => s.UserId == userId) }).FirstOrDefault();
 
-            message = null;
-            if (exchange?.Exchange == null) {
-                message = "The requested Exchange cannot be found.";
-                return false;
-            }
+        //    message = null;
+        //    if (exchange?.Exchange == null) {
+        //        message = "The requested Exchange cannot be found.";
+        //        return false;
+        //    }
 
-            if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) {
-                message = "The requested Exchange is not currently open for signups.";
-                return false;
-            }
+        //    if (exchange.Exchange.OpenDate <= DateTime.Now || exchange.Exchange.CloseDate >= DateTime.Now && !BifSessionData.IsInRole("ADMIN")) {
+        //        message = "The requested Exchange is not currently open for signups.";
+        //        return false;
+        //    }
 
-            if (exchange.SignUp) {
-                message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
-                return false;
-            }
+        //    if (exchange.SignUp) {
+        //        message = $"You are already registered for the {exchange.Exchange.Name} Exchange.";
+        //        return false;
+        //    }
 
-            if (!BifSessionData.HasProfile) {
-                message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
-                return false;
-            }
+        //    if (!BifSessionData.HasProfile) {
+        //        message = $"You have not yet completed your Profile.  Please update your <a href=\"{Url.Action("", "Profile")}\">Profile</a> before signing up.";
+        //        return false;
+        //    }
 
-            SignUp signup = new SignUp {
-                ExchangeId = exchangeId,
-                UserId = userId,
-                SignUpDate = DateTime.Now,
-                Approved = false
-            };
+        //    SignUp signup = new SignUp {
+        //        ExchangeId = exchangeId,
+        //        UserId = userId,
+        //        SignUpDate = DateTime.Now,
+        //        Approved = false
+        //    };
 
-            DAL.Context.SignUps.Add(signup);
-            DAL.Context.SaveChanges();
+        //    DAL.Context.SignUps.Add(signup);
+        //    DAL.Context.SaveChanges();
 
-            return true;
+        //    return true;
 
-        }
+        //}
     }
 }

@@ -1,4 +1,8 @@
 ﻿
+function writeError(message) {
+	console.debug(message);
+}
+
 $(function() {
 
 	$('.navigation-hamberder').on('click', function (e) {
@@ -39,3 +43,4 @@ var popup;
 $(function() {
 	popup = new Popup();
 });
+
