@@ -3,8 +3,8 @@
     ViewBag.Title = "BeerItForward | Register";
 }
 
-<div class="body-content" style="width: 500px">
-    <div Style="margin: 0 auto; width: 400px">
+<div class="body-content" style="max-width: 500px">
+    <div Style="margin: 0 auto; max-width: 400px">
         @using (Html.BeginForm("Register", "Account", FormMethod.Post))
         {
             @Html.AntiForgeryToken()

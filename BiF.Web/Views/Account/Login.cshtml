@@ -4,8 +4,8 @@
 @{
     ViewBag.Title = "BeerItForward | Log in";
 }
-<div class="body-content" style="width: 400px">
-    <div style="margin: 0 auto; width: 320px">
+<div class="body-content" style="max-width: 400px">
+    <div style="margin: 0 auto; max-width: 320px">
         @using (Html.BeginForm("Login", "Account", new {ReturnUrl = ViewBag.ReturnUrl}, FormMethod.Post)) {
             @Html.AntiForgeryToken()
 
